@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum BattleState
 {
@@ -14,48 +15,29 @@ public enum BattleState
 public enum TurnState
 {
     WaitingForAction,
-    WaitingForTarget,
-    End
+    WaitingForTarget
 }
 
 public class BattleManager : MonoBehaviour
 {
-    public BattleState              battleState;
+    public          BattleState         battleState;
+    public          TurnState           turnState;
+    public          bool                inCombat;
 
-    public List<PlayerCharacter>    allySide;
-    public List<PlayerCharacter>    enemySide;
+    public static   BattleLog           battleLog;
+    public static   CharacterUIList     charUIList;
+    public static   CharacterActions    charActions;
 
-    public bool                     inCombat;
-
-    public List<PlayerCharacter>    teamOrder = new List<PlayerCharacter>();
-    int                             currentTeamOrderIndex = -1;
-    public PlayerCharacter          currentTurn;
-
-    public static BattleLog         battleLog;
-    public static CharacterUIList   charUIList;
-    public static CharacterActions  charActions;
+    public RawImage easteregg;
 
     private void Start()
     {
+        easteregg.gameObject.SetActive(false);
         charUIList = FindObjectOfType<CharacterUIList>();
         battleLog = FindObjectOfType<BattleLog>();
         charActions = FindObjectOfType<CharacterActions>();
 
-        allySide = new List<PlayerCharacter>(){ DBPlayerCharacter.GetPC(13) };
-        enemySide = new List<PlayerCharacter>() { DBPlayerCharacter.GetPC(1) };
-
-        for (int i = 0; i < allySide.Count; i++)
-        {
-            teamOrder.Add(allySide[i]);
-            allySide[i].team = Character.Team.Ally;
-        }
-
-        for (int i = 0; i < enemySide.Count; i++)
-        {
-            teamOrder.Add(enemySide[i]);
-            allySide[i].team = Character.Team.Enemy;
-        }
-
+        TeamOrderManager.BuildTeamOrder();
         StartCombat();
     }
 
@@ -67,20 +49,20 @@ public class BattleManager : MonoBehaviour
 
     IEnumerator                     SetupBattle()
     {
-        for (int i = 0; i < allySide.Count; i++)
+        for (int i = 0; i < TeamOrderManager.allySide.Count; i++)
         {
-            charUIList.AddChar(allySide[i]);
+            charUIList.AddChar(TeamOrderManager.allySide[i]);
         }
 
-        for (int i = 0; i < enemySide.Count; i++)
+        for (int i = 0; i < TeamOrderManager.enemySide.Count; i++)
         {
-            charUIList.AddChar(enemySide[i]);
+            charUIList.AddChar(TeamOrderManager.enemySide[i]);
         }
 
         yield return new WaitForSeconds(3);
 
         SetBattleState(BattleState.AllyPhase);
-        currentTurn = teamOrder[0];
+        TeamOrderManager.currentTurn = TeamOrderManager.teamOrder[0];
         EndTurn();
     }
 
@@ -117,6 +99,7 @@ public class BattleManager : MonoBehaviour
             case BattleState.Won:
                 charActions.InteractableButtons(false);
                 battleLog.LogBattleStatus("Ally team wins!");
+                easteregg.gameObject.SetActive(true);
                 break;
             case BattleState.Lost:
                 charActions.InteractableButtons(false);
@@ -127,13 +110,14 @@ public class BattleManager : MonoBehaviour
 
     public void                     EndTurn()
     {
-        if(currentTeamOrderIndex + 1 == teamOrder.Count)
+        if(TeamOrderManager.currentTeamOrderIndex + 1 == TeamOrderManager.teamOrder.Count)
         {
-            currentTeamOrderIndex = 0;
+            battleLog.LogBattleStatus("TOP OF THE ROUND");
+            TeamOrderManager.currentTeamOrderIndex = 0;
         }
         else
         {
-            currentTeamOrderIndex++;
+            TeamOrderManager.currentTeamOrderIndex++;
         }
 
         bool allyDeath = CheckTotalTeamKill(Character.Team.Ally);
@@ -149,9 +133,21 @@ public class BattleManager : MonoBehaviour
         }
         else
         {
-            currentTurn = teamOrder[currentTeamOrderIndex];
-            battleLog.LogBattleStatus($"{currentTurn.name}'s Turn");
-            charUIList.CurrentSelection(currentTurn);
+            BattleState checkPhase = TeamOrderManager.CheckPhase();
+            if (checkPhase != battleState)
+            {
+                SetBattleState(checkPhase);
+            }
+
+            TeamOrderManager.currentTurn = TeamOrderManager.teamOrder[TeamOrderManager.currentTeamOrderIndex];
+            battleLog.LogBattleStatus($"{TeamOrderManager.currentTurn.name}'s Turn");
+            charUIList.SelectCharacter(TeamOrderManager.currentTurn);
+
+            if (TeamOrderManager.currentTurn.dead)
+            {
+                battleLog.LogBattleEffect($"But {TeamOrderManager.currentTurn.name} was already dead... F.");
+                EndTurn();
+            }
         }
     }
 
@@ -164,10 +160,10 @@ public class BattleManager : MonoBehaviour
         switch (team)
         {
             case Character.Team.Enemy:
-                teamList = enemySide;
+                teamList = TeamOrderManager.enemySide;
                 break;
             case Character.Team.Ally:
-                teamList = allySide;
+                teamList = TeamOrderManager.allySide;
                 break;
             case Character.Team.OutOfCombat:
                 break;

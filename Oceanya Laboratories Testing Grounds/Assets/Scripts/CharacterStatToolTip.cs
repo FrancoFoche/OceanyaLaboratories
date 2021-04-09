@@ -33,6 +33,9 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         loadedChar = character;
         characterStats = new StringBuilder();
+
+        characterStats.Append("<size=15><color=green>").Append(character.name).Append("</color></size>").AppendLine().AppendLine();
+
         for (int i = 0; i < statDictionary.Count; i++)
         {
             Character.Stats curStat = statDictionary[i];
