@@ -52,10 +52,10 @@ public class BattleUI : MonoBehaviour
         levelText.text = "LV. " + character.level.ToString();
 
         hpSlider.minValue = 0;
-        hpSlider.maxValue = character.stats[Character.Stats.MAXHP];
-        hpSlider.value = character.stats[Character.Stats.CURHP];
+        hpSlider.maxValue = character.stats[Stats.MAXHP];
+        hpSlider.value = character.stats[Stats.CURHP];
 
-        hpText.text = character.stats[Character.Stats.CURHP] + " / " + character.stats[Character.Stats.MAXHP];
+        hpText.text = character.stats[Stats.CURHP] + " / " + character.stats[Stats.MAXHP];
 
         classText.text = character.rpgClass.baseInfo.name;
         statusEffectText.text = "None";

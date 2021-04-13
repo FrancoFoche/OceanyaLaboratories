@@ -27,20 +27,16 @@ public class Skill
     public bool doesHeal; //if the skill heals
     public List<SkillFormula> healFormula; //list of formulas to sum to get the heal number
 
-    public bool doesBuff; //does the skill buff any stat
-    public Dictionary<Character.Stats, int> buffStats; //what stats does it buff and by how much
+    public bool flatModifiesStat; //does the skill buff any stat by a flat number
+    public Dictionary<Stats, int> flatStatModifiers;
+    public bool formulaModifiesStat; //does the skill buff any stat by a formula
+    public Dictionary<Stats, SkillFormula> formulaStatModifiers;
 
-    public bool doesDebuff; //does the skill debuff any stat
-    public Dictionary<Character.Stats, int> debuffStats; //what stats does it debuff and by how much
-
-    public bool costsResource; //does the skill cost a resource? (Mana, Bloodstacks, HP, etc.)
-    public Dictionary<Character.SkillResources, int> costs; //what does it cost and how much
-
-    public bool addsToResource; //does the skill add to a resource
-    public Dictionary<Character.SkillResources, int> addResource; //what does it add and how much
+    public bool modifiesResource; //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
+    public Dictionary<SkillResources, int> resourceModifiers; //what does it modify and by how much
 
     public bool unlocksResource; //does it unlock a resource
-    public Dictionary<Character.SkillResources, bool> unlockedResources; //what resources does it unlock
+    public List<SkillResources> unlockedResources; //what resources does it unlock
 
     public bool costsTurn; //does the skill end your turn
 
@@ -94,31 +90,25 @@ public class Skill
         this.healFormula = healFormula;
         return this;
     }
-    public Skill BehaviorDoesBuff(Dictionary<Character.Stats, int> buffStats)
+    public Skill BehaviorModifiesStat(Dictionary<Stats, int> statModifiers)
     {
-        doesBuff = true;
-        this.buffStats = buffStats;
+        flatModifiesStat = true;
+        flatStatModifiers = statModifiers;
         return this;
     }
-    public Skill BehaviorDoesDebuff(Dictionary<Character.Stats, int> debuffStats)
+    public Skill BehaviorModifiesStat(Dictionary<Stats, SkillFormula> statModifiers)
     {
-        doesDebuff = true;
-        this.debuffStats = debuffStats;
+        formulaModifiesStat = true;
+        formulaStatModifiers = statModifiers;
         return this;
     }
-    public Skill BehaviorCostsResource(Dictionary<Character.SkillResources, int> costs)
+    public Skill BehaviorModifiesResource(Dictionary<SkillResources, int> resourceModifiers)
     {
-        costsResource = true;
-        this.costs = costs;
+        modifiesResource = true;
+        this.resourceModifiers = resourceModifiers;
         return this;
     }
-    public Skill BehaviorAddsResource(Dictionary<Character.SkillResources, int> addResource)
-    {
-        addsToResource = true;
-        this.addResource = addResource;
-        return this;
-    }
-    public Skill BehaviorUnlocksResource(Dictionary<Character.SkillResources, bool> unlockedResources)
+    public Skill BehaviorUnlocksResource(List<SkillResources> unlockedResources)
     {
         unlocksResource = true;
         this.unlockedResources = unlockedResources;
@@ -146,42 +136,6 @@ public class Skill
     }
     #endregion
 
-    public enum SkillType
-    {
-        Active,
-        Passive
-    }
-    public enum TargetType
-    {
-        Self,
-        Single,
-        MultiTarget,
-        AllAllies,
-        AllEnemies
-    }
-    public enum DamageType
-    {
-        Direct,
-        Magical,
-        Physical
-    }
-    public enum ElementType
-    {
-        Normal,
-        Water,
-        Fire,
-        Thunder,
-        Ice,
-        Wind,
-        Holy,
-        Dark
-    }
-    public enum CDType
-    {
-        OnceABattle,
-        OnceADay
-    }
-
     public virtual void Activate(Character caster, Character target)
     {
         string activationText = "";
@@ -190,9 +144,8 @@ public class Skill
 
         if (target.targettable)
         {
-            if (doesDamage)
+            if (doesDamage)//Done
             {
-
                 int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
 
                 int finalDMG = target.CalculateDefenses(rawDMG, DamageType.Magical, target);
@@ -202,7 +155,7 @@ public class Skill
                 activationText += $" {finalDMG} DMG!";
             }
 
-            if(doesHeal)
+            if(doesHeal)//Done
             {
                 int healAmount = SkillFormula.ReadAndSumList(healFormula, caster.stats);
 
@@ -211,35 +164,41 @@ public class Skill
                 activationText += $" Heal: {healAmount} HP!";
             }
 
-            if(doesBuff)
+            if(flatModifiesStat)//Done
             {
-                //create a buff function
+                target.ModifyStat(flatStatModifiers);
             }
 
-            if(doesDebuff)
+            if (formulaModifiesStat) //Done
             {
-                //create a debuff function
+                for (int i = 0; i < RuleManager.StatHelper.Count; i++)
+                {
+                    Stats currentStat = RuleManager.StatHelper[i];
+
+                    if (formulaStatModifiers.ContainsKey(currentStat))
+                    {
+                        flatStatModifiers[currentStat] = SkillFormula.Read(formulaStatModifiers[currentStat], caster.stats);
+                    }
+                }
+
+                target.ModifyStat(flatStatModifiers);
             }
 
-            if (unlocksResource)
+            if (unlocksResource) //Done
             {
-                string unlockedResourcesList = target.UnlockResources(unlockedResources);
-                activationText += $" {unlockedResourcesList}";
+                target.UnlockResources(unlockedResources);
+
+                string unlockedResourcesList = "";
+                for (int i = 0; i < unlockedResources.Count; i++)
+                {
+                    unlockedResourcesList += " " + unlockedResources[i] + ";";
+                }
+                activationText += $" Unlocked resources: {unlockedResourcesList}";
             }
 
-            if (costsResource)
+            if(modifiesResource) //Done
             {
-
-            }
-
-            if(addsToResource)
-            {
-                activationText += $" {target.AddToResource(addResource)}";
-            }
-
-            if (costsTurn)
-            {
-
+                target.ModifyResource(resourceModifiers);
             }
 
             if (appliesStatusEffects)
@@ -257,7 +216,10 @@ public class Skill
 
             }
 
-            
+            if (costsTurn)
+            {
+                BattleManager.instance.EndTurn();
+            }
         }
         else
         {
@@ -272,11 +234,11 @@ public class Skill
 
 public struct SkillFormula
 {
-    Character.Stats StatToUse { get; }
+    Stats StatToUse { get; }
     operationActions OperationModifier { get; }
     float NumberModifier { get; } 
 
-    public SkillFormula(Character.Stats StatToUse, operationActions OperationModifier, float NumberModifier)
+    public SkillFormula(Stats StatToUse, operationActions OperationModifier, float NumberModifier)
     {
         this.StatToUse = StatToUse;
         this.OperationModifier = OperationModifier;
@@ -290,7 +252,7 @@ public struct SkillFormula
         ToThePowerOf
     }
 
-    public static int ReadAndSumList(List<SkillFormula> formulas, Dictionary<Character.Stats, int> stats)
+    public static int ReadAndSumList(List<SkillFormula> formulas, Dictionary<Stats, int> stats)
     {
         int result = 0;
 
@@ -302,7 +264,7 @@ public struct SkillFormula
         return result;
     }
 
-    public static int Read(SkillFormula skillFormula, Dictionary<Character.Stats, int> stats)
+    public static int Read(SkillFormula skillFormula, Dictionary<Stats, int> stats)
     {
         int stat = stats[skillFormula.StatToUse];
         float number = skillFormula.NumberModifier;

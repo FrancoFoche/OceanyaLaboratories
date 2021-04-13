@@ -91,15 +91,23 @@ public class CharacterActions : MonoBehaviour
             case CharActions.Attack:
                 for (int i = 0; i < target.Count; i++)
                 {
-                    if (target[i].dead == false)
+                    if (!target[i].dead)
                     {
-                        BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {caster.Attack(target[i])} DMG!");
+                        if(target[i].targettable)
+                        {
+                            BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {caster.Attack(target[i])} DMG!");
 
-                        if (target[i].stats[Character.Stats.CURHP] <= 0)
-                        { 
-                            target[i].dead = true;
-                            BattleManager.battleLog.LogBattleEffect($"{target[i].name} is now dead as fuck!");
+                            if (target[i].stats[Stats.CURHP] <= 0)
+                            {
+                                target[i].dead = true;
+                                BattleManager.battleLog.LogBattleEffect($"{target[i].name} is now dead as fuck!");
+                            }
                         }
+                        else
+                        {
+                            BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name}... but {target[i].name} was untargettable. Attack misses.");
+                        }
+                        
                     }
                     else
                     {

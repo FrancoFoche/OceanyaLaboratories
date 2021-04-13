@@ -27,6 +27,7 @@ public class BattleManager : MonoBehaviour
     public static   BattleLog           battleLog;
     public static   CharacterUIList     charUIList;
     public static   CharacterActions    charActions;
+    public static   BattleManager instance;
 
     public RawImage easteregg;
 
@@ -36,17 +37,16 @@ public class BattleManager : MonoBehaviour
         charUIList = FindObjectOfType<CharacterUIList>();
         battleLog = FindObjectOfType<BattleLog>();
         charActions = FindObjectOfType<CharacterActions>();
+        instance = this;
 
         TeamOrderManager.BuildTeamOrder();
         StartCombat();
     }
-
     public void                     StartCombat()
     {
         SetBattleState(BattleState.Start);
         StartCoroutine(SetupBattle());
     }
-
     IEnumerator                     SetupBattle()
     {
         for (int i = 0; i < TeamOrderManager.allySide.Count; i++)
@@ -65,7 +65,6 @@ public class BattleManager : MonoBehaviour
         TeamOrderManager.currentTurn = TeamOrderManager.teamOrder[0];
         EndTurn();
     }
-
     public static void              UpdateUIs()
     {
         for (int i = 0; i < charUIList.charList.Count; i++)
@@ -73,7 +72,6 @@ public class BattleManager : MonoBehaviour
             charUIList.charList[i].UpdateUI();
         }
     }
-
     public void                     SetBattleState      (BattleState state)
     {
         switch (state)
@@ -107,7 +105,6 @@ public class BattleManager : MonoBehaviour
                 break;
         }
     }
-
     public void                     EndTurn()
     {
         if(TeamOrderManager.currentTeamOrderIndex + 1 == TeamOrderManager.teamOrder.Count)
@@ -120,8 +117,8 @@ public class BattleManager : MonoBehaviour
             TeamOrderManager.currentTeamOrderIndex++;
         }
 
-        bool allyDeath = CheckTotalTeamKill(Character.Team.Ally);
-        bool enemyDeath = CheckTotalTeamKill(Character.Team.Enemy);
+        bool allyDeath = CheckTotalTeamKill(Team.Ally);
+        bool enemyDeath = CheckTotalTeamKill(Team.Enemy);
 
         if(allyDeath)
         {
@@ -150,8 +147,7 @@ public class BattleManager : MonoBehaviour
             }
         }
     }
-
-    public bool                     CheckTotalTeamKill  (Character.Team team)
+    public bool                     CheckTotalTeamKill  (Team team)
     {
         int totalHP = 0;
         bool isDead = false;
@@ -159,13 +155,13 @@ public class BattleManager : MonoBehaviour
 
         switch (team)
         {
-            case Character.Team.Enemy:
+            case Team.Enemy:
                 teamList = TeamOrderManager.enemySide;
                 break;
-            case Character.Team.Ally:
+            case Team.Ally:
                 teamList = TeamOrderManager.allySide;
                 break;
-            case Character.Team.OutOfCombat:
+            case Team.OutOfCombat:
                 break;
             default:
                 break;
@@ -173,7 +169,7 @@ public class BattleManager : MonoBehaviour
 
         for (int i = 0; i < teamList.Count; i++)
         {
-            totalHP += teamList[i].stats[Character.Stats.CURHP];
+            totalHP += teamList[i].stats[Stats.CURHP];
         }
 
         if(totalHP == 0)

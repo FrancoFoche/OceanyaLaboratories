@@ -18,7 +18,7 @@ public class Character
                                                                     };
 
     public List<SkillFormula>               basicAttackFormula  =   new List<SkillFormula>(){new SkillFormula(Stats.STR, SkillFormula.operationActions.Multiply, 1)};
-    public Skill.DamageType                 basicAttackType     =   Skill.DamageType.Physical;
+    public DamageType                       basicAttackType     =   DamageType.Physical;
 
     public Team                             team;
     public bool                             targettable         =   true; //if the target is targettable currently
@@ -26,40 +26,16 @@ public class Character
     public bool                             dead;
     public bool                             permadead;
 
-    public bool                             hasNatureEnergy;
-    public bool                             hasMana;
-    public bool                             hasBloodstacks;
-    public bool                             hasPuppets;
-    public bool                             hasOtherResource;
+    public Dictionary<SkillResources, bool> unlockedResources =     new Dictionary<SkillResources, bool>()
+                                                                    {
+                                                                        { SkillResources.Bloodstacks, false },
+                                                                        { SkillResources.Mana, false },
+                                                                        { SkillResources.NatureEnergy, false },
+                                                                        { SkillResources.other, false },
+                                                                        { SkillResources.Puppets, false }
+                                                                    };
 
-    public enum     Team
-    {
-        Enemy,
-        Ally,
-        OutOfCombat
-    }
-    public enum     SkillResources
-    {
-        NatureEnergy,
-        Mana,
-        Bloodstacks,
-        Puppets,
-        other
-    }
-    public enum     Stats
-    {
-        CURHP,
-        MAXHP,
-        STR,
-        INT,
-        CHR,
-        AGI,
-        MR,
-        PR,
-        CON,
-        HPREGEN
-    }
-
+    #region Character Reactions
     public void     GetsDamagedBy       (int DamageTaken)
     {
         int result = stats[Stats.CURHP] - DamageTaken;
@@ -90,7 +66,7 @@ public class Character
             }
         }
     }
-    public int      CalculateDefenses   (int damageRaw, Skill.DamageType damageType, Character target)
+    public int      CalculateDefenses   (int damageRaw, DamageType damageType, Character target)
     {
         int targetMR = target.stats[Stats.MR];
         int targetPR = target.stats[Stats.PR];
@@ -102,15 +78,15 @@ public class Character
 
         switch (damageType)
         {
-            case Skill.DamageType.Direct:
+            case DamageType.Direct:
                 resultDefensePercent = 0;
                 break;
 
-            case Skill.DamageType.Magical:
+            case DamageType.Magical:
                 resultDefensePercent = targetMR * defensePercentRatio;
                 break;
 
-            case Skill.DamageType.Physical:
+            case DamageType.Physical:
                 resultDefensePercent = targetPR * defensePercentRatio;
                 break;
 
@@ -125,81 +101,40 @@ public class Character
 
         return (int)Mathf.Ceil(resultDamage);
     }
-    public string   UnlockResources     (Dictionary<SkillResources, bool> resources)
+    public void     UnlockResources     (List<SkillResources> resourcesUnlocked)
     {
-        string unlockedList = "";
-
-        if (resources[SkillResources.NatureEnergy])
+        for (int i = 0; i < resourcesUnlocked.Count; i++)
         {
-            hasNatureEnergy = true;
-            unlockedList += " Unlocked NatureEnergy!";
+            unlockedResources[resourcesUnlocked[i]] = true;
         }
-        
-        if(resources[SkillResources.Mana])
-        {
-            hasMana = true;
-            unlockedList += " Unlocked Mana!";
-        }
-
-        if (resources[SkillResources.Bloodstacks])
-        {
-            hasBloodstacks = true;
-            unlockedList += " Unlocked BloodStacks!";
-        }
-
-        if (resources[SkillResources.Puppets])
-        {
-            hasPuppets = true;
-            unlockedList += " Unlocked Puppets!";
-        }
-
-        if (resources[SkillResources.other])
-        {
-            hasOtherResource = true;
-            unlockedList += " Unlocked... wait what did you unlock- (Other Resource)";
-        }
-
-        return unlockedList;
     }
-    public string   AddToResource       (Dictionary<SkillResources, int> resources)
+    public void     ModifyResource      (Dictionary<SkillResources, int> resources)
     {
-        string resultText = "";
-
-        if (hasNatureEnergy)
+        for (int i = 0; i < RuleManager.SkillResourceHelper.Count; i++)
         {
-            skillResources[SkillResources.NatureEnergy] += resources[SkillResources.NatureEnergy];
-            resultText += $" +{resources[SkillResources.NatureEnergy]} Nature Energy!";
-        }
+            SkillResources currentResource = RuleManager.SkillResourceHelper[i];
 
-        if (hasMana)
-        {
-            skillResources[SkillResources.Mana] += resources[SkillResources.Mana];
-            resultText += $" +{resources[SkillResources.Mana]} Mana!";
+            if (resources.ContainsKey(currentResource))
+            {
+                skillResources[currentResource] += resources[currentResource];
+            }
         }
-
-        if (hasBloodstacks)
-        {
-            skillResources[SkillResources.Bloodstacks] += resources[SkillResources.Bloodstacks];
-            resultText += $" +{resources[SkillResources.NatureEnergy]} BloodStacks!";
-        }
-
-        if (hasPuppets)
-        {
-            skillResources[SkillResources.Puppets] += resources[SkillResources.Puppets];
-            resultText += $" +{resources[SkillResources.NatureEnergy]} Puppets!";
-        }
-
-        if (hasOtherResource)
-        {
-            skillResources[SkillResources.other] += resources[SkillResources.other];
-            resultText += $" +{resources[SkillResources.NatureEnergy]} Other Resource!";
-        }
-
-        return resultText;
     }
+    public void     ModifyStat          (Dictionary<Stats, int> modifiedStats)
+    {
+        for (int i = 0; i < RuleManager.StatHelper.Count; i++)
+        {
+            Stats currentStat = RuleManager.StatHelper[i];
 
+            if(modifiedStats.ContainsKey(currentStat))
+            {
+                stats[currentStat] += modifiedStats[currentStat];
+            }
+        }
+    }
+    #endregion
 
-    //Character Actions
+    #region Character Actions
     public int      Attack              (PlayerCharacter target)
     {
         int basicAttackRaw = SkillFormula.ReadAndSumList(basicAttackFormula, stats);
@@ -207,4 +142,5 @@ public class Character
         target.GetsDamagedBy(resultDMG);
         return resultDMG;
     }
+    #endregion
 }

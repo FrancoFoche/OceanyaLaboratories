@@ -35,13 +35,13 @@ public static class TeamOrderManager
         for (int i = 0; i < allySide.Count; i++)
         {
             teamOrder.Add(allySide[i]);
-            allySide[i].team = Character.Team.Ally;
+            allySide[i].team = Team.Ally;
         }
 
         for (int i = 0; i < enemySide.Count; i++)
         {
             teamOrder.Add(enemySide[i]);
-            enemySide[i].team = Character.Team.Enemy;
+            enemySide[i].team = Team.Enemy;
         }
 
         phaseChangeIndex = allySide.Count;

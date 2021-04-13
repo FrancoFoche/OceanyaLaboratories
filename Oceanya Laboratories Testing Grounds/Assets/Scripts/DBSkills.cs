@@ -53,17 +53,17 @@ public class DBSkills : MonoBehaviour
 
         }
 
-        if (skill.doesBuff)
+        if (skill.flatModifiesStat)
         {
 
         }
 
-        if (skill.doesDebuff)
+        if (skill.formulaModifiesStat)
         {
 
         }
 
-        if (skill.costsResource)
+        if (skill.modifiesResource)
         {
 
         }
