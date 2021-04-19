@@ -38,6 +38,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 {
                     DBSkills.GetSkill(1,0),
                     DBSkills.GetSkill(1,1),
+                    DBSkills.GetSkill(1,6),
                     DBSkills.GetSkill(1,10)
                 },
                 new List<Skill>()

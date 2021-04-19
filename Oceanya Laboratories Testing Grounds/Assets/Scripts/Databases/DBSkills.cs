@@ -32,12 +32,16 @@ public class DBSkills : MonoBehaviour
         return skills.Find(resultSkill => resultSkill.baseInfo.name == skillName && resultSkill.skillClass.baseInfo.name == className);
     }
 
+
+    /// <summary>
+    /// Just a function that prints all properties of a skill, for testing purposes
+    /// </summary>
+    /// <param name="skill"></param>
     public static void ReadSkill(Skill skill)
     {
         print("Name: " + skill.baseInfo.name);
         print("ID: " + skill.baseInfo.id);
         print("Description: " + skill.baseInfo.description);
-        print("SkillType: " + skill.type);
         print("Class: " + skill.skillClass.baseInfo.name);
 
         if (skill.doesDamage)
@@ -89,6 +93,10 @@ public class DBSkills : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Prints the entire skill database
+    /// </summary>
     public static void ReadDatabase()
     {
         for (int i = 0; i < skills.Count; i++)

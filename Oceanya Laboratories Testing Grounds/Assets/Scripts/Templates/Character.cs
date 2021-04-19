@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Character
 {
-    public string                           name;
-    public int                              level;
-    public Dictionary<Stats, int>           stats               =   new Dictionary<Stats, int>();
-    public Dictionary<SkillResources, int>  skillResources      = 
+    public string                   name;
+    public int                      level;
+    public Dictionary<Stats, int>   stats               =   new Dictionary<Stats, int>();
+    Dictionary<SkillResources, int> skillResources      = 
                                                                     new Dictionary<SkillResources, int>() 
                                                                     {
                                                                         { SkillResources.Bloodstacks, 0 },
@@ -17,16 +17,16 @@ public class Character
                                                                         { SkillResources.Puppets, 0 }
                                                                     };
 
-    public List<SkillFormula>               basicAttackFormula  =   new List<SkillFormula>(){new SkillFormula(Stats.STR, SkillFormula.operationActions.Multiply, 1)};
-    public DamageType                       basicAttackType     =   DamageType.Physical;
+    List<SkillFormula>              basicAttackFormula  =   new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 1)};
+    DamageType                      basicAttackType     =   DamageType.Physical;
 
-    public Team                             team;
-    public bool                             targettable         =   true; //if the target is targettable currently
+    public Team                     team;
+    public bool                     targettable         =   true; //if the target is targettable currently
 
-    public bool                             dead;
-    public bool                             permadead;
+    public bool                     dead;
+    bool                            permadead;
 
-    public Dictionary<SkillResources, bool> unlockedResources =     new Dictionary<SkillResources, bool>()
+    Dictionary<SkillResources, bool> unlockedResources =     new Dictionary<SkillResources, bool>()
                                                                     {
                                                                         { SkillResources.Bloodstacks, false },
                                                                         { SkillResources.Mana, false },
@@ -34,6 +34,19 @@ public class Character
                                                                         { SkillResources.other, false },
                                                                         { SkillResources.Puppets, false }
                                                                     };
+
+    public List<Skill> skillList = new List<Skill>();
+    public List<Skill> activatedSkills = new List<Skill>();
+    public List<Skill> hiddenSkillList = new List<Skill>();
+
+    public Dictionary<Skill, int> skillActivations = new Dictionary<Skill, int>(); //When a skill is activated (using times played as reference)
+
+    public BaseSkillClass rpgClass;
+    public int ID;
+
+    public int timesPlayed;
+
+    public bool checkedPassives = false;
 
     #region Character Reactions
     public void     GetsDamagedBy       (int DamageTaken)
@@ -132,10 +145,57 @@ public class Character
             }
         }
     }
+    /// <summary>
+    /// Checks to activate a passive from a character's list IF its actuvation type matches the activation type you gave it
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="activationType"></param>
+    public void     CheckPassives       ()
+    {
+        Character character = this;
+        for (int i = 0; i < character.skillList.Count; i++)
+        {
+            if (character.skillList[i].skillType == SkillType.Passive)
+            {
+                character.activatedSkills.Add(character.skillList[i]);
+            }
+        }
+    }
+
+    public void ActivatePassiveEffects(PassiveActivation activationType)
+    {
+        Character character = this;
+        for (int i = 0; i < character.activatedSkills.Count; i++)
+        {
+            if (character.activatedSkills[i].passiveActivationType == activationType)
+            {
+                switch (character.activatedSkills[i].passiveActivationTarget)
+                {
+                    case TargetType.Self:
+                        character.activatedSkills[i].Activate(character, new List<Character>() { character });
+                        break;
+                    case TargetType.Single:
+                    case TargetType.MultiTarget:
+                        character.activatedSkills[i].Activate(character, CharacterActions.target);
+                        break;
+                    case TargetType.AllAllies:
+                        character.activatedSkills[i].Activate(character, TeamOrderManager.allySide);
+                        break;
+                    case TargetType.AllEnemies:
+                        character.activatedSkills[i].Activate(character, TeamOrderManager.enemySide);
+                        break;
+                    case TargetType.Bounce:
+                        character.activatedSkills[i].Activate(character, new List<Character>() { CharacterActions.caster });
+                        break;
+                }
+
+            }
+        }
+    }
     #endregion
 
     #region Character Actions
-    public int      Attack              (PlayerCharacter target)
+    public int      Attack              (Character target)
     {
         int basicAttackRaw = SkillFormula.ReadAndSumList(basicAttackFormula, stats);
         int resultDMG = CalculateDefenses(basicAttackRaw, basicAttackType, target);

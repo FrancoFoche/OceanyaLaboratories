@@ -8,7 +8,7 @@ using System.Text;
 public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private TooltipPopup tooltipPopup;
-    public PlayerCharacter loadedChar;
+    public Character loadedChar;
     StringBuilder characterStats = new StringBuilder();
 
     private void Start()
@@ -16,7 +16,7 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
         tooltipPopup = FindObjectOfType<TooltipPopup>();
     }
 
-    public void LoadCharStats(PlayerCharacter character)
+    public void LoadCharStats(Character character)
     {
         loadedChar = character;
         characterStats = new StringBuilder();

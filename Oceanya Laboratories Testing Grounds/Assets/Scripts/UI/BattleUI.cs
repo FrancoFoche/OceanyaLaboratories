@@ -17,7 +17,7 @@ public class BattleUI : MonoBehaviour
     public int                                      charID;
     public string                                   charName;
 
-    public PlayerCharacter                          loadedChar;
+    public Character                          loadedChar;
 
     [Header("BASE INFO")]
     public Text                                     nameText;
@@ -43,7 +43,7 @@ public class BattleUI : MonoBehaviour
         }
     }
 
-    public void LoadPlayerCharacter(PlayerCharacter character)
+    public void LoadPlayerCharacter(Character character)
     {
         loadedChar = character;
         charID = character.ID;
@@ -72,7 +72,7 @@ public class BattleUI : MonoBehaviour
     {
         if (GetComponentInChildren<Toggle>().isOn)
         {
-            CharacterUIList.curCharacterSelected = loadedChar;
+            AllyUIList.curCharacterSelected = loadedChar;
         }
     }
 }

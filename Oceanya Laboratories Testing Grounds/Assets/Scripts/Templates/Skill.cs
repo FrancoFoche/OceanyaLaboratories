@@ -8,16 +8,23 @@ using UnityEngine;
 public class Skill
 {
     public BaseObjectInfo baseInfo;
-    public SkillType type; //Skill type
     public BaseSkillClass skillClass; //RPG Class it's from
+    public SkillType skillType;
 
-    public bool requiresTarget; //Does the skill target anyone
+    public bool hasPassive;
+    public PassiveActivation passiveActivationType;
+
     public TargetType targetType; //If the skill targets anyone, what is its target type?
+    public int maxTargets;
+    public TargetType passiveActivationTarget;
 
     public bool specialCD; //if the cooldown type is a non-turn based CD
     public CDType cooldownType; //Turn Cooldown, Once a day, once a battle
 
     public int turnCooldown; //in case there is a turn cooldown, set the number here
+
+    public int activatedAt; //Character turn at which a skill was activated
+    public bool onCD = false; //if skill is on cooldown
 
     public bool doesDamage; //If the skill does damage
     public DamageType damageType; //What type of damage does it do
@@ -47,22 +54,12 @@ public class Skill
     public bool doesShield; //does the skill shield anything
 
     #region Constructors
-    public Skill(BaseObjectInfo baseInfo, SkillType type)
+    public Skill(BaseObjectInfo baseInfo, SkillType skillType,TargetType targetType, int maxTargets = 1)
     {
         this.baseInfo = baseInfo;
-        this.type = type;
-    }
-    public Skill(BaseObjectInfo baseInfo, SkillType type, BaseSkillClass skillClass)
-    {
-        this.baseInfo = baseInfo;
-        this.type = type;
-        this.skillClass = skillClass;
-    }
-    public Skill BehaviorRequiresTarget(TargetType targetType)
-    {
-        requiresTarget = true;
         this.targetType = targetType;
-        return this;
+        this.maxTargets = maxTargets;
+        this.skillType = skillType;
     }
     public Skill BehaviorHasSpecialCooldown(CDType cooldownType)
     {
@@ -134,101 +131,153 @@ public class Skill
         doesShield = true;
         return this;
     }
+    public Skill BehaviorPassive(PassiveActivation activationType, TargetType passiveActivationTarget)
+    {
+        hasPassive = true;
+        this.passiveActivationTarget = passiveActivationTarget;
+        passiveActivationType = activationType;
+        return this;
+    }
     #endregion
 
-    public virtual void Activate(Character caster, Character target)
+    public void Activate(Character caster, List<Character> target)
     {
-        string activationText = "";
 
-        activationText = $"{caster.name} activated {baseInfo.name}! Target: {target.name}!";
-
-        if (target.targettable)
+        if (caster.skillActivations.ContainsKey(this))
         {
-            if (doesDamage)//Done
-            {
-                int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
-
-                int finalDMG = target.CalculateDefenses(rawDMG, DamageType.Magical, target);
-
-                target.GetsDamagedBy(finalDMG);
-
-                activationText += $" {finalDMG} DMG!";
-            }
-
-            if(doesHeal)//Done
-            {
-                int healAmount = SkillFormula.ReadAndSumList(healFormula, caster.stats);
-
-                target.GetsHealedBy(healAmount);
-
-                activationText += $" Heal: {healAmount} HP!";
-            }
-
-            if(flatModifiesStat)//Done
-            {
-                target.ModifyStat(flatStatModifiers);
-            }
-
-            if (formulaModifiesStat) //Done
-            {
-                for (int i = 0; i < RuleManager.StatHelper.Count; i++)
-                {
-                    Stats currentStat = RuleManager.StatHelper[i];
-
-                    if (formulaStatModifiers.ContainsKey(currentStat))
-                    {
-                        flatStatModifiers[currentStat] = SkillFormula.Read(formulaStatModifiers[currentStat], caster.stats);
-                    }
-                }
-
-                target.ModifyStat(flatStatModifiers);
-            }
-
-            if (unlocksResource) //Done
-            {
-                target.UnlockResources(unlockedResources);
-
-                string unlockedResourcesList = "";
-                for (int i = 0; i < unlockedResources.Count; i++)
-                {
-                    unlockedResourcesList += " " + unlockedResources[i] + ";";
-                }
-                activationText += $" Unlocked resources: {unlockedResourcesList}";
-            }
-
-            if(modifiesResource) //Done
-            {
-                target.ModifyResource(resourceModifiers);
-            }
-
-            if (appliesStatusEffects)
-            {
-
-            }
-
-            if (doesSummon)
-            {
-
-            }
-
-            if (doesShield)
-            {
-
-            }
-
-            if (costsTurn)
-            {
-                BattleManager.instance.EndTurn();
-            }
+            caster.skillActivations[this] = activatedAt;
         }
         else
         {
-            activationText += " Target wasn't targettable, smh";
+            caster.skillActivations.Add(this, activatedAt);
         }
 
-        BattleManager.battleLog.LogBattleEffect(activationText);
+        bool firstActivation = !caster.activatedSkills.Contains(this);
 
-        BattleManager.UpdateUIs();
+        if (skillType == SkillType.Active && hasPassive && firstActivation)
+        {
+            BattleManager.battleLog.LogBattleEffect($"Added {baseInfo.name} to {caster.name}'s Activated SkillList.");
+            caster.activatedSkills.Add(this);
+        }
+        else
+        {
+            switch (targetType)
+            {
+                case TargetType.Self:
+                    SkillAction(caster, new List<Character>() { caster });
+                    break;
+
+                case TargetType.Single:
+                case TargetType.MultiTarget:
+                    CharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
+                    CharacterActions.instance.maxTargets = maxTargets;
+                    break;
+
+                case TargetType.AllAllies:
+                    SkillAction(caster, TeamOrderManager.allySide);
+                    break;
+                case TargetType.AllEnemies:
+                    SkillAction(caster, TeamOrderManager.enemySide);
+                    break;
+                case TargetType.Bounce:
+                    SkillAction(caster, new List<Character>() { CharacterActions.caster });
+                    break;
+            }
+        }
+
+        if (costsTurn && firstActivation)
+        {
+            TeamOrderManager.EndTurn();
+        }
+    }
+
+    public void SkillAction(Character caster, List<Character> target)
+    {
+        for (int i = 0; i < target.Count; i++)
+        {
+            string activationText = "";
+
+            activationText = $"{caster.name} activated {baseInfo.name}! Target: {target[i].name}!";
+
+            if (target[i].targettable)
+            {
+                if (doesDamage)
+                {
+                    int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
+
+                    int finalDMG = target[i].CalculateDefenses(rawDMG, DamageType.Magical, target[i]);
+
+                    target[i].GetsDamagedBy(finalDMG);
+
+                    activationText += $" {finalDMG} DMG!";
+                }
+                if (doesHeal)
+                {
+                    int healAmount = SkillFormula.ReadAndSumList(healFormula, caster.stats);
+
+                    target[i].GetsHealedBy(healAmount);
+
+                    activationText += $" Heal: {healAmount} HP!";
+                }
+                if (flatModifiesStat)
+                {
+                    target[i].ModifyStat(flatStatModifiers);
+                }
+                if (formulaModifiesStat)
+                {
+                    for (int j = 0; j < RuleManager.StatHelper.Count; j++)
+                    {
+                        Stats currentStat = RuleManager.StatHelper[j];
+
+                        if (formulaStatModifiers.ContainsKey(currentStat))
+                        {
+                            flatStatModifiers[currentStat] = SkillFormula.Read(formulaStatModifiers[currentStat], caster.stats);
+                        }
+                    }
+
+                    target[i].ModifyStat(flatStatModifiers);
+                }
+                if (unlocksResource)
+                {
+                    target[i].UnlockResources(unlockedResources);
+
+                    string unlockedResourcesList = "";
+                    for (int j = 0; j < unlockedResources.Count; j++)
+                    {
+                        unlockedResourcesList += " " + unlockedResources[j] + ";";
+                    }
+                    activationText += $" Unlocked resources: {unlockedResourcesList}";
+                }
+                if (modifiesResource)
+                {
+                    target[i].ModifyResource(resourceModifiers);
+                }
+
+                if (appliesStatusEffects)
+                {
+
+                }
+
+                if (doesSummon)
+                {
+
+                }
+
+                if (doesShield)
+                {
+
+                }
+            }
+            else
+            {
+                activationText += " Target wasn't targettable, smh";
+                TeamOrderManager.EndTurn();
+            }
+
+            BattleManager.battleLog.LogBattleEffect(activationText);
+
+            BattleManager.UpdateUIs();
+        }
     }
 }
 
@@ -243,13 +292,6 @@ public struct SkillFormula
         this.StatToUse = StatToUse;
         this.OperationModifier = OperationModifier;
         this.NumberModifier = NumberModifier;
-    }
-
-    public enum operationActions
-    {
-        Multiply,
-        Divide,
-        ToThePowerOf
     }
 
     public static int ReadAndSumList(List<SkillFormula> formulas, Dictionary<Stats, int> stats)

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Team
+public enum Team                
 {
     Enemy,
     Ally,
     OutOfCombat
 }
-public enum SkillResources
+public enum SkillResources      
 {
     NatureEnergy,
     Mana,
@@ -16,7 +16,12 @@ public enum SkillResources
     Puppets,
     other
 }
-public enum Stats
+public enum SkillType           
+{
+    Passive,
+    Active
+}
+public enum Stats               
 {
     CURHP,
     MAXHP,
@@ -29,27 +34,22 @@ public enum Stats
     CON,
     HPREGEN
 }
-
-public enum SkillType
-{
-    Active,
-    Passive
-}
-public enum TargetType
+public enum TargetType          
 {
     Self,
     Single,
     MultiTarget,
     AllAllies,
-    AllEnemies
+    AllEnemies,
+    Bounce
 }
-public enum DamageType
+public enum DamageType          
 {
     Direct,
     Magical,
     Physical
 }
-public enum ElementType
+public enum ElementType         
 {
     Normal,
     Water,
@@ -60,15 +60,54 @@ public enum ElementType
     Holy,
     Dark
 }
-public enum CDType
+public enum CDType              
 {
     OnceABattle,
     OnceADay
 }
-
+public enum PassiveActivation   
+{
+    StartOfBattle,
+    WhenTargetting,
+    WhenAttacked,
+    Once
+}
+public enum ClassNames          
+{
+    Nobody,
+    SenjutsuMastery,
+    DojutsuMastery,
+    FrostGiant,
+    MartialArtist,
+    Assassin,
+    MasterOfDarkArts,
+    Gunslinger,
+    Technician,
+    Vampire,
+    Doctor,
+    PuppetMaster,
+    Ninja,
+    MonsterHunter
+}
+public enum operationActions    
+{
+    Multiply,
+    Divide,
+    ToThePowerOf
+}
+public enum CharActions         
+{
+    Attack,
+    Defend,
+    Skill,
+    Item,
+    Rearrange,
+    Prepare,
+    Skip
+}
 
 /// <summary>
-/// Where most enums are made, and where helpers are created for iteration through them
+/// Where enums are stored, and where helpers are created for iteration through them
 /// </summary>
 public static class RuleManager
 {
