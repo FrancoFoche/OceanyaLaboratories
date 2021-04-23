@@ -34,13 +34,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 9  },
                     { Stats.HPREGEN  , 0  }
                 },
-                new List<Skill>()
-                {
-                    DBSkills.GetSkill(1,0),
-                    DBSkills.GetSkill(1,1),
-                    DBSkills.GetSkill(1,6),
-                    DBSkills.GetSkill(1,10)
-                },
+                DBSkills.GetAllSkills(),
                 new List<Skill>()
             ),
             new PlayerCharacter(10 , "Cientifico" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,

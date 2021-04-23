@@ -23,7 +23,7 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
 
         characterStats.Append("<size=15><color=green>").Append(character.name).Append("</color></size>").AppendLine().AppendLine();
 
-        for (int i = 0; i < RuleManager.StatHelper.Count; i++)
+        for (int i = 0; i < RuleManager.StatHelper.Length; i++)
         {
             Stats curStat = RuleManager.StatHelper[i];
 

@@ -7,6 +7,11 @@ using UnityEngine;
 /// </summary>
 public class Skill
 {
+    /// <summary>
+    /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
+    /// </summary>
+    public bool done = false; 
+
     public BaseObjectInfo baseInfo;
     public BaseSkillClass skillClass; //RPG Class it's from
     public SkillType skillType;
@@ -18,13 +23,8 @@ public class Skill
     public int maxTargets;
     public TargetType passiveActivationTarget;
 
-    public bool specialCD; //if the cooldown type is a non-turn based CD
-    public CDType cooldownType; //Turn Cooldown, Once a day, once a battle
-
-    public int turnCooldown; //in case there is a turn cooldown, set the number here
-
-    public int activatedAt; //Character turn at which a skill was activated
-    public bool onCD = false; //if skill is on cooldown
+    public CDType cdType;
+    public int cooldown = 0;
 
     public bool doesDamage; //If the skill does damage
     public DamageType damageType; //What type of damage does it do
@@ -61,12 +61,6 @@ public class Skill
         this.maxTargets = maxTargets;
         this.skillType = skillType;
     }
-    public Skill BehaviorHasSpecialCooldown(CDType cooldownType)
-    {
-        specialCD = true;
-        this.cooldownType = cooldownType;
-        return this;
-    }
     public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<SkillFormula> damageFormula)
     {
         doesDamage = true;
@@ -75,10 +69,10 @@ public class Skill
         this.damageFormula = damageFormula;
         return this;
     }
-    public Skill BehaviorHasTurnCooldown(int turnCooldown)
+    public Skill BehaviorHasCooldown(CDType cdType, int cooldown)
     {
-        specialCD = true;
-        this.turnCooldown = turnCooldown;
+        this.cdType = cdType;
+        this.cooldown = cooldown;
         return this;
     }
     public Skill BehaviorDoesHeal(List<SkillFormula> healFormula)
@@ -138,19 +132,29 @@ public class Skill
         passiveActivationType = activationType;
         return this;
     }
+    /// <summary>
+    /// just marks the skill as done
+    /// </summary>
+    /// <returns></returns>
+    public Skill IsDone()
+    {
+        done = true;
+        return this;
+    }
     #endregion
 
-    public void Activate(Character caster, List<Character> target)
+    public void Activate(Character caster)
     {
-
-        if (caster.skillActivations.ContainsKey(this))
+        #region Add skill to activation history of the player
+        if (!caster.skillActivations.ContainsKey(this))
         {
-            caster.skillActivations[this] = activatedAt;
+            caster.skillActivations.Add(this, caster.timesPlayed);
         }
         else
         {
-            caster.skillActivations.Add(this, activatedAt);
+            caster.skillActivations[this] = caster.timesPlayed;
         }
+        #endregion
 
         bool firstActivation = !caster.activatedSkills.Contains(this);
 
@@ -158,6 +162,11 @@ public class Skill
         {
             BattleManager.battleLog.LogBattleEffect($"Added {baseInfo.name} to {caster.name}'s Activated SkillList.");
             caster.activatedSkills.Add(this);
+
+            if (costsTurn)
+            {
+                TeamOrderManager.EndTurn();
+            }
         }
         else
         {
@@ -168,9 +177,9 @@ public class Skill
                     break;
 
                 case TargetType.Single:
-                case TargetType.MultiTarget:
-                    CharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
-                    CharacterActions.instance.maxTargets = maxTargets;
+                case TargetType.Multiple:
+                    UICharacterActions.instance.maxTargets = maxTargets;
+                    UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
                     break;
 
                 case TargetType.AllAllies:
@@ -180,14 +189,9 @@ public class Skill
                     SkillAction(caster, TeamOrderManager.enemySide);
                     break;
                 case TargetType.Bounce:
-                    SkillAction(caster, new List<Character>() { CharacterActions.caster });
+                    SkillAction(caster, new List<Character>() { BattleManager.caster });
                     break;
             }
-        }
-
-        if (costsTurn && firstActivation)
-        {
-            TeamOrderManager.EndTurn();
         }
     }
 
@@ -205,7 +209,7 @@ public class Skill
                 {
                     int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
 
-                    int finalDMG = target[i].CalculateDefenses(rawDMG, DamageType.Magical, target[i]);
+                    int finalDMG = target[i].CalculateDefenses(rawDMG, DamageType.Magical);
 
                     target[i].GetsDamagedBy(finalDMG);
 
@@ -225,7 +229,7 @@ public class Skill
                 }
                 if (formulaModifiesStat)
                 {
-                    for (int j = 0; j < RuleManager.StatHelper.Count; j++)
+                    for (int j = 0; j < RuleManager.StatHelper.Length; j++)
                     {
                         Stats currentStat = RuleManager.StatHelper[j];
 
@@ -271,13 +275,61 @@ public class Skill
             else
             {
                 activationText += " Target wasn't targettable, smh";
-                TeamOrderManager.EndTurn();
             }
 
             BattleManager.battleLog.LogBattleEffect(activationText);
 
             BattleManager.UpdateUIs();
         }
+
+        if (costsTurn)
+        {
+            TeamOrderManager.EndTurn();
+        }
+    }
+
+    public CooldownStates GetCDState(Character character)
+    {
+        CooldownStates state = CooldownStates.Usable;
+
+        if (character.skillActivations.ContainsKey(this))
+        {
+            int activatedAt = character.skillActivations[this];
+            int timesPlayed = character.timesPlayed;
+
+
+
+            int difference = timesPlayed - activatedAt;
+
+            if (difference == 0)
+            {
+                state = CooldownStates.BeingUsed;
+            }
+            else
+            {
+                switch (cdType)
+                {
+                    case CDType.Turns:
+
+                        if (difference <= cooldown)
+                        {
+                            state = CooldownStates.OnCooldown;
+                        }
+                        else if (difference > cooldown)
+                        {
+                            state = CooldownStates.Usable;
+                        }
+
+                        break;
+
+                    case CDType.Other:
+                        state = CooldownStates.Used;
+                        break;
+                }
+            }
+        }
+
+        return state;
     }
 }
 
@@ -287,14 +339,15 @@ public struct SkillFormula
     operationActions OperationModifier { get; }
     float NumberModifier { get; } 
 
-    public SkillFormula(Stats StatToUse, operationActions OperationModifier, float NumberModifier)
+    public SkillFormula(Stats StatToUse, operationActions OperationModifier, float NumberModifier)              
     {
         this.StatToUse = StatToUse;
         this.OperationModifier = OperationModifier;
         this.NumberModifier = NumberModifier;
     }
 
-    public static int ReadAndSumList(List<SkillFormula> formulas, Dictionary<Stats, int> stats)
+
+    public static int       ReadAndSumList      (List<SkillFormula> formulas, Dictionary<Stats, int> stats)     
     {
         int result = 0;
 
@@ -306,7 +359,7 @@ public struct SkillFormula
         return result;
     }
 
-    public static int Read(SkillFormula skillFormula, Dictionary<Stats, int> stats)
+    public static int       Read                (SkillFormula skillFormula, Dictionary<Stats, int> stats)       
     {
         int stat = stats[skillFormula.StatToUse];
         float number = skillFormula.NumberModifier;
@@ -330,7 +383,7 @@ public struct SkillFormula
         return result;
     }
 
-    public static string FormulaToString(SkillFormula skillFormula)
+    public static string    FormulaToString     (SkillFormula skillFormula)                                     
     {
         string stat = skillFormula.StatToUse.ToString();
         string operationSymbol = "";
@@ -354,7 +407,7 @@ public struct SkillFormula
         return result;
     }
 
-    public static string FormulaListToString(List<SkillFormula> skillFormulas)
+    public static string    FormulaListToString (List<SkillFormula> skillFormulas)                              
     {
         string result = "";
 
@@ -374,5 +427,4 @@ public struct SkillFormula
 
         return result;
     }
-
 }

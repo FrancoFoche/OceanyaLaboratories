@@ -8,7 +8,7 @@ using System.Text;
 public class ActionButtonToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private TooltipPopup tooltipPopup;
-    [SerializeField] private string info = "";
+    public string info = "";
     private void Start()
     {
         tooltipPopup = FindObjectOfType<TooltipPopup>();

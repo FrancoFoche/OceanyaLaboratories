@@ -6,106 +6,48 @@ public class DBSkills : MonoBehaviour
 {
     public static List<Skill> skills = new List<Skill>();
 
-    public static void BuildDatabase()
+    public static void          BuildDatabase   ()                                  
     {
 
         for (int i = 0; i < DBClasses.classes.Count; i++)
         {
-            BaseSkillClass currentClass = DBClasses.GetClass(i);
+            BaseSkillClass currentClass = DBClasses.classes[i];
 
             for (int j = 0; j < currentClass.skillList.Count ; j++)
             {
                 Skill currentSkill = currentClass.skillList[j];
-                currentSkill.skillClass = DBClasses.GetClass(i);
+                currentSkill.skillClass = currentClass;
                 skills.Add(currentSkill);
             }
         }
     }
 
-    public static Skill GetSkill(int classID, int skillID)
+    public static Skill         GetSkill        (int classID, int skillID)          
     {
         return skills.Find(resultSkill => resultSkill.baseInfo.id == skillID && resultSkill.skillClass.baseInfo.id == classID);
     }
 
-    public static Skill GetSkill(string className, string skillName)
+    public static Skill         GetSkill        (string className, string skillName)
     {
         return skills.Find(resultSkill => resultSkill.baseInfo.name == skillName && resultSkill.skillClass.baseInfo.name == className);
     }
 
-
-    /// <summary>
-    /// Just a function that prints all properties of a skill, for testing purposes
-    /// </summary>
-    /// <param name="skill"></param>
-    public static void ReadSkill(Skill skill)
+    public static List<Skill>   GetAllSkills    ()                                  
     {
-        print("Name: " + skill.baseInfo.name);
-        print("ID: " + skill.baseInfo.id);
-        print("Description: " + skill.baseInfo.description);
-        print("Class: " + skill.skillClass.baseInfo.name);
-
-        if (skill.doesDamage)
-        {
-            print("Skill does damage, damage properties: ");
-            print("Type: " + skill.damageType);
-            print("Element: " + skill.damageElement);
-            print("Damage Formula: " + SkillFormula.FormulaListToString(skill.damageFormula));
-        }
-
-        if (skill.doesHeal)
-        {
-
-        }
-
-        if (skill.flatModifiesStat)
-        {
-
-        }
-
-        if (skill.formulaModifiesStat)
-        {
-
-        }
-
-        if (skill.modifiesResource)
-        {
-
-        }
-
-        if (skill.costsTurn)
-        {
-
-        }
-
-        if (skill.appliesStatusEffects)
-        {
-
-        }
-
-        if (skill.doesSummon)
-        {
-
-        }
-
-        if (skill.doesShield)
-        {
-
-        }
+        return skills;
     }
 
-
-    /// <summary>
-    /// Prints the entire skill database
-    /// </summary>
-    public static void ReadDatabase()
+    public static List<Skill>   GetAllDoneSkills()                                  
     {
+        List<Skill> doneSkills = new List<Skill>();
+
         for (int i = 0; i < skills.Count; i++)
         {
-            print("SKILL NUMBER " + (i + 1) + "!");
-
-            ReadSkill(skills[i]);
-
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            if (skills[i].done)
+            {
+                doneSkills.Add(skills[i]);
+            }
         }
+        return doneSkills;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UISkillContext : UIScrollList
+public class UISkillContext : UIButtonScrollList
 {
     static Character loadedCharacter;
     public static UISkillContext instance;
@@ -17,6 +17,7 @@ public class UISkillContext : UIScrollList
     public void LoadSkills(Character character)
     {
         ClearList();
+        buttons = new List<Button>();
         loadedCharacter = character;
         for (int i = 0; i < character.skillList.Count; i++)
         {
@@ -28,14 +29,17 @@ public class UISkillContext : UIScrollList
     {
         GameObject newEntry = AddObject();
         newEntry.GetComponent<UISkillButton>().LoadSkill(skill);
+        buttons.Add(newEntry.GetComponent<Button>());
     }
 
     public void Show()
     {
+        LoadSkills(BattleManager.caster);
         gameObject.SetActive(true);
     }
     public void Hide()
     {
         gameObject.SetActive(false);
+        ClearList();
     }
 }

@@ -17,8 +17,8 @@ public class Character
                                                                         { SkillResources.Puppets, 0 }
                                                                     };
 
-    List<SkillFormula>              basicAttackFormula  =   new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 1)};
-    DamageType                      basicAttackType     =   DamageType.Physical;
+    public List<SkillFormula>       basicAttackFormula  =   new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 1)};
+    public DamageType                      basicAttackType     =   DamageType.Physical;
 
     public Team                     team;
     public bool                     targettable         =   true; //if the target is targettable currently
@@ -39,6 +39,8 @@ public class Character
     public List<Skill> activatedSkills = new List<Skill>();
     public List<Skill> hiddenSkillList = new List<Skill>();
 
+
+    public Dictionary<Skill, CooldownStates> skillCooldowns = new Dictionary<Skill, CooldownStates>();
     public Dictionary<Skill, int> skillActivations = new Dictionary<Skill, int>(); //When a skill is activated (using times played as reference)
 
     public BaseSkillClass rpgClass;
@@ -49,7 +51,7 @@ public class Character
     public bool checkedPassives = false;
 
     #region Character Reactions
-    public void     GetsDamagedBy       (int DamageTaken)
+    public void     GetsDamagedBy           (int DamageTaken)
     {
         int result = stats[Stats.CURHP] - DamageTaken;
         if (result < 0)
@@ -63,7 +65,7 @@ public class Character
             stats[Stats.CURHP] = result;
         }
     }
-    public void     GetsHealedBy        (int HealAmount)
+    public void     GetsHealedBy            (int HealAmount)
     {
         int result = stats[Stats.CURHP] += HealAmount;
 
@@ -79,10 +81,10 @@ public class Character
             }
         }
     }
-    public int      CalculateDefenses   (int damageRaw, DamageType damageType, Character target)
+    public int      CalculateDefenses       (int damageRaw, DamageType damageType)
     {
-        int targetMR = target.stats[Stats.MR];
-        int targetPR = target.stats[Stats.PR];
+        int targetMR = stats[Stats.MR];
+        int targetPR = stats[Stats.PR];
 
         float defensePercentRatio = 0.25f; // Ratio of defense % per point in MR or PR. (Example: with 10 PR you get 2.5% defense against physical types.)
         float resultDefensePercent = 0; //The defense you have against whatever damage type it is.
@@ -114,16 +116,16 @@ public class Character
 
         return (int)Mathf.Ceil(resultDamage);
     }
-    public void     UnlockResources     (List<SkillResources> resourcesUnlocked)
+    public void     UnlockResources         (List<SkillResources> resourcesUnlocked)
     {
         for (int i = 0; i < resourcesUnlocked.Count; i++)
         {
             unlockedResources[resourcesUnlocked[i]] = true;
         }
     }
-    public void     ModifyResource      (Dictionary<SkillResources, int> resources)
+    public void     ModifyResource          (Dictionary<SkillResources, int> resources)
     {
-        for (int i = 0; i < RuleManager.SkillResourceHelper.Count; i++)
+        for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
         {
             SkillResources currentResource = RuleManager.SkillResourceHelper[i];
 
@@ -133,9 +135,9 @@ public class Character
             }
         }
     }
-    public void     ModifyStat          (Dictionary<Stats, int> modifiedStats)
+    public void     ModifyStat              (Dictionary<Stats, int> modifiedStats)
     {
-        for (int i = 0; i < RuleManager.StatHelper.Count; i++)
+        for (int i = 0; i < RuleManager.StatHelper.Length; i++)
         {
             Stats currentStat = RuleManager.StatHelper[i];
 
@@ -150,7 +152,7 @@ public class Character
     /// </summary>
     /// <param name="character"></param>
     /// <param name="activationType"></param>
-    public void     CheckPassives       ()
+    public void     CheckPassives           ()
     {
         Character character = this;
         for (int i = 0; i < character.skillList.Count; i++)
@@ -161,46 +163,50 @@ public class Character
             }
         }
     }
-
-    public void ActivatePassiveEffects(PassiveActivation activationType)
+    public void     ActivatePassiveEffects  (PassiveActivation activationType)
     {
         Character character = this;
         for (int i = 0; i < character.activatedSkills.Count; i++)
         {
             if (character.activatedSkills[i].passiveActivationType == activationType)
             {
-                switch (character.activatedSkills[i].passiveActivationTarget)
-                {
-                    case TargetType.Self:
-                        character.activatedSkills[i].Activate(character, new List<Character>() { character });
-                        break;
-                    case TargetType.Single:
-                    case TargetType.MultiTarget:
-                        character.activatedSkills[i].Activate(character, CharacterActions.target);
-                        break;
-                    case TargetType.AllAllies:
-                        character.activatedSkills[i].Activate(character, TeamOrderManager.allySide);
-                        break;
-                    case TargetType.AllEnemies:
-                        character.activatedSkills[i].Activate(character, TeamOrderManager.enemySide);
-                        break;
-                    case TargetType.Bounce:
-                        character.activatedSkills[i].Activate(character, new List<Character>() { CharacterActions.caster });
-                        break;
-                }
-
+                character.activatedSkills[i].Activate(character);
             }
         }
     }
-    #endregion
-
-    #region Character Actions
-    public int      Attack              (Character target)
+    public void UpdateCDs()
     {
-        int basicAttackRaw = SkillFormula.ReadAndSumList(basicAttackFormula, stats);
-        int resultDMG = CalculateDefenses(basicAttackRaw, basicAttackType, target);
-        target.GetsDamagedBy(resultDMG);
-        return resultDMG;
+        for (int i = 0; i < skillList.Count; i++)
+        {
+            Skill currentSkill = skillList[i];
+            CooldownStates currentState = currentSkill.GetCDState(this);
+
+            if (!skillCooldowns.ContainsKey(currentSkill))
+            {
+                skillCooldowns.Add(currentSkill, currentState);
+            }
+            else
+            {
+                skillCooldowns[currentSkill] = currentState;
+            }
+        }
+    }
+    public int GetCurrentCD(Skill skill)
+    {
+        int currentCD = 0;
+
+        if (skillActivations.ContainsKey(skill))
+        {
+            int activatedAt = skillActivations[skill];
+            int timesPlayed = this.timesPlayed;
+            int cooldown = skill.cooldown;
+
+            int difference = timesPlayed - activatedAt;
+
+            currentCD = cooldown - difference;
+        }
+
+        return currentCD;
     }
     #endregion
 }

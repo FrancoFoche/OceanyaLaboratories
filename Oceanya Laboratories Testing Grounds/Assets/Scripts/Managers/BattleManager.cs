@@ -20,23 +20,28 @@ public enum TurnState
 
 public class BattleManager : MonoBehaviour
 {
+    public static   Character           caster;
+    public static   List<Character>     target { get; private set; }
+
     public          BattleState         battleState;
     public          TurnState           turnState;
     public          bool                inCombat;
 
     public static   BattleLog           battleLog;
     public static   AllyUIList          charUIList;
-    public static   CharacterActions    charActions;
+    public static   UICharacterActions  charActions;
     public static   BattleManager       instance;
 
-    public RawImage easteregg;
+    public          RawImage            easteregg;
 
     private void Start()
     {
         easteregg.gameObject.SetActive(false);
         charUIList = FindObjectOfType<AllyUIList>();
         battleLog = FindObjectOfType<BattleLog>();
-        charActions = FindObjectOfType<CharacterActions>();
+        charActions = FindObjectOfType<UICharacterActions>();
+        target = new List<Character>();
+        caster = new Character();
         instance = this;
 
         TeamOrderManager.BuildTeamOrder();
@@ -45,11 +50,31 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        if (turnState == TurnState.WaitingForTarget)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
+            {
+                UICharacterActions.instance.Act(caster, target);
+                SetTurnState(TurnState.WaitingForAction);
+            }
+            else
+            {
+                target = charUIList.CheckTargets();
+            }
+        }
+        else
+        {
+            if (charUIList.toggleGroup.AnyTogglesOn() && charUIList.different)
+            {
+                GetCaster();
+                UISkillContext.instance.Hide();
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
-            charUIList.SelectCharacter(TeamOrderManager.currentTurn);
-            battleLog.LogBattleStatus($"{TeamOrderManager.currentTurn.name}'s Turn. Again.");
+            ReselectOriginalTurn();
         }
     }
 
@@ -57,8 +82,32 @@ public class BattleManager : MonoBehaviour
     public void                     StartCombat         ()                  
     {
         SetBattleState(BattleState.Start);
-        StartCoroutine(TeamOrderManager.SetupBattle());
+        StartCoroutine(SetupBattle());
     }
+    public IEnumerator              SetupBattle         ()                  
+    {
+        for (int i = 0; i < TeamOrderManager.allySide.Count; i++)
+        {
+            charUIList.AddChar(TeamOrderManager.allySide[i]);
+        }
+
+        for (int i = 0; i < TeamOrderManager.enemySide.Count; i++)
+        {
+            charUIList.AddChar(TeamOrderManager.enemySide[i]);
+        }
+
+        for (int i = 0; i < TeamOrderManager.teamOrder.Count; i++)
+        {
+            TeamOrderManager.teamOrder[i].CheckPassives();
+            TeamOrderManager.teamOrder[i].ActivatePassiveEffects(PassiveActivation.StartOfBattle);
+        }
+
+        yield return new WaitForSeconds(3);
+
+        SetBattleState(BattleState.AllyPhase);
+        TeamOrderManager.SetCurrentTurn(TeamOrderManager.teamOrder[0]);
+    }
+
     public static void              UpdateUIs           ()                  
     {
         for (int i = 0; i < charUIList.list.Count; i++)
@@ -99,6 +148,28 @@ public class BattleManager : MonoBehaviour
                 break;
         }
     }
+    public void                     SetTurnState        (TurnState state)   
+    {
+        switch (state)
+        {
+            case TurnState.WaitingForAction:
+                UICharacterActions.instance.InteractableButtons(true);
+                UISkillContext.instance.InteractableButtons(true);
+                charUIList.TurnToggleGroup(true);
+                turnState = TurnState.WaitingForAction;
+                break;
+
+
+            case TurnState.WaitingForTarget:
+                UICharacterActions.instance.InteractableButtons(false);
+                UISkillContext.instance.InteractableButtons(false);
+                charUIList.TurnToggleGroup(false);
+                charUIList.TurnToggles(false);
+
+                turnState = TurnState.WaitingForTarget;
+                break;
+        }
+    }
     public bool                     CheckTotalTeamKill  (Team team)         
     {
         int totalHP = 0;
@@ -131,4 +202,36 @@ public class BattleManager : MonoBehaviour
 
         return isDead;
     }
+    public void                     GetCaster           ()                  
+    {
+        if (TeamOrderManager.currentTurn != AllyUIList.curCharacterSelected)
+        {
+            caster = AllyUIList.curCharacterSelected;
+            battleLog.LogBattleStatus($"{caster.name}'s (Non-Ordered) Turn");
+        }
+        else
+        {
+            caster = TeamOrderManager.currentTurn;
+        }
+    }
+    public void                     ClearTargets        ()                  
+    {
+        target = new List<Character>();
+    }
+    public void                     ResetCheckedPassives()                  
+    {
+        caster.checkedPassives = false;
+
+        for (int i = 0; i < target.Count; i++)
+        {
+            target[i].checkedPassives = false;
+        }
+    }
+    public void                     ReselectOriginalTurn()                  
+    {
+        charUIList.SelectCharacter(TeamOrderManager.currentTurn);
+        battleLog.LogBattleStatus($"{TeamOrderManager.currentTurn.name}'s Turn. Again.");
+        SetTurnState(TurnState.WaitingForAction);
+    }
+    
 }

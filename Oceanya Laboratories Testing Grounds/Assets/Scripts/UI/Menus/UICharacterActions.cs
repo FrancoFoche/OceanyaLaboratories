@@ -3,88 +3,76 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharacterActions : MonoBehaviour
+public class UICharacterActions : UIButtonScrollList
 {
-    public static Character caster;
-    public static List<Character> target = new List<Character>();
     public int maxTargets;
     public CharActions action;
     public Skill skillToActivate; //in case of using the skill action, this skill will activate after targetting
     public string actionString;
 
-    public static CharacterActions instance;
-
-    public Button[] actionButtons;
-
-
+    public static UICharacterActions instance;
 
     private void Start()
     {
-        actionButtons = GetComponentsInChildren<Button>();
+        AddAllActions();
         instance = this;
     }
 
-    private void Update()
+    public void AddAction(CharActions action)
     {
-        if (BattleManager.instance.turnState == TurnState.WaitingForTarget)
+        GameObject newEntry = AddObject();
+        newEntry.GetComponent<UIActionButton>().LoadAction(action);
+        buttons.Add(newEntry.GetComponent<Button>());
+    }
+    public void AddAllActions()
+    {
+        for (int i = 0; i < RuleManager.CharActionsHelper.Length; i++)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || target.Count == maxTargets)
-            {
-                Act();
-            }
-            else
-            {
-                InteractableButtons(false);
-                BattleManager.charUIList.TurnToggleGroup(false);
-
-                target = BattleManager.charUIList.CheckTargets();
-            }
-        }
-        else
-        {
-            if (BattleManager.charUIList.toggleGroup.AnyTogglesOn() && BattleManager.charUIList.different)
-            {
-                GetCaster();
-                UISkillContext.instance.Hide();
-            }
+            AddAction(RuleManager.CharActionsHelper[i]);
         }
     }
 
-    public void InteractableButtons(bool state)
+    /// <summary>
+    /// Returns action description
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public static string GetActionDescription(CharActions action)
     {
-        if (!state)
+        string result = "Unknown Action";
+
+        switch (action)
         {
-            for (int i = 0; i < actionButtons.Length; i++)
-            {
-                actionButtons[i].interactable = false;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < actionButtons.Length; i++)
-            {
-                actionButtons[i].interactable = true;
-            }
-        }
-    }
-    public void GetCaster()
-    {
-        if (TeamOrderManager.currentTurn != AllyUIList.curCharacterSelected)
-        {
-            caster = AllyUIList.curCharacterSelected;
-            BattleManager.battleLog.LogBattleStatus($"{caster.name}'s (Non-Ordered) Turn ");
-        }
-        else
-        {
-            caster = TeamOrderManager.currentTurn;
+            case CharActions.Attack:
+                result = "Target an enemy, and if you win the SPD contest for hit, roll 20 for damage.";
+                break;
+            case CharActions.Defend:
+                result = "For this turn, you take 50% damage from all sources except status effects.";
+                break;
+            case CharActions.Skill:
+                result = "Use a skill from your skill list";
+                break;
+            case CharActions.Item:
+                result = "Utilize an item from your inventory";
+                break;
+            case CharActions.Rearrange:
+                result = "Use this turn to rearrange yourself in the team order. Both you and the one you swap with must agree to this arrangement.";
+                break;
+            case CharActions.Prepare:
+                result = "Prepare yourself to be attacked, gain advantage in dodge roll IF you get attacked this turn. However, if a turn passes without being attacked while Ready, you gain DISTRACTED";
+                break;
+            case CharActions.Skip:
+                result = "Just skips your turn without doing anything.";
+                break;
         }
 
-        UISkillContext.instance.LoadSkills(caster);
+        return result;
     }
+
     /// <summary>
     /// Uses the action that was saved to actually run the code for the action.
     /// </summary>
-    public void Act()
+    public void Act(Character caster, List<Character> target)
     {
         switch (action)
         {
@@ -96,7 +84,11 @@ public class CharacterActions : MonoBehaviour
                         {
                             if (target[i].targettable)
                             {
-                                BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {caster.Attack(target[i])} DMG!");
+                                int basicAttackRaw = SkillFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
+                                int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
+                                target[i].GetsDamagedBy(resultDMG);
+
+                                BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
 
                                 if (!target[i].checkedPassives)
                                 {
@@ -177,72 +169,69 @@ public class CharacterActions : MonoBehaviour
                 break;
         }
 
-        ResetCheckedPassives();
-        target = new List<Character>();
-        InteractableButtons(true);
-        BattleManager.charUIList.TurnToggleGroup(true);
-        BattleManager.charUIList.SelectCharacter(TeamOrderManager.currentTurn);
-        BattleManager.instance.turnState = TurnState.WaitingForAction;
+        BattleManager.instance.ResetCheckedPassives();
+        BattleManager.instance.ClearTargets();
     }
 
-    public void Attack()
+    /// <summary>
+    /// The function a button uses to run its code.
+    /// </summary>
+    /// <param name="action"></param>
+    public void ButtonAction(CharActions action)
     {
-        maxTargets = 1;
-        BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
-        ActionRequiresTarget(CharActions.Attack);
-    }
-    public void Defend()
-    {
-        ActionDoesNotRequireTarget(CharActions.Defend);
-    }
-    public void Skill()
-    {
-        if (caster.skillList.Count == 0)
-        {
-            BattleManager.battleLog.LogBattleEffect($"{caster.name} has no skills to activate...");
-        }
-        else
-        {
-            BattleManager.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
-            UISkillContext.instance.Show();
-        }
-    }
-    public void Item()
-    {
-        ActionDoesNotRequireTarget(CharActions.Item);
-    }
-    public void Rearrange()
-    {
-        ActionDoesNotRequireTarget(CharActions.Rearrange);
-    }
-    public void Prepare()
-    {
-        ActionDoesNotRequireTarget(CharActions.Prepare);
-    }
-    public void Skip()
-    {
-        ActionDoesNotRequireTarget(CharActions.Skip);
-    }
+        Character caster = BattleManager.caster;
 
+        switch (action)
+        {
+            case CharActions.Attack:
+                maxTargets = 1;
+                BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
+                ActionRequiresTarget(CharActions.Attack);
+                break;
+
+            case CharActions.Defend:
+                ActionDoesNotRequireTarget(CharActions.Defend);
+                break;
+
+            case CharActions.Skill:
+                if (caster.skillList.Count == 0)
+                {
+                    BattleManager.battleLog.LogBattleEffect($"{caster.name} has no skills to activate...");
+                }
+                else
+                {
+                    BattleManager.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
+                    UISkillContext.instance.Show();
+                }
+                break;
+
+            case CharActions.Item:
+                ActionDoesNotRequireTarget(CharActions.Item);
+                break;
+
+            case CharActions.Rearrange:
+                ActionDoesNotRequireTarget(CharActions.Rearrange);
+                break;
+
+            case CharActions.Prepare:
+                ActionDoesNotRequireTarget(CharActions.Prepare);
+                break;
+
+            case CharActions.Skip:
+                ActionDoesNotRequireTarget(CharActions.Skip);
+                break;
+        }
+    }
 
     public void ActionRequiresTarget(CharActions action)
     {
         this.action = action;
-        BattleManager.charUIList.TurnToggles(false);
-        BattleManager.instance.turnState = TurnState.WaitingForTarget;
+
+        BattleManager.instance.SetTurnState(TurnState.WaitingForTarget);
     }
     public void ActionDoesNotRequireTarget(CharActions action)
     {
         this.action = action;
-        Act();
-    }
-    public void ResetCheckedPassives()
-    {
-        caster.checkedPassives = false;
-
-        for (int i = 0; i < target.Count; i++)
-        {
-            target[i].checkedPassives = false;
-        }
+        Act(BattleManager.caster, BattleManager.target);
     }
 }

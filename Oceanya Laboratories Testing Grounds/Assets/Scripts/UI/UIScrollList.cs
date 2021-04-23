@@ -27,7 +27,6 @@ public class UIScrollList : MonoBehaviour
 
         return newObject;
     }
-
     public void ClearList()
     {
         for (int i = 0; i < list.Count; i++)
@@ -41,7 +40,7 @@ public class UIToggleScrollList : UIScrollList
 {
     public static List<GameObject> curObjectsSelected = new List<GameObject>();
     public ToggleGroup toggleGroup;
-    public List<Toggle> toggles;
+    public List<Toggle> toggles = new List<Toggle>();
     public bool different;
 
     private void Update()
@@ -52,7 +51,7 @@ public class UIToggleScrollList : UIScrollList
     /// <summary>
     /// Checks which objects are currently selected
     /// </summary>
-    public void CheckCurrentSelection()
+    public void CheckCurrentSelection   ()              
     {
         different = false;
         List<GameObject>  newSelection = new List<GameObject>();
@@ -88,7 +87,7 @@ public class UIToggleScrollList : UIScrollList
     /// <summary>
     /// Selects an object from the toggle group
     /// </summary>
-    public void SelectObject(GameObject obj)
+    public void SelectObject            (GameObject obj)
     {
         for (int i = 0; i < list.Count; i++)
         {
@@ -99,7 +98,7 @@ public class UIToggleScrollList : UIScrollList
             }
         }
     }
-    public void SelectObject(int index)
+    public void SelectObject            (int index)     
     {
         for (int i = 0; i < list.Count; i++)
         {
@@ -110,14 +109,14 @@ public class UIToggleScrollList : UIScrollList
             }
         }
     }
-    public void TurnToggles(bool toggle)
+    public void TurnToggles             (bool toggle)   
     {
         for (int i = 0; i < toggles.Count; i++)
         {
             toggles[i].isOn = toggle;
         }
     }
-    public void TurnToggleGroup(bool toggle)
+    public void TurnToggleGroup         (bool toggle)   
     {
         if (toggle)
         {
@@ -134,5 +133,28 @@ public class UIToggleScrollList : UIScrollList
             }
         }
 
+    }
+}
+
+public class UIButtonScrollList : UIScrollList
+{
+    public List<Button> buttons;
+
+    public void InteractableButtons(bool state)
+    {
+        if (!state)
+        {
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                buttons[i].interactable = false;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                buttons[i].interactable = true;
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ public class AllyUIList : UIToggleScrollList
     /// Creates and adds a character to the ally battle UIs.
     /// </summary>
     /// <param name="character">Character to add</param>
-    public void AddChar(Character character)
+    public void             AddChar         (Character character)   
     {
         GameObject newCharObject = AddObject();
         newCharObject.GetComponentInChildren<Toggle>().group = toggleGroup;
@@ -32,7 +32,7 @@ public class AllyUIList : UIToggleScrollList
     /// Selects a character from the toggle group
     /// </summary>
     /// <param name="character">Character to select</param>
-    public void SelectCharacter(Character character)
+    public void             SelectCharacter (Character character)   
     {
         for (int i = 0; i < list.Count; i++)
         {
@@ -43,9 +43,11 @@ public class AllyUIList : UIToggleScrollList
                 break;
             }
         }
+
+        UISkillContext.instance.Hide();
     }
 
-    public List<Character> CheckTargets()
+    public List<Character>  CheckTargets    ()                      
     {
         List<Character> targetsOn = new List<Character>();
 
