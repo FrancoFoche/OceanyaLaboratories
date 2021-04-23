@@ -133,7 +133,7 @@ public class Skill
         return this;
     }
     /// <summary>
-    /// just marks the skill as done
+    /// just marks the skill as done, this is just for development purposes
     /// </summary>
     /// <returns></returns>
     public Skill IsDone()
@@ -183,10 +183,24 @@ public class Skill
                     break;
 
                 case TargetType.AllAllies:
-                    SkillAction(caster, TeamOrderManager.allySide);
+                    if (caster.team == Team.Ally)
+                    {
+                        SkillAction(caster, TeamOrderManager.allySide);
+                    }
+                    else
+                    {
+                        SkillAction(caster, TeamOrderManager.enemySide);
+                    }
                     break;
                 case TargetType.AllEnemies:
-                    SkillAction(caster, TeamOrderManager.enemySide);
+                    if (caster.team == Team.Ally)
+                    {
+                        SkillAction(caster, TeamOrderManager.enemySide);
+                    }
+                    else
+                    {
+                        SkillAction(caster, TeamOrderManager.allySide);
+                    }
                     break;
                 case TargetType.Bounce:
                     SkillAction(caster, new List<Character>() { BattleManager.caster });
@@ -209,7 +223,7 @@ public class Skill
                 {
                     int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
 
-                    int finalDMG = target[i].CalculateDefenses(rawDMG, DamageType.Magical);
+                    int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
 
                     target[i].GetsDamagedBy(finalDMG);
 
@@ -427,4 +441,16 @@ public struct SkillFormula
 
         return result;
     }
+}
+
+
+/// <summary>
+/// Ignore this thing for now. Just a work in progress.
+/// </summary>
+public struct SkillPersonalInfo
+{
+    bool equipped;
+    bool activated;
+    int activatedAt;
+    CooldownStates cooldownState;
 }

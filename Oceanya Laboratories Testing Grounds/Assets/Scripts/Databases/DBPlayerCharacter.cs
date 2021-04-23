@@ -19,6 +19,24 @@ public class DBPlayerCharacter : MonoBehaviour
         pCharacters = new List<PlayerCharacter>()
         {
 
+            new PlayerCharacter(0 , "TestDummy" , 1, DBClasses.GetClass(0),
+                new Dictionary<Stats, int>
+                {
+                    { Stats.MAXHP       , 100 },
+                    { Stats.CURHP       , 100 },
+                    { Stats.STR      , 100 },
+                    { Stats.INT      , 100  },
+                    { Stats.CHR      , 100 },
+                    { Stats.AGI      , 100 },
+                    { Stats.MR       , 100 },
+                    { Stats.PR       , 100 },
+                    { Stats.CON      , 100  },
+                    { Stats.HPREGEN  , 100  }
+                },
+                DBSkills.GetAllClassSkills(DBClasses.GetClass(0)),
+                new List<Skill>()
+            ),
+
             //HEROES
             new PlayerCharacter(13 , "Vinnie" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
                 new Dictionary<Stats, int>
@@ -116,7 +134,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(1,10)
+                    DBSkills.GetSkill(102,10)
                 },
                 new List<Skill>()
             ),

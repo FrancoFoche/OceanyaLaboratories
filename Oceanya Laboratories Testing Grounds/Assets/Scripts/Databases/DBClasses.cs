@@ -31,10 +31,53 @@ public class DBClasses : MonoBehaviour
             */
             #endregion
 
-            new BaseSkillClass(new BaseObjectInfo(ClassNames.Nobody.ToString(), 0 , ""),
+            new BaseSkillClass(new BaseObjectInfo("Testing Class", 0 , "This is the class that has every test skill"),
                 new List<Skill>
                 {
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Cooldown", 0 , "This skill should be activated, then put on cooldown (making it non interactable) and be usable once 2 turns pass.")
+                            ,SkillType.Active
+                            ,TargetType.Self
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Turns, 2),
 
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Single Target Damage", 1 , "This skill should do 50% your STR as direct damage to a single target.")
+                            ,SkillType.Active
+                            ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.STR,operationActions.Multiply,0.5f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Multiple Target Damage", 1 , "This skill should do 50% your INT as direct damage to 3 targets of your choosing. (You can choose less by pressing enter when you are done)")
+                            ,SkillType.Active
+                            ,TargetType.Multiple, 3
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test AoE Damage", 2 , "This skill should do 50% your CHR as direct damage to every target in the opposing team.")
+                            ,SkillType.Active
+                            ,TargetType.AllEnemies
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.5f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Ally AoE Damage", 3 , "This skill should do 50% your AGI as direct damage to every target in the same team as you.")
+                            ,SkillType.Active
+                            ,TargetType.AllAllies
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.AGI,operationActions.Multiply,0.5f)}),
                 }
             ),
 

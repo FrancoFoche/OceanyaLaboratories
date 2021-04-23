@@ -50,4 +50,8 @@ public class DBSkills : MonoBehaviour
         }
         return doneSkills;
     }
+    public static List<Skill>   GetAllClassSkills(BaseSkillClass skillClass)        
+    {
+        return skillClass.skillList;
+    }
 }

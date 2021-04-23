@@ -40,6 +40,5 @@ public class UISkillContext : UIButtonScrollList
     public void Hide()
     {
         gameObject.SetActive(false);
-        ClearList();
     }
 }

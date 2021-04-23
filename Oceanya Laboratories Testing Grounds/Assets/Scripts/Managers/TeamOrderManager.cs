@@ -27,7 +27,7 @@ public static class TeamOrderManager
     }
     public static void                  BuildTeamOrder  ()                      {
 
-        allySide = new List<Character>() { DBPlayerCharacter.GetPC(13), DBPlayerCharacter.GetPC(10), DBPlayerCharacter.GetPC(11), DBPlayerCharacter.GetPC(40) };
+        allySide = new List<Character>() { DBPlayerCharacter.GetPC(0), DBPlayerCharacter.GetPC(13), DBPlayerCharacter.GetPC(10), DBPlayerCharacter.GetPC(11), DBPlayerCharacter.GetPC(40) };
         enemySide = new List<Character>() { DBPlayerCharacter.GetPC(1), DBPlayerCharacter.GetPC(17), DBPlayerCharacter.GetPC(31), DBPlayerCharacter.GetPC(420), DBPlayerCharacter.GetPC(666) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
 
 

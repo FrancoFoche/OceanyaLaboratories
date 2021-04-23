@@ -37,14 +37,10 @@ public class UISkillButton : MonoBehaviour
     {
         StringBuilder result = new StringBuilder();
 
-        if (loadedSkill.skillType == SkillType.Passive)
+        if (BattleManager.caster.activatedSkills.Contains(loadedSkill))
         {
             result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text).Append("</color>");
-
-            if (BattleManager.caster.activatedSkills.Contains(loadedSkill))
-            {
-                button.interactable = false;
-            }
+            button.interactable = false;
         }
         else
         {
