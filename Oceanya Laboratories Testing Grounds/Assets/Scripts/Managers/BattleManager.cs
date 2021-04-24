@@ -12,19 +12,13 @@ public enum BattleState
     Lost
 }
 
-public enum TurnState
-{
-    WaitingForAction,
-    WaitingForTarget
-}
-
 public class BattleManager : MonoBehaviour
 {
     public static   Character           caster;
     public static   List<Character>     target { get; private set; }
 
     public          BattleState         battleState;
-    public          TurnState           turnState;
+    
     public          bool                inCombat;
 
     public static   BattleLog           battleLog;
@@ -50,12 +44,12 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
-        if (turnState == TurnState.WaitingForTarget)
+        if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
         {
             if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
             {
                 UICharacterActions.instance.Act(caster, target);
-                SetTurnState(TurnState.WaitingForAction);
+                TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
             }
             else
             {
@@ -81,6 +75,7 @@ public class BattleManager : MonoBehaviour
 
     public void                     StartCombat         ()                  
     {
+        charActions.AddAllActions();
         SetBattleState(BattleState.Start);
         StartCoroutine(SetupBattle());
     }
@@ -99,13 +94,15 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < TeamOrderManager.teamOrder.Count; i++)
         {
             TeamOrderManager.teamOrder[i].CheckPassives();
-            TeamOrderManager.teamOrder[i].ActivatePassiveEffects(PassiveActivation.StartOfBattle);
+            TeamOrderManager.teamOrder[i].ActivatePassiveEffects(ActivationTime.StartOfBattle);
         }
 
         yield return new WaitForSeconds(3);
 
         SetBattleState(BattleState.AllyPhase);
-        TeamOrderManager.SetCurrentTurn(TeamOrderManager.teamOrder[0]);
+        caster = TeamOrderManager.teamOrder[0];
+        TeamOrderManager.SetCurrentTurn(caster);
+        caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
     }
 
     public static void              UpdateUIs           ()                  
@@ -148,28 +145,6 @@ public class BattleManager : MonoBehaviour
                 break;
         }
     }
-    public void                     SetTurnState        (TurnState state)   
-    {
-        switch (state)
-        {
-            case TurnState.WaitingForAction:
-                UICharacterActions.instance.InteractableButtons(true);
-                UISkillContext.instance.InteractableButtons(true);
-                charUIList.TurnToggleGroup(true);
-                turnState = TurnState.WaitingForAction;
-                break;
-
-
-            case TurnState.WaitingForTarget:
-                UICharacterActions.instance.InteractableButtons(false);
-                UISkillContext.instance.InteractableButtons(false);
-                charUIList.TurnToggleGroup(false);
-                charUIList.TurnToggles(false);
-
-                turnState = TurnState.WaitingForTarget;
-                break;
-        }
-    }
     public bool                     CheckTotalTeamKill  (Team team)         
     {
         int totalHP = 0;
@@ -208,6 +183,7 @@ public class BattleManager : MonoBehaviour
         {
             caster = AllyUIList.curCharacterSelected;
             battleLog.LogBattleStatus($"{caster.name}'s (Non-Ordered) Turn");
+            caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
         }
         else
         {
@@ -229,9 +205,10 @@ public class BattleManager : MonoBehaviour
     }
     public void                     ReselectOriginalTurn()                  
     {
+        caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
         charUIList.SelectCharacter(TeamOrderManager.currentTurn);
         battleLog.LogBattleStatus($"{TeamOrderManager.currentTurn.name}'s Turn. Again.");
-        SetTurnState(TurnState.WaitingForAction);
+        TeamOrderManager.SetTurnState(TurnState.Start);
     }
     
 }

@@ -35,13 +35,8 @@ public class Character
                                                                         { SkillResources.Puppets, false }
                                                                     };
 
-    public List<Skill> skillList = new List<Skill>();
-    public List<Skill> activatedSkills = new List<Skill>();
-    public List<Skill> hiddenSkillList = new List<Skill>();
 
-
-    public Dictionary<Skill, CooldownStates> skillCooldowns = new Dictionary<Skill, CooldownStates>();
-    public Dictionary<Skill, int> skillActivations = new Dictionary<Skill, int>(); //When a skill is activated (using times played as reference)
+    public List<SkillInfo> skillList = new List<SkillInfo>();
 
     public BaseSkillClass rpgClass;
     public int ID;
@@ -147,66 +142,80 @@ public class Character
             }
         }
     }
+    #endregion
+
+    #region Useful Methods
+    public void UpdateCDs()
+    {
+        for (int i = 0; i < skillList.Count; i++)
+        {
+            skillList[i].UpdateCD();
+        }
+    }
+    public void CheckPassives()
+    {
+        Character character = this;
+        for (int i = 0; i < character.skillList.Count; i++)
+        {
+            if (character.skillList[i].skill.skillType == SkillType.Passive)
+            {
+                character.skillList[i].SetActive();
+            }
+        }
+    }
+
     /// <summary>
     /// Checks to activate a passive from a character's list IF its actuvation type matches the activation type you gave it
     /// </summary>
     /// <param name="character"></param>
     /// <param name="activationType"></param>
-    public void     CheckPassives           ()
+    public void ActivatePassiveEffects(ActivationTime activationType)
     {
         Character character = this;
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            if (character.skillList[i].skillType == SkillType.Passive)
+            SkillInfo curSkillInfo = character.skillList[i];
+            Skill curSkill = curSkillInfo.skill;
+            string curName = curSkill.baseInfo.name;
+
+            if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
             {
-                character.activatedSkills.Add(character.skillList[i]);
+                curSkill.Activate(character);
             }
         }
     }
-    public void     ActivatePassiveEffects  (PassiveActivation activationType)
+    public List<SkillInfo> ConvertSkillsToSkillInfo(List<Skill> skills)
     {
-        Character character = this;
-        for (int i = 0; i < character.activatedSkills.Count; i++)
+        List<SkillInfo> newList = new List<SkillInfo>();
+
+        for (int i = 0; i < skills.Count; i++)
         {
-            if (character.activatedSkills[i].passiveActivationType == activationType)
-            {
-                character.activatedSkills[i].Activate(character);
-            }
+            newList.Add(ConvertSkillToSkillInfo(skills[i]));
         }
+
+        return newList;
     }
-    public void UpdateCDs()
+
+    /// <summary>
+    /// converts a skill type to a skill info type
+    /// </summary>
+    public SkillInfo ConvertSkillToSkillInfo(Skill skill)
+    {
+        return new SkillInfo(this, skill);
+    }
+
+    public SkillInfo GetSkillFromSkillList(Skill skill)
     {
         for (int i = 0; i < skillList.Count; i++)
         {
-            Skill currentSkill = skillList[i];
-            CooldownStates currentState = currentSkill.GetCDState(this);
-
-            if (!skillCooldowns.ContainsKey(currentSkill))
+            if(skillList[i].skill == skill)
             {
-                skillCooldowns.Add(currentSkill, currentState);
-            }
-            else
-            {
-                skillCooldowns[currentSkill] = currentState;
+                return skillList[i];
             }
         }
-    }
-    public int GetCurrentCD(Skill skill)
-    {
-        int currentCD = 0;
 
-        if (skillActivations.ContainsKey(skill))
-        {
-            int activatedAt = skillActivations[skill];
-            int timesPlayed = this.timesPlayed;
-            int cooldown = skill.cooldown;
-
-            int difference = timesPlayed - activatedAt;
-
-            currentCD = cooldown - difference;
-        }
-
-        return currentCD;
+        Debug.LogError($"{name} did not have the skill {skill.baseInfo.name}");
+        return new SkillInfo(this, skill);
     }
     #endregion
 }

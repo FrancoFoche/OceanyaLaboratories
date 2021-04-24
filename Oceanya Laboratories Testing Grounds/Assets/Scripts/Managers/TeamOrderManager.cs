@@ -2,11 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TurnState
+{
+    Start,
+    WaitingForAction,
+    WaitingForTarget,
+    End
+}
+
+
+/// <summary>
+/// Where everything about turn order, and turn state is located
+/// </summary>
 public static class TeamOrderManager
 {
     public  static  List<Character>     allySide;
     public  static  List<Character>     enemySide;
     public  static  List<Character>     teamOrder               = new List<Character>();
+    public  static  TurnState           turnState { get; private set; }
     public  static  int                 currentTeamOrderIndex   = 0;
     public  static  Character           currentTurn;
     public  static  int                 phaseChangeIndex;
@@ -52,6 +65,41 @@ public static class TeamOrderManager
         BattleManager.battleLog.LogBattleStatus($"{currentTurn.name}'s Turn");
         BattleManager.charUIList.SelectCharacter(currentTurn);
     }
+    public static void                  SetTurnState    (TurnState state)       
+    {
+        switch (state)
+        {
+            case TurnState.Start:
+                turnState = TurnState.Start;
+
+                //function that tells the character that its the start of the turn (activate all skills that require it)
+                BattleManager.caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+
+                SetTurnState(TurnState.WaitingForAction);
+                break;
+            case TurnState.WaitingForAction:
+                UICharacterActions.instance.InteractableButtons(true);
+                UISkillContext.instance.InteractableButtons(true);
+                BattleManager.charUIList.TurnToggleGroup(true);
+                turnState = TurnState.WaitingForAction;
+                break;
+
+
+            case TurnState.WaitingForTarget:
+                UICharacterActions.instance.InteractableButtons(false);
+                UISkillContext.instance.InteractableButtons(false);
+                BattleManager.charUIList.TurnToggleGroup(false);
+                BattleManager.charUIList.TurnToggles(false);
+
+                turnState = TurnState.WaitingForTarget;
+                break;
+
+            case TurnState.End:
+                BattleManager.caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
+                turnState = TurnState.End;
+                break;
+        }
+    }
 
     /// <summary>
     /// Continues through the team order list, setting currentTurn to the next ordered turn.
@@ -72,6 +120,8 @@ public static class TeamOrderManager
     }
     public static void                  EndTurn         ()                      
     {
+        SetTurnState(TurnState.End);
+
         bool allyDeath = BattleManager.instance.CheckTotalTeamKill(Team.Ally);
         bool enemyDeath = BattleManager.instance.CheckTotalTeamKill(Team.Enemy);
 
@@ -85,8 +135,6 @@ public static class TeamOrderManager
         }
         else
         {
-            
-
             if (BattleManager.caster == currentTurn)
             {
                 currentTurn.timesPlayed += !currentTurn.dead ? 1 : 0;
@@ -107,6 +155,8 @@ public static class TeamOrderManager
             {
                 BattleManager.instance.SetBattleState(checkPhase);
             }
+
+            SetTurnState(TurnState.Start);
 
             if (currentTurn.dead)
             {

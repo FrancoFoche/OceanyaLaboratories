@@ -45,6 +45,7 @@ public class BattleLog : MonoBehaviour
 
         Message newMessage = new Message();
 
+        Debug.Log(text);
         newMessage.text = text;
 
         GameObject newText = Instantiate(textObject, chatPanel.transform);

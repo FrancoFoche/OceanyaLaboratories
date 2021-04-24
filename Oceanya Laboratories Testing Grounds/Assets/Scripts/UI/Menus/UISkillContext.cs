@@ -21,7 +21,7 @@ public class UISkillContext : UIButtonScrollList
         loadedCharacter = character;
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            AddSkill(character.skillList[i]);
+            AddSkill(character.skillList[i].skill);
         }
     }
 
@@ -34,7 +34,8 @@ public class UISkillContext : UIButtonScrollList
 
     public void Show()
     {
-        LoadSkills(BattleManager.caster);
+        Character character = BattleManager.caster;
+        LoadSkills(character);
         gameObject.SetActive(true);
     }
     public void Hide()

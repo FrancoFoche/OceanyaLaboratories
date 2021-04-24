@@ -33,8 +33,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 100  },
                     { Stats.HPREGEN  , 100  }
                 },
-                DBSkills.GetAllClassSkills(DBClasses.GetClass(0)),
-                new List<Skill>()
+                DBSkills.GetAllClassSkills(DBClasses.GetClass(0))
             ),
 
             //HEROES
@@ -52,8 +51,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 9  },
                     { Stats.HPREGEN  , 0  }
                 },
-                DBSkills.GetAllSkills(),
-                new List<Skill>()
+                new List<Skill>()//DBSkills.GetAllSkills()
             ),
             new PlayerCharacter(10 , "Cientifico" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
                 new Dictionary<Stats, int>
@@ -72,8 +70,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 new List<Skill>()
                 {
                     
-                },
-                new List<Skill>()
+                }
             ),
             new PlayerCharacter(11 , "Programador" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
                 new Dictionary<Stats, int>
@@ -92,8 +89,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 new List<Skill>()
                 {
 
-                },
-                new List<Skill>()
+                }
             ),
 
             new PlayerCharacter(40 , "Magno" , 999,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
@@ -113,8 +109,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 new List<Skill>()
                 {
 
-                },
-                new List<Skill>()
+                }
             ),
 
             //ENEMIGOS
@@ -134,9 +129,8 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(102,10)
-                },
-                new List<Skill>()
+
+                }
             ),
 
             new PlayerCharacter(666 , "Castro (el de las coins)" , 999, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
@@ -155,8 +149,8 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                },
-                new List<Skill>()
+
+                }
             ),
 
             new PlayerCharacter(420 , "DaBaby (ConvertibleForm)" , 10, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
@@ -175,8 +169,8 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                },
-                new List<Skill>()
+
+                }
             ),
 
             new PlayerCharacter(17 , "Sans SmashBros" , 1, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
@@ -195,8 +189,8 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                },
-                new List<Skill>()
+
+                }
             ),
 
             new PlayerCharacter(31 , "Edmund McNerfs" , 8, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
@@ -215,8 +209,8 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                },
-                new List<Skill>()
+
+                }
             )
         };
     }

@@ -12,16 +12,15 @@ public class Skill
     /// </summary>
     public bool done = false; 
 
-    public BaseObjectInfo baseInfo;
+    public BaseObjectInfo baseInfo { get; private set; }
     public BaseSkillClass skillClass; //RPG Class it's from
     public SkillType skillType;
 
     public bool hasPassive;
-    public PassiveActivation passiveActivationType;
+    public ActivationTime passiveActivationType { get; private set; }
 
     public TargetType targetType; //If the skill targets anyone, what is its target type?
     public int maxTargets;
-    public TargetType passiveActivationTarget;
 
     public CDType cdType;
     public int cooldown = 0;
@@ -105,11 +104,21 @@ public class Skill
         this.unlockedResources = unlockedResources;
         return this;
     }
+    public Skill BehaviorPassive(ActivationTime activationType)
+    {
+        hasPassive = true;
+        this.passiveActivationType = activationType;
+        return this;
+    }
     public Skill BehaviorCostsTurn()
     {
         costsTurn = true;
         return this;
     }
+
+
+
+
     public Skill BehaviorAppliesStatusEffects()
     {
         appliesStatusEffects = true;
@@ -125,13 +134,7 @@ public class Skill
         doesShield = true;
         return this;
     }
-    public Skill BehaviorPassive(PassiveActivation activationType, TargetType passiveActivationTarget)
-    {
-        hasPassive = true;
-        this.passiveActivationTarget = passiveActivationTarget;
-        passiveActivationType = activationType;
-        return this;
-    }
+    
     /// <summary>
     /// just marks the skill as done, this is just for development purposes
     /// </summary>
@@ -145,23 +148,13 @@ public class Skill
 
     public void Activate(Character caster)
     {
-        #region Add skill to activation history of the player
-        if (!caster.skillActivations.ContainsKey(this))
-        {
-            caster.skillActivations.Add(this, caster.timesPlayed);
-        }
-        else
-        {
-            caster.skillActivations[this] = caster.timesPlayed;
-        }
-        #endregion
+        SkillInfo skillInfo = caster.GetSkillFromSkillList(this);
+        bool firstActivation = !skillInfo.wasActivated;
+        skillInfo.SetActive();
 
-        bool firstActivation = !caster.activatedSkills.Contains(this);
-
-        if (skillType == SkillType.Active && hasPassive && firstActivation)
+        if(skillType == SkillType.Active && firstActivation && hasPassive)
         {
-            BattleManager.battleLog.LogBattleEffect($"Added {baseInfo.name} to {caster.name}'s Activated SkillList.");
-            caster.activatedSkills.Add(this);
+            BattleManager.battleLog.LogBattleEffect($"The passive of {baseInfo.name} was activated for {caster.name}.");
 
             if (costsTurn)
             {
@@ -206,6 +199,12 @@ public class Skill
                     SkillAction(caster, new List<Character>() { BattleManager.caster });
                     break;
             }
+        }
+        
+
+        if(skillType != SkillType.Passive && !hasPassive)
+        {
+            skillInfo.SetDeactivated();
         }
     }
 
@@ -300,50 +299,6 @@ public class Skill
         {
             TeamOrderManager.EndTurn();
         }
-    }
-
-    public CooldownStates GetCDState(Character character)
-    {
-        CooldownStates state = CooldownStates.Usable;
-
-        if (character.skillActivations.ContainsKey(this))
-        {
-            int activatedAt = character.skillActivations[this];
-            int timesPlayed = character.timesPlayed;
-
-
-
-            int difference = timesPlayed - activatedAt;
-
-            if (difference == 0)
-            {
-                state = CooldownStates.BeingUsed;
-            }
-            else
-            {
-                switch (cdType)
-                {
-                    case CDType.Turns:
-
-                        if (difference <= cooldown)
-                        {
-                            state = CooldownStates.OnCooldown;
-                        }
-                        else if (difference > cooldown)
-                        {
-                            state = CooldownStates.Usable;
-                        }
-
-                        break;
-
-                    case CDType.Other:
-                        state = CooldownStates.Used;
-                        break;
-                }
-            }
-        }
-
-        return state;
     }
 }
 
@@ -445,12 +400,86 @@ public struct SkillFormula
 
 
 /// <summary>
-/// Ignore this thing for now. Just a work in progress.
+/// The individual skill information that is specific to a character. (CurrentCD, when a player activated the skill, etc)
 /// </summary>
-public struct SkillPersonalInfo
+public class SkillInfo
 {
-    bool equipped;
-    bool activated;
-    int activatedAt;
-    CooldownStates cooldownState;
+            Character       character;
+    public  Skill           skill               { get; private set; }
+    public  bool            equipped            { get; private set; }
+    public  bool            wasActivated        { get; private set; } //If the skill was activated at SOME point.
+    public  bool            currentlyActive     { get; private set; } //If the skill is currently active
+    public  int             activatedAt         { get; private set; } //when the skill was activated
+    public  CooldownStates  cooldownState       { get; private set; }
+    public  int             currentCooldown     { get; private set; }
+
+    public SkillInfo(Character character, Skill skill)
+    {
+        this.character = character;
+        this.skill = skill;
+        equipped = true;
+    }
+    public void SetSkill(Skill skill)
+    {
+        this.skill = skill;
+    }
+    public void Equip()
+    {
+        equipped = true;
+    }
+    public void Unequip()
+    {
+        equipped = false;
+    }
+    public void SetActive()
+    {
+        currentlyActive = true;
+        wasActivated = true;
+        activatedAt = character.timesPlayed;
+        UpdateCD();
+    }
+    public void SetDeactivated()
+    {
+        currentlyActive = false;
+        UpdateCD();
+    }
+    public void UpdateCD()
+    {
+        CooldownStates newState = CooldownStates.Usable;
+
+        if (wasActivated)
+        {
+            int difference = character.timesPlayed - activatedAt;
+            currentCooldown = skill.cooldown - difference + 1;
+
+            if (difference == 0)
+            {
+                newState = CooldownStates.BeingUsed;
+            }
+            else
+            {
+                switch (skill.cdType)
+                {
+                    case CDType.Turns:
+
+                        if (difference <= skill.cooldown)
+                        {
+                            newState = CooldownStates.OnCooldown;
+                        }
+                        else if (difference > skill.cooldown)
+                        {
+                            newState = CooldownStates.Usable;
+                        }
+
+                        break;
+
+                    case CDType.Other:
+                        newState = CooldownStates.Used;
+                        break;
+                }
+            }
+        }
+
+        cooldownState = newState;
+    }
 }

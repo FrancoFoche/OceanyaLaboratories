@@ -36,11 +36,12 @@ public class DBClasses : MonoBehaviour
                 {
                     new Skill
                     (
-                            new BaseObjectInfo("Test Cooldown", 0 , "This skill should be activated, then put on cooldown (making it non interactable) and be usable once 2 turns pass.")
+                            new BaseObjectInfo("Test Cooldown Heal", 0 , "This skill should be activated, then heal the caster by 50% INT, and then put on cooldown (making it non interactable) and be usable once 2 turns pass.")
                             ,SkillType.Active
                             ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
+                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)})
                     .BehaviorHasCooldown(CDType.Turns, 2),
 
                     new Skill
@@ -78,6 +79,43 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.AGI,operationActions.Multiply,0.5f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Passive StartOfBattle", 4 , "This skill should be activated at the start of battle, damage the one that has it for 50% CHR and remain non interactable for the rest of battle.")
+                            ,SkillType.Passive
+                            ,TargetType.Self
+                    )
+                    .BehaviorPassive(ActivationTime.StartOfBattle)
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.5f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Passive StartOfTurn", 5 , "This skill should be activated at the start of every turn, damage the one that has it for 10% CHR and remain non interactable for the rest of battle.")
+                            ,SkillType.Passive
+                            ,TargetType.Self
+                    )
+                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.1f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Passive EndOfTurn", 6 , "This skill should be activated at the end of every turn, heal the one that has it for 10% CHR and remain non interactable for the rest of battle.")
+                            ,SkillType.Passive
+                            ,TargetType.Self
+                    )
+                    .BehaviorPassive(ActivationTime.EndOfTurn)
+                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.1f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test Activatable Counter", 7 , "This skill should be activated by the player, from that point on, anyone who attacks the caster should receive 1% STR as counter and the button should remain non interactable for the rest of battle.")
+                            ,SkillType.Active
+                            ,TargetType.Bounce
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorPassive(ActivationTime.WhenAttacked)
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.STR,operationActions.Multiply,0.01f)})
                 }
             ),
 
@@ -91,7 +129,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorUnlocksResource(new List<SkillResources>{SkillResources.NatureEnergy})
-                    .BehaviorPassive(PassiveActivation.StartOfBattle, TargetType.Self)
+                    .BehaviorPassive(ActivationTime.StartOfBattle)
                     .IsDone(),
 
                     //
@@ -225,7 +263,7 @@ public class DBClasses : MonoBehaviour
                     .BehaviorDoesDamage(
                         DamageType.Physical, ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.25f) }
                     )
-                    .BehaviorPassive(PassiveActivation.WhenAttacked, TargetType.Bounce)
+                    .BehaviorPassive(ActivationTime.WhenAttacked)
                     .BehaviorCostsTurn(),
 
                     //
@@ -307,7 +345,7 @@ public class DBClasses : MonoBehaviour
                             {SkillResources.NatureEnergy , -2 }
                         }
                     )
-                    .BehaviorPassive(PassiveActivation.WhenAttacked,TargetType.Bounce)
+                    .BehaviorPassive(ActivationTime.WhenAttacked)
                 }
             ),
 
@@ -321,7 +359,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorPassive(PassiveActivation.Once, TargetType.Single)
+                    .BehaviorPassive(ActivationTime.Once)
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {

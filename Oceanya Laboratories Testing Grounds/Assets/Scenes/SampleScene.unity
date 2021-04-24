@@ -1847,7 +1847,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   battleState: 0
-  turnState: 0
   inCombat: 0
   easteregg: {fileID: 1938071200}
 --- !u!1 &942524376
@@ -2385,7 +2384,7 @@ PrefabInstance:
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 117.13
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}

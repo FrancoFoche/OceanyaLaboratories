@@ -14,7 +14,6 @@ public class UICharacterActions : UIButtonScrollList
 
     private void Start()
     {
-        AddAllActions();
         instance = this;
     }
 
@@ -26,6 +25,8 @@ public class UICharacterActions : UIButtonScrollList
     }
     public void AddAllActions()
     {
+        buttons = new List<Button>();
+
         for (int i = 0; i < RuleManager.CharActionsHelper.Length; i++)
         {
             AddAction(RuleManager.CharActionsHelper[i]);
@@ -93,7 +94,7 @@ public class UICharacterActions : UIButtonScrollList
                                 if (!target[i].checkedPassives)
                                 {
                                     target[i].checkedPassives = true;
-                                    target[i].ActivatePassiveEffects(PassiveActivation.WhenAttacked);
+                                    target[i].ActivatePassiveEffects(ActivationTime.WhenAttacked);
                                 }
 
                                 if (target[i].stats[Stats.CURHP] <= 0)
@@ -227,7 +228,7 @@ public class UICharacterActions : UIButtonScrollList
     {
         this.action = action;
 
-        BattleManager.instance.SetTurnState(TurnState.WaitingForTarget);
+        TeamOrderManager.SetTurnState(TurnState.WaitingForTarget);
     }
     public void ActionDoesNotRequireTarget(CharActions action)
     {

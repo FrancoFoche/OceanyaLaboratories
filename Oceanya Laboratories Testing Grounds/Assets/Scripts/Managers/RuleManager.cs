@@ -73,11 +73,13 @@ public enum CooldownStates
     OnCooldown,
     Used
 }
-public enum PassiveActivation   
+public enum ActivationTime   
 {
     StartOfBattle,
+    StartOfTurn,
     WhenTargetting,
     WhenAttacked,
+    EndOfTurn,
     Once
 }
 public enum ClassNames          
