@@ -10,7 +10,7 @@ public class BattleLog : MonoBehaviour
     public GameObject chatPanel, textObject;
     public InputField chatBox;
 
-    public Color playerMessage, battleStatus, battleEffect; 
+    public Color playerMessage, battleStatus, battleEffect, allyTurn, enemyTurn, outOfCombatTurn; 
 
     [SerializeField]
     List<Message> messageList = new List<Message>();
@@ -54,10 +54,21 @@ public class BattleLog : MonoBehaviour
 
         newMessage.textObject.text = newMessage.text;
         newMessage.textObject.color = MessageTypeColor(messageType);
-        
-        if(messageType == Message.MessageType.BattleStatus)
+
+        switch (messageType)
         {
-            newMessage.textObject.alignment = TextAnchor.MiddleCenter;
+            case Message.MessageType.AllyTurn:
+            case Message.MessageType.EnemyTurn:
+            case Message.MessageType.BattleStatus:
+            case Message.MessageType.OutOfCombatTurn:
+                newMessage.textObject.alignment = TextAnchor.MiddleCenter;
+                break;
+
+            case Message.MessageType.BattleEffect:
+            case Message.MessageType.PlayerMessage:
+                newMessage.textObject.alignment = TextAnchor.MiddleLeft;
+                break;
+
         }
 
         messageList.Add(newMessage);
@@ -71,6 +82,18 @@ public class BattleLog : MonoBehaviour
         {
             case Message.MessageType.PlayerMessage:
                 color = playerMessage;
+                break;
+
+            case Message.MessageType.AllyTurn:
+                color = allyTurn;
+                break;
+
+            case Message.MessageType.EnemyTurn:
+                color = enemyTurn;
+                break;
+
+            case Message.MessageType.OutOfCombatTurn:
+                color = outOfCombatTurn;
                 break;
 
             case Message.MessageType.BattleStatus:
@@ -94,6 +117,48 @@ public class BattleLog : MonoBehaviour
     {
         SendMessageToChat("BattleLog: " + text, Message.MessageType.BattleEffect);
     }
+
+    /// <summary>
+    /// Sends a message to the log that says it is the character's turn
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="mode">1 = Normal turn. 2 = Repeated turn. ("Again") 3 = Non-Ordered </param>
+    public void LogTurn(Character character, int mode = 1)
+    {
+        string messageToSend = "";
+        Message.MessageType type = Message.MessageType.AllyTurn;
+
+        switch (mode)
+        {
+            case 1:
+                messageToSend = $"*{character.name}'s Turn*";
+                break;
+            case 2:
+                messageToSend = $"*{character.name}'s Turn. Again*";
+                break;
+            case 3:
+                messageToSend = $"*{character.name}'s (Non-Ordered) Turn.*";
+                break;
+            default:
+                Debug.LogError("Invalid Turn Mode");
+                break;
+        }
+
+        switch (character.team)
+        {
+            case Team.Enemy:
+                type = Message.MessageType.EnemyTurn;
+                break;
+            case Team.Ally:
+                type = Message.MessageType.AllyTurn;
+                break;
+            case Team.OutOfCombat:
+                type = Message.MessageType.OutOfCombatTurn;
+                break;
+        }
+
+        SendMessageToChat(messageToSend, type);
+    }
 }
 
 [System.Serializable]
@@ -106,6 +171,9 @@ public class Message
     public enum MessageType
     {
         PlayerMessage,
+        AllyTurn,
+        EnemyTurn,
+        OutOfCombatTurn,
         BattleStatus,
         BattleEffect
     }

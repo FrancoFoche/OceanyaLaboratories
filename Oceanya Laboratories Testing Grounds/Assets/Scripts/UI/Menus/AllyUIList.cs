@@ -40,6 +40,7 @@ public class AllyUIList : UIToggleScrollList
             {
                 SelectObject(i);
                 curCharacterSelected = character;
+                Debug.Log($"Selected {character.name}");
                 break;
             }
         }

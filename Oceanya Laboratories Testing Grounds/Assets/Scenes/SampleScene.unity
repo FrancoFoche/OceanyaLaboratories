@@ -2384,7 +2384,7 @@ PrefabInstance:
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 117.13
       objectReference: {fileID: 0}
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
@@ -2822,6 +2822,9 @@ MonoBehaviour:
   playerMessage: {r: 1, g: 1, b: 1, a: 1}
   battleStatus: {r: 0.3820755, g: 0.923052, b: 1, a: 1}
   battleEffect: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
+  allyTurn: {r: 0.2474635, g: 0.7830189, b: 0.34075382, a: 1}
+  enemyTurn: {r: 0.9528302, g: 0.35506406, b: 0.35506406, a: 1}
+  outOfCombatTurn: {r: 0.7264151, g: 0.7264151, b: 0.7264151, a: 1}
   messageList: []
 --- !u!1 &1155383932
 GameObject:

@@ -180,7 +180,10 @@ public class Character
 
             if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
             {
-                curSkill.Activate(character);
+                if(curSkill.skillType == SkillType.Active && curSkillInfo.currentlyActive || curSkill.skillType == SkillType.Passive)
+                {
+                    curSkill.Activate(character);
+                }
             }
         }
     }

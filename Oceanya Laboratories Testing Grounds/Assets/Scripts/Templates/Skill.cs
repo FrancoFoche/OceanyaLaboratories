@@ -297,7 +297,10 @@ public class Skill
 
         if (costsTurn)
         {
-            TeamOrderManager.EndTurn();
+            if(!(skillType == SkillType.Active && hasPassive && caster.GetSkillFromSkillList(this).currentlyActive))
+            {
+                TeamOrderManager.EndTurn();
+            }
         }
     }
 }

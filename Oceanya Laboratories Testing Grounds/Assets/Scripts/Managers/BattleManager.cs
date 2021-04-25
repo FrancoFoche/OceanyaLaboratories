@@ -6,8 +6,6 @@ using UnityEngine.UI;
 public enum BattleState
 {
     Start,
-    AllyPhase,
-    EnemyPhase,
     Won,
     Lost
 }
@@ -48,8 +46,9 @@ public class BattleManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
             {
+                Debug.Log("Targetting done.");
+                BattleManager.charUIList.TurnToggles(false);
                 UICharacterActions.instance.Act(caster, target);
-                TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
             }
             else
             {
@@ -91,18 +90,18 @@ public class BattleManager : MonoBehaviour
             charUIList.AddChar(TeamOrderManager.enemySide[i]);
         }
 
-        for (int i = 0; i < TeamOrderManager.teamOrder.Count; i++)
+        for (int i = 0; i < TeamOrderManager.totalCharList.Count; i++)
         {
-            TeamOrderManager.teamOrder[i].CheckPassives();
-            TeamOrderManager.teamOrder[i].ActivatePassiveEffects(ActivationTime.StartOfBattle);
+            TeamOrderManager.totalCharList[i].CheckPassives();
+            TeamOrderManager.totalCharList[i].ActivatePassiveEffects(ActivationTime.StartOfBattle);
         }
 
         yield return new WaitForSeconds(3);
 
-        SetBattleState(BattleState.AllyPhase);
-        caster = TeamOrderManager.teamOrder[0];
+        caster = TeamOrderManager.spdSystem.teamOrder[0];
         TeamOrderManager.SetCurrentTurn(caster);
         caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+        TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
     }
 
     public static void              UpdateUIs           ()                  
@@ -121,19 +120,6 @@ public class BattleManager : MonoBehaviour
                 charActions.InteractableButtons(false);
                 battleLog.LogBattleStatus("COMBAT START!");
                 break;
-
-            case BattleState.AllyPhase:
-                battleState = BattleState.AllyPhase;
-                charActions.InteractableButtons(true);
-                battleLog.LogBattleStatus("Ally Phase");
-                break;
-
-            case BattleState.EnemyPhase:
-                battleState = BattleState.EnemyPhase;
-                charActions.InteractableButtons(false);
-                battleLog.LogBattleStatus("Enemy Phase");
-                break;
-
             case BattleState.Won:
                 charActions.InteractableButtons(false);
                 battleLog.LogBattleStatus("Ally team wins!");
@@ -182,7 +168,7 @@ public class BattleManager : MonoBehaviour
         if (TeamOrderManager.currentTurn != AllyUIList.curCharacterSelected)
         {
             caster = AllyUIList.curCharacterSelected;
-            battleLog.LogBattleStatus($"{caster.name}'s (Non-Ordered) Turn");
+            battleLog.LogTurn(caster, 3);
             caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
         }
         else
@@ -207,7 +193,7 @@ public class BattleManager : MonoBehaviour
     {
         caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
         charUIList.SelectCharacter(TeamOrderManager.currentTurn);
-        battleLog.LogBattleStatus($"{TeamOrderManager.currentTurn.name}'s Turn. Again.");
+        battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
         TeamOrderManager.SetTurnState(TurnState.Start);
     }
     
