@@ -83,8 +83,8 @@ public static class TeamOrderManager
                 break;
 
             case TurnState.End:
-                BattleManager.caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
                 turnState = TurnState.End;
+                BattleManager.caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
                 break;
         }
     }

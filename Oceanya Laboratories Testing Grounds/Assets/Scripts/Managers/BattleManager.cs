@@ -191,10 +191,8 @@ public class BattleManager : MonoBehaviour
     }
     public void                     ReselectOriginalTurn()                  
     {
-        caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
         charUIList.SelectCharacter(TeamOrderManager.currentTurn);
         battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
-        TeamOrderManager.SetTurnState(TurnState.Start);
     }
     
 }

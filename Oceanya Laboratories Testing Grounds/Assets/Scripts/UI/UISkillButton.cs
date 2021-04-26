@@ -38,36 +38,45 @@ public class UISkillButton : MonoBehaviour
         StringBuilder result = new StringBuilder();
 
         SkillInfo skillInfo = BattleManager.caster.GetSkillFromSkillList(loadedSkill);
-        Skill skill = skillInfo.skill;
 
-        if (skillInfo.currentlyActive)
+        skillInfo.CheckActivatable();
+
+        if (skillInfo.activatable)
         {
-            result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text).Append("</color>");
-            button.interactable = false;
+            if (skillInfo.currentlyActive)
+            {
+                result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text).Append("</color>");
+                button.interactable = false;
+            }
+            else
+            {
+                skillInfo.UpdateCD();
+
+                switch (skillInfo.cooldownState)
+                {
+                    case CooldownStates.BeingUsed:
+                        result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.green)).Append(">").Append(text).Append("</color>");
+                        button.interactable = false;
+                        break;
+                    case CooldownStates.Usable:
+                        result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.white)).Append(">").Append(text).Append("</color>");
+                        button.interactable = true;
+                        break;
+                    case CooldownStates.OnCooldown:
+                        result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.yellow)).Append(">").Append(text).Append(" (").Append(skillInfo.currentCooldown).Append(" CD)").Append("</color>");
+                        button.interactable = false;
+                        break;
+                    case CooldownStates.Used:
+                        result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text).Append("</color>");
+                        button.interactable = false;
+                        break;
+                }
+            }
         }
         else
         {
-            skillInfo.UpdateCD();
-
-            switch (skillInfo.cooldownState)
-            {
-                case CooldownStates.BeingUsed:
-                    result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.green)).Append(">").Append(text).Append("</color>");
-                    button.interactable = false;
-                    break;
-                case CooldownStates.Usable:
-                    result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.white)).Append(">").Append(text).Append("</color>");
-                    button.interactable = true;
-                    break;
-                case CooldownStates.OnCooldown:
-                    result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.yellow)).Append(">").Append(text).Append(" (").Append(skillInfo.currentCooldown).Append(" CD)").Append("</color>");
-                    button.interactable = false;
-                    break;
-                case CooldownStates.Used:
-                    result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text).Append("</color>");
-                    button.interactable = false;
-                    break;
-            }
+            result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.red)).Append(">").Append(text).Append("</color>");
+            button.interactable = false;
         }
 
         return result.ToString();

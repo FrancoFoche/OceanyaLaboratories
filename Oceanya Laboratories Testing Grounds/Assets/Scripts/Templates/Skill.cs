@@ -16,6 +16,9 @@ public class Skill
     public BaseSkillClass skillClass; //RPG Class it's from
     public SkillType skillType;
 
+    public bool hasActivationRequirement;
+    public List<ActivationRequirement> activationRequirements;
+
     public bool hasPassive;
     public ActivationTime passiveActivationType { get; private set; }
 
@@ -116,7 +119,12 @@ public class Skill
         return this;
     }
 
-
+    public Skill BehaviorActivationRequirement(List<ActivationRequirement> requirements)
+    {
+        hasActivationRequirement = true;
+        activationRequirements = requirements;
+        return this;
+    }
 
 
     public Skill BehaviorAppliesStatusEffects()
@@ -149,63 +157,75 @@ public class Skill
     public void Activate(Character caster)
     {
         SkillInfo skillInfo = caster.GetSkillFromSkillList(this);
-        bool firstActivation = !skillInfo.wasActivated;
-        skillInfo.SetActive();
 
-        if(skillType == SkillType.Active && firstActivation && hasPassive)
+        skillInfo.CheckActivatable();
+
+        if (skillInfo.activatable)
         {
-            BattleManager.battleLog.LogBattleEffect($"The passive of {baseInfo.name} was activated for {caster.name}.");
+            bool firstActivation = !skillInfo.wasActivated;
+            skillInfo.SetActive();
 
-            if (costsTurn)
+            if (skillType == SkillType.Active && firstActivation && hasPassive)
             {
-                TeamOrderManager.EndTurn();
+                BattleManager.battleLog.LogBattleEffect($"The passive of {baseInfo.name} was activated for {caster.name}.");
+
+                if (costsTurn)
+                {
+                    TeamOrderManager.EndTurn();
+                }
+            }
+            else
+            {
+                switch (targetType)
+                {
+                    case TargetType.Self:
+                        SkillAction(caster, new List<Character>() { caster });
+                        break;
+
+                    case TargetType.Single:
+                    case TargetType.Multiple:
+                        UICharacterActions.instance.maxTargets = maxTargets;
+                        UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
+                        break;
+
+                    case TargetType.AllAllies:
+                        if (caster.team == Team.Ally)
+                        {
+                            SkillAction(caster, TeamOrderManager.allySide);
+                        }
+                        else
+                        {
+                            SkillAction(caster, TeamOrderManager.enemySide);
+                        }
+                        break;
+                    case TargetType.AllEnemies:
+                        if (caster.team == Team.Ally)
+                        {
+                            SkillAction(caster, TeamOrderManager.enemySide);
+                        }
+                        else
+                        {
+                            SkillAction(caster, TeamOrderManager.allySide);
+                        }
+                        break;
+                    case TargetType.Bounce:
+                        SkillAction(caster, new List<Character>() { BattleManager.caster });
+                        break;
+                }
+            }
+
+
+            if (skillType != SkillType.Passive && !hasPassive)
+            {
+                skillInfo.SetDeactivated();
             }
         }
         else
         {
-            switch (targetType)
-            {
-                case TargetType.Self:
-                    SkillAction(caster, new List<Character>() { caster });
-                    break;
-
-                case TargetType.Single:
-                case TargetType.Multiple:
-                    UICharacterActions.instance.maxTargets = maxTargets;
-                    UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
-                    break;
-
-                case TargetType.AllAllies:
-                    if (caster.team == Team.Ally)
-                    {
-                        SkillAction(caster, TeamOrderManager.allySide);
-                    }
-                    else
-                    {
-                        SkillAction(caster, TeamOrderManager.enemySide);
-                    }
-                    break;
-                case TargetType.AllEnemies:
-                    if (caster.team == Team.Ally)
-                    {
-                        SkillAction(caster, TeamOrderManager.enemySide);
-                    }
-                    else
-                    {
-                        SkillAction(caster, TeamOrderManager.allySide);
-                    }
-                    break;
-                case TargetType.Bounce:
-                    SkillAction(caster, new List<Character>() { BattleManager.caster });
-                    break;
-            }
+            BattleManager.battleLog.LogBattleEffect($"But {caster.name} did not meet the requirements to activate the skill!");
         }
+
         
-
-        if(skillType != SkillType.Passive && !hasPassive)
-        {
-            skillInfo.SetDeactivated();
-        }
     }
 
     public void SkillAction(Character caster, List<Character> target)
@@ -242,17 +262,18 @@ public class Skill
                 }
                 if (formulaModifiesStat)
                 {
+                    Dictionary<Stats, int> resultModifiers = new Dictionary<Stats, int>();
                     for (int j = 0; j < RuleManager.StatHelper.Length; j++)
                     {
                         Stats currentStat = RuleManager.StatHelper[j];
 
                         if (formulaStatModifiers.ContainsKey(currentStat))
                         {
-                            flatStatModifiers[currentStat] = SkillFormula.Read(formulaStatModifiers[currentStat], caster.stats);
+                            resultModifiers.Add(currentStat, SkillFormula.Read(formulaStatModifiers[currentStat], caster.stats));
                         }
                     }
 
-                    target[i].ModifyStat(flatStatModifiers);
+                    target[i].ModifyStat(resultModifiers);
                 }
                 if (unlocksResource)
                 {
@@ -297,7 +318,7 @@ public class Skill
 
         if (costsTurn)
         {
-            if(!(skillType == SkillType.Active && hasPassive && caster.GetSkillFromSkillList(this).currentlyActive))
+            if (!(skillType == SkillType.Active && hasPassive && caster.GetSkillFromSkillList(this).currentlyActive))
             {
                 TeamOrderManager.EndTurn();
             }
@@ -409,6 +430,7 @@ public class SkillInfo
 {
             Character       character;
     public  Skill           skill               { get; private set; }
+    public  bool            activatable         { get; private set; }
     public  bool            equipped            { get; private set; }
     public  bool            wasActivated        { get; private set; } //If the skill was activated at SOME point.
     public  bool            currentlyActive     { get; private set; } //If the skill is currently active
@@ -416,37 +438,38 @@ public class SkillInfo
     public  CooldownStates  cooldownState       { get; private set; }
     public  int             currentCooldown     { get; private set; }
 
-    public SkillInfo(Character character, Skill skill)
+    public SkillInfo            (Character character, Skill skill)  
     {
         this.character = character;
         this.skill = skill;
         equipped = true;
+        activatable = true;
     }
-    public void SetSkill(Skill skill)
+    public void SetSkill        (Skill skill)                       
     {
         this.skill = skill;
     }
-    public void Equip()
+    public void Equip           ()                                  
     {
         equipped = true;
     }
-    public void Unequip()
+    public void Unequip         ()                                  
     {
         equipped = false;
     }
-    public void SetActive()
+    public void SetActive       ()                                  
     {
         currentlyActive = true;
         wasActivated = true;
         activatedAt = character.timesPlayed;
         UpdateCD();
     }
-    public void SetDeactivated()
+    public void SetDeactivated  ()                                  
     {
         currentlyActive = false;
         UpdateCD();
     }
-    public void UpdateCD()
+    public void UpdateCD        ()                                  
     {
         CooldownStates newState = CooldownStates.Usable;
 
@@ -484,5 +507,138 @@ public class SkillInfo
         }
 
         cooldownState = newState;
+    }
+    public void CheckActivatable()                                  
+    {
+        bool activatable = true;
+
+        if (skill.hasActivationRequirement)
+        {
+            for (int i = 0; i < skill.activationRequirements.Count; i++)
+            {
+                if (!skill.activationRequirements[i].CheckRequirement())
+                {
+                    activatable = false;
+                }
+            }
+
+        }
+
+        this.activatable = activatable;
+    }
+}
+
+public class ActivationRequirement
+{
+    public  RequirementType type        { get; private set; }
+
+    public  SkillResources  resource    { get; private set; }
+    public  Stats           stat        { get; private set; }
+    //add a status one here whenever it's done
+            int             skillclassID;
+            int             skillID;
+    public  Skill           skill       { get; private set; }
+    public  ComparerType    comparer    { get; private set; }
+    public  int             number      { get; private set; }
+
+    public  enum RequirementType
+    {
+        Stat,
+        Resource,
+        Status,
+        SkillIsActive
+    }
+    public  enum ComparerType
+    {
+        MoreThan,
+        LessThan,
+        Equal
+    }
+
+    #region Constructors
+    /// <summary>
+    /// StatRequirement
+    /// </summary>
+    /// <param name="stat"></param>
+    /// <param name="comparingType"></param>
+    /// <param name="number"></param>
+    public ActivationRequirement(Stats stat, ComparerType comparingType, int number)
+    {
+        type = RequirementType.Stat;
+        this.stat = stat;
+        comparer = comparingType;
+        this.number = number;
+    }
+    /// <summary>
+    /// Resource requirement
+    /// </summary>
+    /// <param name="resource"></param>
+    /// <param name="comparingType"></param>
+    /// <param name="number"></param>
+    public ActivationRequirement(SkillResources resource, ComparerType comparingType, int number)
+    {
+        type = RequirementType.Resource;
+        this.resource = resource;
+        comparer = comparingType;
+        this.number = number;
+    }
+    /// <summary>
+    /// SkillIsActive requirement.
+    /// </summary>
+    /// <param name="skillclassID"></param>
+    /// <param name="skillID"></param>
+    public ActivationRequirement(int skillclassID, int skillID)
+    {
+        type = RequirementType.SkillIsActive;
+        this.skillclassID = skillclassID;
+        this.skillID = skillID;
+    }
+    #endregion
+
+    public  bool CheckRequirement()             
+    {
+        Character caster = BattleManager.caster;
+
+        switch (type)
+        {
+            case RequirementType.Stat:
+                return CheckRequirement(caster.stats[stat]);
+                
+            case RequirementType.Resource:
+                return CheckRequirement(caster.skillResources[resource]);
+
+            case RequirementType.Status:
+                Debug.LogError("Requirement type status not yet implemented, returning true");
+                return true;
+
+            case RequirementType.SkillIsActive:
+                if(skill == null)
+                {
+                    skill = DBSkills.GetSkill(skillclassID, skillID);
+                }
+                return caster.GetSkillFromSkillList(skill).currentlyActive;
+
+            default:
+                Debug.LogError("Invalid Requirement type, returning true");
+                return true;
+        }
+    }
+    public  bool CheckRequirement(int number)   
+    {
+        switch (comparer)
+        {
+            case ComparerType.MoreThan:
+                return number > this.number;
+
+            case ComparerType.LessThan:
+                return number < this.number;
+
+            case ComparerType.Equal:
+                return number == this.number;
+
+            default:
+                Debug.LogError("Invalid Comparer type, returning true");
+                return true;
+        }
     }
 }

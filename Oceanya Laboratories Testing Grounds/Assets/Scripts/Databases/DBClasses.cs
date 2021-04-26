@@ -12,24 +12,6 @@ public class DBClasses : MonoBehaviour
     {
         classes = new List<BaseSkillClass>()
         {
-            #region Skill Template
-            /*
-
-            new Skill
-            (
-                    new BaseObjectInfo("name", id , "description"),
-                    Skill.SkillType, 
-                    DBClasses.GetClass(id) 
-            )
-            .BehaviorCostsTurn() //it ends your turn when you use it
-            .BehaviorDoesDamage(Skill.DamageType, Skill.ElementType, 
-                new List<SkillFormula>()
-                {
-                    new SkillFormula(Character.Stats , SkillFormula.operationActions , number) 
-                })
-
-            */
-            #endregion
 
             new BaseSkillClass(new BaseObjectInfo("Testing Class", 0 , "This is the class that has every test skill"),
                 new List<Skill>
@@ -115,7 +97,27 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.WhenAttacked)
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.STR,operationActions.Multiply,0.01f)})
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.STR,operationActions.Multiply,0.01f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test ActivationRequirement 1", 8 , "This skill should buff your AGI for 50% INT and ONLY be activatable if activatable counter is currently active")
+                            ,SkillType.Active
+                            ,TargetType.Self
+                    )
+                    .BehaviorActivationRequirement(new List<ActivationRequirement>(){ new ActivationRequirement(0,7) })
+                    .BehaviorCostsTurn()
+                    .BehaviorModifiesStat(new Dictionary<Stats, SkillFormula>(){{ Stats.AGI, new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)} }),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test ActivationRequirement 2", 9 , "This skill should heal you for 50% INT and ONLY be activatable if you have more than 125 AGI")
+                            ,SkillType.Active
+                            ,TargetType.Self
+                    )
+                    .BehaviorActivationRequirement(new List<ActivationRequirement>(){ new ActivationRequirement(Stats.AGI, ActivationRequirement.ComparerType.MoreThan, 125) })
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}),
                 }
             ),
 

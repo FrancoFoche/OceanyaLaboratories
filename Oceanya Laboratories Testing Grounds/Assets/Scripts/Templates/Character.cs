@@ -7,7 +7,7 @@ public class Character
     public string                   name;
     public int                      level;
     public Dictionary<Stats, int>   stats               =   new Dictionary<Stats, int>();
-    Dictionary<SkillResources, int> skillResources      = 
+    public Dictionary<SkillResources, int> skillResources      = 
                                                                     new Dictionary<SkillResources, int>() 
                                                                     {
                                                                         { SkillResources.Bloodstacks, 0 },
@@ -172,11 +172,19 @@ public class Character
     public void ActivatePassiveEffects(ActivationTime activationType)
     {
         Character character = this;
+
+        List<string> skillnames = new List<string>();
+        for (int i = 0; i < character.skillList.Count; i++)
+        {
+            skillnames.Add(character.skillList[i].skill.baseInfo.name);
+        }
+
+
         for (int i = 0; i < character.skillList.Count; i++)
         {
             SkillInfo curSkillInfo = character.skillList[i];
             Skill curSkill = curSkillInfo.skill;
-            string curName = curSkill.baseInfo.name;
+            string name = curSkill.baseInfo.name;
 
             if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
             {
