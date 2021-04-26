@@ -121,6 +121,16 @@ public enum CharActions
     Prepare,
     Skip
 }
+public enum ReplaceStringVariables
+{
+    _damage_,
+    _heal_,
+    _statsModified_,
+    _resourcesModified_,
+    _shield_,
+    _caster_,
+    _target_
+}
 
 /// <summary>
 /// Where enums are stored, and where helpers are created for iteration through them
@@ -142,6 +152,11 @@ public static class RuleManager
     /// </summary>
     public static CharActions[] CharActionsHelper { get; private set; }
 
+    /// <summary>
+    /// An array that you can use in For functions to iterate through the replaceable strings.
+    /// </summary>
+    public static ReplaceStringVariables[] ReplaceableStringsHelper { get; private set; }
+
     public static void BuildHelpers()
     {
         StatHelper = (Stats[])Enum.GetValues(typeof(Stats));
@@ -149,5 +164,7 @@ public static class RuleManager
         SkillResourceHelper = (SkillResources[])Enum.GetValues(typeof(SkillResources));
 
         CharActionsHelper = (CharActions[])Enum.GetValues(typeof(CharActions));
+
+        ReplaceableStringsHelper = (ReplaceStringVariables[])Enum.GetValues(typeof(ReplaceStringVariables));
     }
 }

@@ -16,6 +16,8 @@ public class Skill
     public BaseSkillClass skillClass; //RPG Class it's from
     public SkillType skillType;
 
+    public string activationText { get; private set; }
+
     public bool hasActivationRequirement;
     public List<ActivationRequirement> activationRequirements;
 
@@ -56,9 +58,10 @@ public class Skill
     public bool doesShield; //does the skill shield anything
 
     #region Constructors
-    public Skill(BaseObjectInfo baseInfo, SkillType skillType,TargetType targetType, int maxTargets = 1)
+    public Skill(BaseObjectInfo baseInfo, string activationText, SkillType skillType, TargetType targetType, int maxTargets = 1)
     {
         this.baseInfo = baseInfo;
+        this.activationText = activationText;
         this.targetType = targetType;
         this.maxTargets = maxTargets;
         this.skillType = skillType;
@@ -118,7 +121,6 @@ public class Skill
         costsTurn = true;
         return this;
     }
-
     public Skill BehaviorActivationRequirement(List<ActivationRequirement> requirements)
     {
         hasActivationRequirement = true;
@@ -224,18 +226,16 @@ public class Skill
         {
             BattleManager.battleLog.LogBattleEffect($"But {caster.name} did not meet the requirements to activate the skill!");
         }
-
-        
     }
 
     public void SkillAction(Character caster, List<Character> target)
     {
         for (int i = 0; i < target.Count; i++)
         {
-            string activationText = "";
+            Dictionary<ReplaceStringVariables, string> activationText = new Dictionary<ReplaceStringVariables, string>();
 
-            activationText = $"{caster.name} activated {baseInfo.name}! Target: {target[i].name}!";
-
+            activationText.Add(ReplaceStringVariables._caster_, caster.name);
+            activationText.Add(ReplaceStringVariables._target_, target[i].name);
             if (target[i].targettable)
             {
                 if (doesDamage)
@@ -246,7 +246,7 @@ public class Skill
 
                     target[i].GetsDamagedBy(finalDMG);
 
-                    activationText += $" {finalDMG} DMG!";
+                    activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
                 }
                 if (doesHeal)
                 {
@@ -254,7 +254,7 @@ public class Skill
 
                     target[i].GetsHealedBy(healAmount);
 
-                    activationText += $" Heal: {healAmount} HP!";
+                    activationText.Add(ReplaceStringVariables._heal_, healAmount.ToString());
                 }
                 if (flatModifiesStat)
                 {
@@ -278,13 +278,6 @@ public class Skill
                 if (unlocksResource)
                 {
                     target[i].UnlockResources(unlockedResources);
-
-                    string unlockedResourcesList = "";
-                    for (int j = 0; j < unlockedResources.Count; j++)
-                    {
-                        unlockedResourcesList += " " + unlockedResources[j] + ";";
-                    }
-                    activationText += $" Unlocked resources: {unlockedResourcesList}";
                 }
                 if (modifiesResource)
                 {
@@ -308,10 +301,10 @@ public class Skill
             }
             else
             {
-                activationText += " Target wasn't targettable, smh";
+                BattleManager.battleLog.LogBattleEffect("Target wasn't targettable, smh");
             }
 
-            BattleManager.battleLog.LogBattleEffect(activationText);
+            BattleManager.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
 
             BattleManager.UpdateUIs();
         }
@@ -323,6 +316,27 @@ public class Skill
                 TeamOrderManager.EndTurn();
             }
         }
+    }
+
+    public string ReplaceActivationText(Dictionary<ReplaceStringVariables, string> replaceWith)
+    {
+        string resultText = activationText;
+
+        for (int i = 0; i < RuleManager.ReplaceableStringsHelper.Length; i++)
+        {
+            ReplaceStringVariables curVariable = RuleManager.ReplaceableStringsHelper[i];
+            string curVarString = curVariable.ToString();
+
+            bool dictionaryHasVariable = replaceWith.ContainsKey(curVariable);
+            bool textHasVariable = resultText.Contains(curVarString);
+
+            if (dictionaryHasVariable && textHasVariable)
+            {
+                resultText = resultText.Replace(curVarString, replaceWith[curVariable]);
+            }
+        }
+
+        return resultText;
     }
 }
 

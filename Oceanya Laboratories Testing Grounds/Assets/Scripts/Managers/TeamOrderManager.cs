@@ -155,14 +155,14 @@ public static class TeamOrderManager
 public class SPDSystem
 {
     List<Character>[] teams;
-    public int GensPerPeriod { get; private set; }
-    public int MaxDelay { get; private set; }
-    public int CurrentPeriod { get; private set; }
-    public int CurrentGen { get; private set; }
-    List<SPDSystemInfo> info = new List<SPDSystemInfo>();
-    public List<Character> teamOrder { get; private set; }
+    public int                  GensPerPeriod   { get; private set; }
+    public int                  MaxDelay        { get; private set; }
+    public int                  CurrentPeriod   { get; private set; }
+    public int                  CurrentGen      { get; private set; }
+    public List<SPDSystemInfo>  info            { get; private set; }
+    public List<Character>      teamOrder       { get; private set; }
 
-    public SPDSystem(params List<Character>[] teams)
+    public SPDSystem                        (params List<Character>[] teams)
     {
         GensPerPeriod = 15;
         CurrentPeriod = 0;
@@ -170,8 +170,10 @@ public class SPDSystem
         UpdateMaxDelay(this.teams);
     }
 
-    public void BuildSPDSystem()
+    public void         BuildSPDSystem      ()                              
     {
+        info = new List<SPDSystemInfo>();
+
         for (int i = 0; i < teams.Length; i++)
         {
             List<Character> curTeam = teams[i];
@@ -187,8 +189,7 @@ public class SPDSystem
 
         SetNextPeriod();
     }
-
-    void UpdateMaxDelay(params List<Character>[] teams)
+    void                UpdateMaxDelay      (params List<Character>[] teams)
     {
         int maxDelay = 0;
 
@@ -213,24 +214,21 @@ public class SPDSystem
 
         MaxDelay = maxDelay;
     }
-    public void SetNextPeriod()
+    public void         SetNextPeriod       ()                              
     {
         SetCurrentPeriod(CurrentPeriod + 1);
     }
-
-    void SetCurrentPeriod(int period)
+    void                SetCurrentPeriod    (int period)                    
     {
         CurrentPeriod = period;
         UpdateCurrentGen();
         BuildTeamOrder(info);
     }
-
-    void UpdateCurrentGen()
+    void                UpdateCurrentGen    ()                              
     {
         CurrentGen = 1+((CurrentPeriod-1) * GensPerPeriod);
     }
-
-    void BuildTeamOrder(List<SPDSystemInfo> info)
+    void                BuildTeamOrder      (List<SPDSystemInfo> info)      
     {
         List<Character> newteamOrder = new List<Character>();
 
@@ -251,13 +249,13 @@ public class SPDSystem
 
 public class SPDSystemInfo
 {
-    public Character character { get; private set; }
-    public int AGI { get; private set; }
-    public float CounterIncrease { get; private set; }
-    public float CurrentCounter { get; private set; }
-    public List<bool> turnList { get; private set; }
+    public Character    character       { get; private set; }
+    public int          AGI             { get; private set; }
+    public float        CounterIncrease { get; private set; }
+    public float        CurrentCounter  { get; private set; }
+    public List<bool>   turnList        { get; private set; }
 
-    public SPDSystemInfo(Character character)
+    public SPDSystemInfo                (Character character)   
     {
         this.character = character;
         AGI = character.stats[Stats.AGI];
@@ -267,12 +265,11 @@ public class SPDSystemInfo
         GenerateTurns();
     }
 
-    public void UpdateCurrentCounter()
+    public void UpdateCurrentCounter    ()                      
     {
         CurrentCounter = TeamOrderManager.spdSystem.CurrentGen * CounterIncrease;
     }
-
-    public void GenerateTurns()
+    public void GenerateTurns           ()                      
     {
         turnList = new List<bool>();
         float pastTotalCounter = 0;
