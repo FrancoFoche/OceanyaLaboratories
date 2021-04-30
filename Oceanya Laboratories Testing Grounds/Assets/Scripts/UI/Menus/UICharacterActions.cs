@@ -91,6 +91,11 @@ public class UICharacterActions : UIButtonScrollList
 
                                 BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
 
+                                if (target[i].defending)
+                                {
+                                    BattleManager.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(resultDMG / 2)} DMG.");
+                                }
+
                                 if (!target[i].checkedPassives)
                                 {
                                     target[i].checkedPassives = true;
@@ -124,7 +129,7 @@ public class UICharacterActions : UIButtonScrollList
             case CharActions.Defend:
                 {
                     BattleManager.battleLog.LogBattleEffect($"{caster.name} defends!");
-                    BattleManager.battleLog.LogBattleEffect($"Yet for time reasons, the programmer couldn't make it work yet...");
+                    caster.defending = true;
                     TeamOrderManager.EndTurn();
                 }
                 break;
@@ -145,9 +150,20 @@ public class UICharacterActions : UIButtonScrollList
 
             case CharActions.Rearrange:
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} calls out a better Team Order!");
-                    BattleManager.battleLog.LogBattleEffect($"Yet for time reasons, the programmer couldn't make it work yet...");
-                    TeamOrderManager.EndTurn();
+                    if (target[0].dead)
+                    {
+                        BattleManager.battleLog.LogBattleEffect($"{caster.name} tries to swap places with the dead body of {target[0].name}... but it doesn't work (choose another target)");
+                        ActionRequiresTarget(CharActions.Rearrange);
+                    }
+                    else
+                    {
+                        TeamOrderManager.spdSystem.Swap(caster, target[0]);
+                        BattleManager.battleLog.LogBattleEffect($"{caster.name} swaps places with {target[0].name} to delay their turn!");
+                        TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+                        TeamOrderManager.SetCurrentTurn(target[0]);
+                        BattleManager.battleLog.LogBattleEffect($"{target[0].name}'s turn is skipped due to being swapped!");
+                        TeamOrderManager.Continue();
+                    }
                 }
                 break;
 
@@ -211,7 +227,9 @@ public class UICharacterActions : UIButtonScrollList
                 break;
 
             case CharActions.Rearrange:
-                ActionDoesNotRequireTarget(CharActions.Rearrange);
+                BattleManager.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone! (Choose a target)");
+                maxTargets = 1;
+                ActionRequiresTarget(CharActions.Rearrange);
                 break;
 
             case CharActions.Prepare:

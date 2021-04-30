@@ -10,63 +10,71 @@ public class Skill
     /// <summary>
     /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
     /// </summary>
-    public bool done = false; 
+    public bool                             done                                { get; private set; }
 
-    public BaseObjectInfo baseInfo { get; private set; }
-    public BaseSkillClass skillClass; //RPG Class it's from
-    public SkillType skillType;
+    public BaseObjectInfo                   baseInfo                            { get; private set; }
+    public BaseSkillClass                   skillClass                          { get; set; }         //RPG Class it's from
+    public SkillType                        skillType                           { get; private set; }
 
-    public string activationText { get; private set; }
+    public string                           activationText                      { get; private set; }
 
-    public bool hasActivationRequirement;
-    public List<ActivationRequirement> activationRequirements;
+    public bool                             hasActivationRequirement            { get; private set; }
+    public List<ActivationRequirement>      activationRequirements              { get; private set; }
 
-    public bool hasPassive;
-    public ActivationTime passiveActivationType { get; private set; }
+    public bool                             hasPassive                          { get; private set; }
+    public ActivationTime                   passiveActivationType               { get; private set; }
 
-    public TargetType targetType; //If the skill targets anyone, what is its target type?
-    public int maxTargets;
+    public bool                             lasts                               { get; private set; }
+    public int                              lastsFor                            { get; private set; }
 
-    public CDType cdType;
-    public int cooldown = 0;
+    public TargetType                       targetType                          { get; private set; } //If the skill targets anyone, what is its target type?
+    public int                              maxTargets                          { get; private set; }
 
-    public bool doesDamage; //If the skill does damage
-    public DamageType damageType; //What type of damage does it do
-    public ElementType damageElement; //What elemental type is the damage skill
-    public List<SkillFormula> damageFormula; //list of formulas to sum to get the damage number
+    public CDType                           cdType                              { get; private set; }
+    public int                              cooldown                            { get; private set; }
 
-    public bool doesHeal; //if the skill heals
-    public List<SkillFormula> healFormula; //list of formulas to sum to get the heal number
+    public bool                             doesDamage                          { get; private set; } //If the skill does damage
+    public DamageType                       damageType                          { get; private set; } //What type of damage does it do
+    public ElementType                      damageElement                       { get; private set; } //What elemental type is the damage skill
+    public List<SkillFormula>               damageFormula                       { get; private set; } //list of formulas to sum to get the damage number
 
-    public bool flatModifiesStat; //does the skill buff any stat by a flat number
-    public Dictionary<Stats, int> flatStatModifiers;
-    public bool formulaModifiesStat; //does the skill buff any stat by a formula
-    public Dictionary<Stats, SkillFormula> formulaStatModifiers;
+    public bool                             doesHeal                            { get; private set; } //if the skill heals
+    public List<SkillFormula>               healFormula                         { get; private set; } //list of formulas to sum to get the heal number
 
-    public bool modifiesResource; //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
-    public Dictionary<SkillResources, int> resourceModifiers; //what does it modify and by how much
+    public bool                             flatModifiesStat                    { get; private set; } //does the skill buff any stat by a flat number
+    public Dictionary<Stats, int>           flatStatModifiers                   { get; private set; }
+    public bool                             formulaModifiesStat                 { get; private set; } //does the skill buff any stat by a formula
+    public Dictionary<Stats, SkillFormula>  formulaStatModifiers                { get; private set; }
 
-    public bool unlocksResource; //does it unlock a resource
-    public List<SkillResources> unlockedResources; //what resources does it unlock
+    public bool                             modifiesResource                    { get; private set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
+    public Dictionary<SkillResources, int>  resourceModifiers                   { get; private set; } //what does it modify and by how much
 
-    public bool costsTurn; //does the skill end your turn
+    public bool                             unlocksResource                     { get; private set; } //does it unlock a resource
+    public List<SkillResources>             unlockedResources                   { get; private set; } //what resources does it unlock
 
-    public bool appliesStatusEffects; //does the skill apply a status effect?
+    public bool                             costsTurn                           { get; private set; } //does the skill end your turn
 
-    public bool doesSummon; //does the skill summon anything
+    public bool                             appliesStatusEffects                { get; private set; } //does the skill apply a status effect?
 
-    public bool doesShield; //does the skill shield anything
+    public bool                             doesSummon                          { get; private set; } //does the skill summon anything
+
+    public bool                             doesShield                          { get; private set; } //does the skill shield anything
 
     #region Constructors
-    public Skill(BaseObjectInfo baseInfo, string activationText, SkillType skillType, TargetType targetType, int maxTargets = 1)
+    public Skill                                (BaseObjectInfo baseInfo, string activationText, SkillType skillType, TargetType targetType, int maxTargets = 1)    
     {
         this.baseInfo = baseInfo;
         this.activationText = activationText;
         this.targetType = targetType;
         this.maxTargets = maxTargets;
         this.skillType = skillType;
+
+
+        //Default and initializer values go here
+        done = false;
+        cooldown = 0;
     }
-    public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<SkillFormula> damageFormula)
+    public Skill BehaviorDoesDamage             (DamageType damageType, ElementType damageElement, List<SkillFormula> damageFormula)                                
     {
         doesDamage = true;
         this.damageType = damageType;
@@ -74,72 +82,79 @@ public class Skill
         this.damageFormula = damageFormula;
         return this;
     }
-    public Skill BehaviorHasCooldown(CDType cdType, int cooldown)
+    public Skill BehaviorHasCooldown            (CDType cdType, int cooldown)                                                                                       
     {
         this.cdType = cdType;
         this.cooldown = cooldown;
         return this;
     }
-    public Skill BehaviorDoesHeal(List<SkillFormula> healFormula)
+    public Skill BehaviorDoesHeal               (List<SkillFormula> healFormula)                                                                                    
     {
         doesHeal = true;
         this.healFormula = healFormula;
         return this;
     }
-    public Skill BehaviorModifiesStat(Dictionary<Stats, int> statModifiers)
+    public Skill BehaviorModifiesStat           (Dictionary<Stats, int> statModifiers)                                                                              
     {
         flatModifiesStat = true;
         flatStatModifiers = statModifiers;
         return this;
     }
-    public Skill BehaviorModifiesStat(Dictionary<Stats, SkillFormula> statModifiers)
+    public Skill BehaviorModifiesStat           (Dictionary<Stats, SkillFormula> statModifiers)                                                                     
     {
         formulaModifiesStat = true;
         formulaStatModifiers = statModifiers;
         return this;
     }
-    public Skill BehaviorModifiesResource(Dictionary<SkillResources, int> resourceModifiers)
+    public Skill BehaviorModifiesResource       (Dictionary<SkillResources, int> resourceModifiers)                                                                 
     {
         modifiesResource = true;
         this.resourceModifiers = resourceModifiers;
         return this;
     }
-    public Skill BehaviorUnlocksResource(List<SkillResources> unlockedResources)
+    public Skill BehaviorUnlocksResource        (List<SkillResources> unlockedResources)                                                                            
     {
         unlocksResource = true;
         this.unlockedResources = unlockedResources;
         return this;
     }
-    public Skill BehaviorPassive(ActivationTime activationType)
+    public Skill BehaviorPassive                (ActivationTime activationType)                                                                                     
     {
         hasPassive = true;
         this.passiveActivationType = activationType;
         return this;
     }
-    public Skill BehaviorCostsTurn()
+    public Skill BehaviorCostsTurn              ()                                                                                                                  
     {
         costsTurn = true;
         return this;
     }
-    public Skill BehaviorActivationRequirement(List<ActivationRequirement> requirements)
+    public Skill BehaviorActivationRequirement  (List<ActivationRequirement> requirements)                                                                          
     {
         hasActivationRequirement = true;
         activationRequirements = requirements;
         return this;
     }
+    public Skill BehaviorLastsFor               (int maxActivationTimes)                                                                                            
+    {
+        lasts = true;
+        lastsFor = maxActivationTimes;
+
+        return this;
+    }
 
 
-    public Skill BehaviorAppliesStatusEffects()
+    public Skill BehaviorAppliesStatusEffects   ()                                                                                                                  
     {
         appliesStatusEffects = true;
         return this;
     }
-    public Skill BehaviorDoesSummon()
+    public Skill BehaviorDoesSummon             ()                                                                                                                  
     {
         doesSummon = true;
         return this;
     }
-    public Skill BehaviorDoesShield()
+    public Skill BehaviorDoesShield             ()                                                                                                                  
     {
         doesShield = true;
         return this;
@@ -149,14 +164,14 @@ public class Skill
     /// just marks the skill as done, this is just for development purposes
     /// </summary>
     /// <returns></returns>
-    public Skill IsDone()
+    public Skill IsDone                         ()                                                                                                                  
     {
         done = true;
         return this;
     }
     #endregion
 
-    public void Activate(Character caster)
+    public void     Activate                    (Character caster)                                                                                                  
     {
         SkillInfo skillInfo = caster.GetSkillFromSkillList(this);
 
@@ -164,7 +179,7 @@ public class Skill
 
         if (skillInfo.activatable)
         {
-            bool firstActivation = !skillInfo.wasActivated;
+            bool firstActivation = !skillInfo.currentlyActive;
             skillInfo.SetActive();
 
             if (skillType == SkillType.Active && firstActivation && hasPassive)
@@ -215,12 +230,6 @@ public class Skill
                         break;
                 }
             }
-
-
-            if (skillType != SkillType.Passive && !hasPassive)
-            {
-                skillInfo.SetDeactivated();
-            }
         }
         else
         {
@@ -228,7 +237,7 @@ public class Skill
         }
     }
 
-    public void SkillAction(Character caster, List<Character> target)
+    public void     SkillAction                 (Character caster, List<Character> target)                                                                          
     {
         for (int i = 0; i < target.Count; i++)
         {
@@ -236,6 +245,9 @@ public class Skill
 
             activationText.Add(ReplaceStringVariables._caster_, caster.name);
             activationText.Add(ReplaceStringVariables._target_, target[i].name);
+
+            int tempDmg = 0;
+            bool wasDefending = false;
             if (target[i].targettable)
             {
                 if (doesDamage)
@@ -243,6 +255,11 @@ public class Skill
                     int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
 
                     int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
+                    tempDmg = finalDMG;
+                    if (target[i].defending)
+                    {
+                        wasDefending = true;
+                    }
 
                     target[i].GetsDamagedBy(finalDMG);
 
@@ -306,7 +323,19 @@ public class Skill
 
             BattleManager.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
 
+            if (wasDefending && doesDamage)
+            {
+                BattleManager.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(tempDmg / 2)} DMG.");
+            }
+
+
             BattleManager.UpdateUIs();
+        }
+
+
+        if (skillType != SkillType.Passive && !hasPassive)
+        {
+            caster.GetSkillFromSkillList(this).SetDeactivated();
         }
 
         if (costsTurn)
@@ -318,7 +347,7 @@ public class Skill
         }
     }
 
-    public string ReplaceActivationText(Dictionary<ReplaceStringVariables, string> replaceWith)
+    public string   ReplaceActivationText       (Dictionary<ReplaceStringVariables, string> replaceWith)                                                            
     {
         string resultText = activationText;
 
@@ -446,9 +475,11 @@ public class SkillInfo
     public  Skill           skill               { get; private set; }
     public  bool            activatable         { get; private set; }
     public  bool            equipped            { get; private set; }
-    public  bool            wasActivated        { get; private set; } //If the skill was activated at SOME point.
-    public  bool            currentlyActive     { get; private set; } //If the skill is currently active
-    public  int             activatedAt         { get; private set; } //when the skill was activated
+    public  bool            wasActivated        { get; private set; }   //If the skill was activated at SOME point.
+    public  bool            currentlyActive     { get; private set; }   //If the skill is currently active
+    public  int             activatedAt         { get; private set; }   //when the skill was activated
+    public  int             cdStartedAt         { get; private set; } 
+    public  int             timesActivated      { get; set; }           //how many times the skill was activated
     public  CooldownStates  cooldownState       { get; private set; }
     public  int             currentCooldown     { get; private set; }
 
@@ -480,7 +511,15 @@ public class SkillInfo
     }
     public void SetDeactivated  ()                                  
     {
+        timesActivated = 0;
         currentlyActive = false;
+        cdStartedAt = character.timesPlayed;
+
+        if (skill.hasPassive)
+        {
+            BattleManager.battleLog.LogBattleEffect($"{skill.baseInfo.name} deactivated for {character.name}.");
+        }
+        
         UpdateCD();
     }
     public void UpdateCD        ()                                  
@@ -489,7 +528,7 @@ public class SkillInfo
 
         if (wasActivated)
         {
-            int difference = character.timesPlayed - activatedAt;
+            int difference = character.timesPlayed - cdStartedAt;
             currentCooldown = skill.cooldown - difference + 1;
 
             if (difference == 0)

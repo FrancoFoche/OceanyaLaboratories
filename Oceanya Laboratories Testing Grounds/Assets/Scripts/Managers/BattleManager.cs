@@ -26,6 +26,9 @@ public class BattleManager : MonoBehaviour
 
     public          RawImage            easteregg;
 
+    float exitTime = 1.5f;
+    float curHold;
+
     private void Start()
     {
         easteregg.gameObject.SetActive(false);
@@ -42,12 +45,13 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+
         if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
         {
             if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
             {
                 Debug.Log("Targetting done.");
-                BattleManager.charUIList.TurnToggles(false);
+                charUIList.TurnToggles(false);
                 UICharacterActions.instance.Act(caster, target);
             }
             else
@@ -64,10 +68,26 @@ public class BattleManager : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && caster != TeamOrderManager.currentTurn)
         {
             battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
             ReselectOriginalTurn();
+        }
+
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            curHold += Time.deltaTime;
+
+            if(curHold > exitTime)
+            {
+                Debug.Log("Exitted the application");
+                Application.Quit();
+            }
+        }
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            curHold = 0;
         }
     }
 

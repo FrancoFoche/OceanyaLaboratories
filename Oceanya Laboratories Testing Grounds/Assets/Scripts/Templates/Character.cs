@@ -25,6 +25,7 @@ public class Character
 
     public bool                     dead;
     bool                            permadead;
+    public bool                     defending;
 
     Dictionary<SkillResources, bool> unlockedResources =     new Dictionary<SkillResources, bool>()
                                                                     {
@@ -48,7 +49,15 @@ public class Character
     #region Character Reactions
     public void     GetsDamagedBy           (int DamageTaken)
     {
-        int result = stats[Stats.CURHP] - DamageTaken;
+        int dmg = DamageTaken;
+
+        if (defending)
+        {
+            dmg = Mathf.FloorToInt(DamageTaken / 2);
+            defending = false;
+        }
+
+        int result = stats[Stats.CURHP] - dmg;
         if (result < 0)
         {
             stats[Stats.CURHP] = 0;
@@ -191,6 +200,16 @@ public class Character
                 if(curSkill.skillType == SkillType.Active && curSkillInfo.currentlyActive || curSkill.skillType == SkillType.Passive)
                 {
                     curSkill.Activate(character);
+
+                    if (curSkill.lasts)
+                    {
+                        curSkillInfo.timesActivated++;
+
+                        if (curSkillInfo.timesActivated == curSkill.lastsFor)
+                        {
+                            curSkillInfo.SetDeactivated();
+                        }
+                    }
                 }
             }
         }

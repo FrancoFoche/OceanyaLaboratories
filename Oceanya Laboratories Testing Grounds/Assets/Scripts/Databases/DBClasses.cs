@@ -12,7 +12,6 @@ public class DBClasses : MonoBehaviour
     {
         classes = new List<BaseSkillClass>()
         {
-
             new BaseSkillClass(new BaseObjectInfo("Testing Class", 0 , "This is the class that has every test skill"),
                 new List<Skill>
                 {
@@ -129,6 +128,18 @@ public class DBClasses : MonoBehaviour
                     .BehaviorActivationRequirement(new List<ActivationRequirement>(){ new ActivationRequirement(Stats.AGI, ActivationRequirement.ComparerType.MoreThan, 125) })
                     .BehaviorCostsTurn()
                     .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Test LastsFor", 10 , "This skill should be toggled, and from that point on, the next 2 start of turn, boost your STR by 50%")
+                            ,"_caster_ has had enough shit. By pure force of will, they buff their own STR by 50%!"
+                            ,SkillType.Active
+                            ,TargetType.Self
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorModifiesStat(new Dictionary<Stats, SkillFormula>(){{ Stats.STR, new SkillFormula(Stats.STR,operationActions.Multiply,0.5f)} })
+                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorLastsFor(2)
                 }
             ),
 

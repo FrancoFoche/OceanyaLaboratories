@@ -60,11 +60,19 @@ public static class TeamOrderManager
             case TurnState.Start:
                 turnState = TurnState.Start;
 
-                //function that tells the character that its the start of the turn (activate all skills that require it)
+                if (BattleManager.caster.defending)
+                {
+                    BattleManager.caster.defending = false;
+
+                    BattleManager.battleLog.LogBattleEffect($"{BattleManager.caster.name} stops defending.");
+                }
+
+                
                 BattleManager.caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
 
                 SetTurnState(TurnState.WaitingForAction);
                 break;
+
             case TurnState.WaitingForAction:
                 UICharacterActions.instance.InteractableButtons(true);
                 UISkillContext.instance.InteractableButtons(true);
@@ -162,7 +170,7 @@ public class SPDSystem
     public List<SPDSystemInfo>  info            { get; private set; }
     public List<Character>      teamOrder       { get; private set; }
 
-    public SPDSystem                        (params List<Character>[] teams)
+    public SPDSystem                        (params List<Character>[] teams)            
     {
         GensPerPeriod = 15;
         CurrentPeriod = 0;
@@ -170,7 +178,7 @@ public class SPDSystem
         UpdateMaxDelay(this.teams);
     }
 
-    public void         BuildSPDSystem      ()                              
+    public void         BuildSPDSystem      ()                                          
     {
         info = new List<SPDSystemInfo>();
 
@@ -189,7 +197,7 @@ public class SPDSystem
 
         SetNextPeriod();
     }
-    void                UpdateMaxDelay      (params List<Character>[] teams)
+    void                UpdateMaxDelay      (params List<Character>[] teams)            
     {
         int maxDelay = 0;
 
@@ -214,21 +222,21 @@ public class SPDSystem
 
         MaxDelay = maxDelay;
     }
-    public void         SetNextPeriod       ()                              
+    public void         SetNextPeriod       ()                                          
     {
         SetCurrentPeriod(CurrentPeriod + 1);
     }
-    void                SetCurrentPeriod    (int period)                    
+    void                SetCurrentPeriod    (int period)                                
     {
         CurrentPeriod = period;
         UpdateCurrentGen();
         BuildTeamOrder(info);
     }
-    void                UpdateCurrentGen    ()                              
+    void                UpdateCurrentGen    ()                                          
     {
         CurrentGen = 1+((CurrentPeriod-1) * GensPerPeriod);
     }
-    void                BuildTeamOrder      (List<SPDSystemInfo> info)      
+    void                BuildTeamOrder      (List<SPDSystemInfo> info)                  
     {
         List<Character> newteamOrder = new List<Character>();
 
@@ -244,6 +252,16 @@ public class SPDSystem
         }
 
         teamOrder = newteamOrder;
+    }
+    public void         Swap                (Character character, Character swapWith)   
+    {
+        int index1 = teamOrder.IndexOf(character, TeamOrderManager.currentTeamOrderIndex);
+        int swapIndex = teamOrder.IndexOf(swapWith, TeamOrderManager.currentTeamOrderIndex);
+
+        Character temp = teamOrder[swapIndex];
+
+        teamOrder[swapIndex] = teamOrder[index1];
+        teamOrder[index1] = temp;
     }
 }
 

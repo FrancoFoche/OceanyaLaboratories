@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Team                
+public enum Team                    
 {
     Enemy,
     Ally,
     OutOfCombat
 }
-public enum SkillResources      
+public enum SkillResources          
 {
     NatureEnergy,
     Mana,
@@ -17,12 +17,12 @@ public enum SkillResources
     Puppets,
     other
 }
-public enum SkillType           
+public enum SkillType               
 {
     Passive,
     Active
 }
-public enum Stats               
+public enum Stats                   
 {
     CURHP,
     MAXHP,
@@ -35,7 +35,7 @@ public enum Stats
     CON,
     HPREGEN
 }
-public enum TargetType          
+public enum TargetType              
 {
     Self,
     Single,
@@ -44,13 +44,13 @@ public enum TargetType
     AllEnemies,
     Bounce
 }
-public enum DamageType          
+public enum DamageType              
 {
     Direct,
     Magical,
     Physical
 }
-public enum ElementType         
+public enum ElementType             
 {
     Normal,
     Water,
@@ -61,28 +61,29 @@ public enum ElementType
     Holy,
     Dark
 }
-public enum CDType              
+public enum CDType                  
 {
     Turns,
     Other
 }
-public enum CooldownStates
+public enum CooldownStates          
 {
     BeingUsed,
     Usable,
     OnCooldown,
     Used
 }
-public enum ActivationTime   
+public enum ActivationTime          
 {
     StartOfBattle,
     StartOfTurn,
     WhenTargetting,
     WhenAttacked,
     EndOfTurn,
-    Once
+    Once,
+    Instant
 }
-public enum ClassNames          
+public enum ClassNames              
 {
     Nobody,
     SenjutsuMastery,
@@ -99,19 +100,19 @@ public enum ClassNames
     Ninja,
     MonsterHunter
 }
-public enum SenjutsuSubclasses  
+public enum SenjutsuSubclasses      
 {
     WoodStyleSage,
     FrogStyleSage,
     SerpentStyleSage
 }
-public enum operationActions    
+public enum operationActions        
 {
     Multiply,
     Divide,
     ToThePowerOf
 }
-public enum CharActions         
+public enum CharActions             
 {
     Attack,
     Defend,
@@ -121,7 +122,7 @@ public enum CharActions
     Prepare,
     Skip
 }
-public enum ReplaceStringVariables
+public enum ReplaceStringVariables  
 {
     _damage_,
     _heal_,
