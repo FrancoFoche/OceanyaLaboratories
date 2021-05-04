@@ -28,7 +28,7 @@ public static class TeamOrderManager
         totalCharList = new List<Character>();
 
         allySide = new List<Character>() { DBPlayerCharacter.GetPC(0), DBPlayerCharacter.GetPC(13), DBPlayerCharacter.GetPC(10), DBPlayerCharacter.GetPC(11), DBPlayerCharacter.GetPC(40) };
-        enemySide = new List<Character>() { DBPlayerCharacter.GetPC(1), DBPlayerCharacter.GetPC(17), DBPlayerCharacter.GetPC(31), DBPlayerCharacter.GetPC(420), DBPlayerCharacter.GetPC(666) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
+        enemySide = new List<Character>() { DBEnemies.GetEnemy(1), DBEnemies.GetEnemy(17), DBEnemies.GetEnemy(31) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
 
 
         for (int i = 0; i < allySide.Count; i++)
@@ -51,7 +51,7 @@ public static class TeamOrderManager
         currentTurn = character;
 
         BattleManager.battleLog.LogTurn(currentTurn);
-        BattleManager.charUIList.SelectCharacter(currentTurn);
+        BattleManager.uiList.SelectCharacter(currentTurn);
     }
     public static void                  SetTurnState    (TurnState state)       
     {
@@ -62,9 +62,7 @@ public static class TeamOrderManager
 
                 if (BattleManager.caster.defending)
                 {
-                    BattleManager.caster.defending = false;
-
-                    BattleManager.battleLog.LogBattleEffect($"{BattleManager.caster.name} stops defending.");
+                    BattleManager.caster.SetDefending(false);
                 }
 
                 
@@ -76,7 +74,8 @@ public static class TeamOrderManager
             case TurnState.WaitingForAction:
                 UICharacterActions.instance.InteractableButtons(true);
                 UISkillContext.instance.InteractableButtons(true);
-                BattleManager.charUIList.TurnToggleGroup(true);
+                BattleManager.uiList.TurnToggleGroup(true);
+                BattleManager.uiList.SetInteractable(true);
                 turnState = TurnState.WaitingForAction;
                 break;
 
@@ -84,8 +83,9 @@ public static class TeamOrderManager
             case TurnState.WaitingForTarget:
                 UICharacterActions.instance.InteractableButtons(false);
                 UISkillContext.instance.InteractableButtons(false);
-                BattleManager.charUIList.TurnToggleGroup(false);
-                BattleManager.charUIList.TurnToggles(false);
+                BattleManager.uiList.TurnToggleGroup(false);
+                BattleManager.uiList.TurnToggles(false);
+                BattleManager.uiList.SetInteractable(true);
 
                 turnState = TurnState.WaitingForTarget;
                 break;
@@ -119,43 +119,29 @@ public static class TeamOrderManager
     {
         SetTurnState(TurnState.End);
 
-        bool allyDeath = BattleManager.instance.CheckTotalTeamKill(Team.Ally);
-        bool enemyDeath = BattleManager.instance.CheckTotalTeamKill(Team.Enemy);
-
-        if (allyDeath)
+        if (BattleManager.caster == currentTurn)
         {
-            BattleManager.instance.SetBattleState(BattleState.Lost);
-        }
-        else if (enemyDeath)
-        {
-            BattleManager.instance.SetBattleState(BattleState.Won);
+            currentTurn.timesPlayed += !currentTurn.dead ? 1 : 0;
+            currentTurn.UpdateCDs();
+            Continue();
         }
         else
         {
-            if (BattleManager.caster == currentTurn)
-            {
-                currentTurn.timesPlayed += !currentTurn.dead ? 1 : 0;
-                currentTurn.UpdateCDs();
-                Continue();
-            }
-            else
-            {
-                BattleManager.caster.timesPlayed += 1;
-                BattleManager.caster.UpdateCDs();
-                BattleManager.instance.ReselectOriginalTurn();
-            }
+            BattleManager.caster.timesPlayed += 1;
+            BattleManager.caster.UpdateCDs();
+            BattleManager.instance.ReselectOriginalTurn();
+        }
 
-            BattleManager.instance.GetCaster();
+        BattleManager.instance.GetCaster();
 
-            SetTurnState(TurnState.Start);
+        SetTurnState(TurnState.Start);
 
-            SetTurnState(TurnState.WaitingForAction);
+        SetTurnState(TurnState.WaitingForAction);
 
-            if (currentTurn.dead)
-            {
-                BattleManager.battleLog.LogBattleEffect($"But {currentTurn.name} was already dead... F.");
-                EndTurn();
-            }
+        if (currentTurn.dead)
+        {
+            BattleManager.battleLog.LogBattleEffect($"But {currentTurn.name} was already dead... F.");
+            EndTurn();
         }
     }
 }

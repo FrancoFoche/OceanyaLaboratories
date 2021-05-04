@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UICharacterActions : UIButtonScrollList
+public class UICharacterActions : ButtonList
 {
     public int maxTargets;
     public CharActions action;
@@ -87,14 +87,8 @@ public class UICharacterActions : UIButtonScrollList
                             {
                                 int basicAttackRaw = SkillFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
                                 int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
-                                target[i].GetsDamagedBy(resultDMG);
-
                                 BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
-
-                                if (target[i].defending)
-                                {
-                                    BattleManager.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(resultDMG / 2)} DMG.");
-                                }
+                                target[i].GetsDamagedBy(resultDMG);
 
                                 if (!target[i].checkedPassives)
                                 {
@@ -121,15 +115,13 @@ public class UICharacterActions : UIButtonScrollList
                         }
                     }
 
-                    BattleManager.UpdateUIs();
                     TeamOrderManager.EndTurn();
                 }
                 break;
 
             case CharActions.Defend:
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} defends!");
-                    caster.defending = true;
+                    caster.SetDefending(true);
                     TeamOrderManager.EndTurn();
                 }
                 break;

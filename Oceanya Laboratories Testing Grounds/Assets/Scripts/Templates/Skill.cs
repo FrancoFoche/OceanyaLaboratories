@@ -328,8 +328,6 @@ public class Skill
                 BattleManager.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(tempDmg / 2)} DMG.");
             }
 
-
-            BattleManager.UpdateUIs();
         }
 
 

@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum BattleState
 {
     Start,
     Won,
-    Lost
+    Lost,
+    End
 }
 
 public class BattleManager : MonoBehaviour
@@ -18,13 +20,15 @@ public class BattleManager : MonoBehaviour
     public          BattleState         battleState;
     
     public          bool                inCombat;
+    public          bool                enemyTeamDeath;
+    public          bool                allyTeamDeath;
 
     public static   BattleLog           battleLog;
-    public static   AllyUIList          charUIList;
+    public static   BattleUIList        uiList;
     public static   UICharacterActions  charActions;
     public static   BattleManager       instance;
 
-    public          RawImage            easteregg;
+    public          GameObject          easteregg;
 
     float exitTime = 1.5f;
     float curHold;
@@ -32,7 +36,7 @@ public class BattleManager : MonoBehaviour
     private void Start()
     {
         easteregg.gameObject.SetActive(false);
-        charUIList = FindObjectOfType<AllyUIList>();
+        uiList = FindObjectOfType<BattleUIList>();
         battleLog = FindObjectOfType<BattleLog>();
         charActions = FindObjectOfType<UICharacterActions>();
         target = new List<Character>();
@@ -45,24 +49,30 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
 
         if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
         {
             if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
             {
                 Debug.Log("Targetting done.");
-                charUIList.TurnToggles(false);
+                uiList.TurnToggles(false);
                 UICharacterActions.instance.Act(caster, target);
             }
             else
             {
-                target = charUIList.CheckTargets();
+                target = uiList.CheckTargets();
             }
         }
         else
         {
-            if (charUIList.toggleGroup.AnyTogglesOn() && charUIList.different)
+            bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
+            if (togglesOn && uiList.different)
             {
+                uiList.UpdateSelected();
                 GetCaster();
                 UISkillContext.instance.Hide();
             }
@@ -73,6 +83,7 @@ public class BattleManager : MonoBehaviour
             battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
             ReselectOriginalTurn();
         }
+        
 
         if (Input.GetKey(KeyCode.Escape))
         {
@@ -102,13 +113,10 @@ public class BattleManager : MonoBehaviour
     {
         for (int i = 0; i < TeamOrderManager.allySide.Count; i++)
         {
-            charUIList.AddChar(TeamOrderManager.allySide[i]);
+            uiList.AddAlly(TeamOrderManager.allySide[i]);
         }
 
-        for (int i = 0; i < TeamOrderManager.enemySide.Count; i++)
-        {
-            charUIList.AddChar(TeamOrderManager.enemySide[i]);
-        }
+        EnemySpawner.instance.SpawnAllEnemies(TeamOrderManager.enemySide);
 
         for (int i = 0; i < TeamOrderManager.totalCharList.Count; i++)
         {
@@ -122,74 +130,98 @@ public class BattleManager : MonoBehaviour
         TeamOrderManager.SetCurrentTurn(caster);
         caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
         TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
-    }
-
-    public static void              UpdateUIs           ()                  
-    {
-        for (int i = 0; i < charUIList.list.Count; i++)
-        {
-            charUIList.list[i].GetComponent<BattleUI>().UpdateUI();
-        }
-    }
+    }           
+    
     public void                     SetBattleState      (BattleState state) 
     {
+        SpriteRenderer[] array = easteregg.GetComponentsInChildren<SpriteRenderer>();
+
         switch (state)
         {
             case BattleState.Start:
                 battleState = BattleState.Start;
+                MusicManager.PlayMusic(Music.Combat);
                 charActions.InteractableButtons(false);
+                uiList.SetInteractable(false);
                 battleLog.LogBattleStatus("COMBAT START!");
                 break;
+
             case BattleState.Won:
+                battleState = BattleState.End;
+                MusicManager.PlayMusic(Music.Win);
                 charActions.InteractableButtons(false);
+                uiList.SetInteractable(false);
                 battleLog.LogBattleStatus("Ally team wins!");
-                easteregg.gameObject.SetActive(true);
+                easteregg.SetActive(true);
+                for (int i = 0; i < array.Length; i++)
+                {
+                    array[i].color = Color.green;
+                }
                 break;
+
             case BattleState.Lost:
+                battleState = BattleState.End;
+                MusicManager.PlayMusic(Music.Lose);
                 charActions.InteractableButtons(false);
+                uiList.SetInteractable(false);
                 battleLog.LogBattleStatus("Enemy team wins!");
+                easteregg.SetActive(true);
+                for (int i = 0; i < array.Length; i++)
+                {
+                    array[i].color = Color.red;
+                }
                 break;
         }
     }
-    public bool                     CheckTotalTeamKill  (Team team)         
+    public void                     CheckTotalTeamKill  ()                  
     {
-        int totalHP = 0;
-        bool isDead = false;
-        List<Character> teamList = new List<Character>();
-
-        switch (team)
+        if (battleState != BattleState.End)
         {
-            case Team.Enemy:
-                teamList = TeamOrderManager.enemySide;
-                break;
-            case Team.Ally:
-                teamList = TeamOrderManager.allySide;
-                break;
-            case Team.OutOfCombat:
-                break;
-            default:
-                break;
-        }
+            int AllyCount = TeamOrderManager.allySide.Count;
+            int AllyDeathCount = 0;
 
-        for (int i = 0; i < teamList.Count; i++)
-        {
-            totalHP += teamList[i].stats[Stats.CURHP];
-        }
+            for (int i = 0; i < AllyCount; i++)
+            {
+                if (TeamOrderManager.allySide[i].dead)
+                {
+                    AllyDeathCount++;
+                }
+            }
 
-        if(totalHP == 0)
-        {
-            isDead = true;
-        }
+            if (AllyDeathCount == AllyCount)
+            {
+                allyTeamDeath = true;
+                SetBattleState(BattleState.Lost);
+                return;
+            }
 
-        return isDead;
+
+            int EnemyCount = TeamOrderManager.enemySide.Count;
+            int EnemyDeathCount = 0;
+
+            for (int i = 0; i < EnemyCount; i++)
+            {
+                if (TeamOrderManager.enemySide[i].dead)
+                {
+                    EnemyDeathCount++;
+                }
+            }
+
+            if (EnemyDeathCount == EnemyCount)
+            {
+                enemyTeamDeath = true;
+                SetBattleState(BattleState.Won);
+                return;
+            }
+        }
     }
     public void                     GetCaster           ()                  
     {
-        if (TeamOrderManager.currentTurn != AllyUIList.curCharacterSelected)
+        if (TeamOrderManager.currentTurn != BattleUIList.curCharacterSelected)
         {
-            caster = AllyUIList.curCharacterSelected;
+            caster = BattleUIList.curCharacterSelected;
             battleLog.LogTurn(caster, 3);
-            caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+            TeamOrderManager.SetTurnState(TurnState.Start);
         }
         else
         {
@@ -211,7 +243,7 @@ public class BattleManager : MonoBehaviour
     }
     public void                     ReselectOriginalTurn()                  
     {
-        charUIList.SelectCharacter(TeamOrderManager.currentTurn);
+        uiList.SelectCharacter(TeamOrderManager.currentTurn);
         battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
     }
     

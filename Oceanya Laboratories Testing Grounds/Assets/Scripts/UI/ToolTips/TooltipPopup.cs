@@ -9,7 +9,6 @@ namespace Kam.TooltipUI
 {
     public class TooltipPopup : MonoBehaviour
     {
-        public  GameObject      popupCanvasObject;
         public  RectTransform   popupObject;
         public  TextMeshProUGUI infoText;
         public  Vector3         offset;
@@ -19,7 +18,7 @@ namespace Kam.TooltipUI
 
         private void Awake()
         {
-            popupCanvas = popupCanvasObject.GetComponent<Canvas>();
+            popupCanvas = GetComponentInParent<Canvas>();
             HideInfo();
         }
 
@@ -30,7 +29,7 @@ namespace Kam.TooltipUI
 
         private void FollowCursor()
         {
-            if (!popupCanvasObject.activeSelf) { return; }
+            if (!popupObject.gameObject.activeSelf) { return; }
 
             Vector3 newPos = Input.mousePosition + offset;
             newPos.z = 0;
@@ -55,19 +54,19 @@ namespace Kam.TooltipUI
                 newPos.y += upEdgeToScreen;
             }
 
-            popupObject.transform.position = newPos;
+            popupObject.position = newPos;
         }
 
         public void DisplayInfo(StringBuilder text)
         {
             infoText.text = text.ToString();
-            popupCanvasObject.SetActive(true);
+            popupObject.gameObject.SetActive(true);
             LayoutRebuilder.ForceRebuildLayoutImmediate(popupObject);
         }
 
         public void HideInfo()
         {
-            popupCanvasObject.SetActive(false);
+            popupObject.gameObject.SetActive(false);
         }
     }
 }

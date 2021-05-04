@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum CharacterType
+{
+    PlayerCharacter,
+    Enemy
+}
+
 public class Character
 {
     public string                   name;
@@ -18,14 +24,14 @@ public class Character
                                                                     };
 
     public List<SkillFormula>       basicAttackFormula  =   new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 1)};
-    public DamageType                      basicAttackType     =   DamageType.Physical;
+    public DamageType               basicAttackType     =   DamageType.Physical;
 
     public Team                     team;
     public bool                     targettable         =   true; //if the target is targettable currently
 
     public bool                     dead;
     bool                            permadead;
-    public bool                     defending;
+    public bool                     defending { get; private set; }
 
     Dictionary<SkillResources, bool> unlockedResources =     new Dictionary<SkillResources, bool>()
                                                                     {
@@ -38,30 +44,34 @@ public class Character
 
 
     public List<SkillInfo> skillList = new List<SkillInfo>();
-
-    public BaseSkillClass rpgClass;
     public int ID;
 
     public int timesPlayed;
 
     public bool checkedPassives = false;
 
+    public BattleUI curUI { get; set; }
+    public SpriteAnimator curSprite { get; set; }
+
     #region Character Reactions
     public void     GetsDamagedBy           (int DamageTaken)
     {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
         int dmg = DamageTaken;
 
         if (defending)
         {
             dmg = Mathf.FloorToInt(DamageTaken / 2);
-            defending = false;
+            BattleManager.battleLog.LogBattleEffect($"But {name} was defending! Meaning they actually just took {dmg} DMG.");
+            SetDefending(false);
         }
 
         int result = stats[Stats.CURHP] - dmg;
-        if (result < 0)
+        if (result <= 0)
         {
             stats[Stats.CURHP] = 0;
             dead = true;
+            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
         }
 
         if (!dead)
@@ -71,11 +81,13 @@ public class Character
     }
     public void     GetsHealedBy            (int HealAmount)
     {
-        int result = stats[Stats.CURHP] += HealAmount;
-
         if (!dead)
         {
-            if(result > stats[Stats.MAXHP])
+            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Heal);
+
+            int result = stats[Stats.CURHP] + HealAmount;
+
+            if (result > stats[Stats.MAXHP])
             {
                 stats[Stats.CURHP] = stats[Stats.MAXHP];
             }
@@ -85,7 +97,50 @@ public class Character
             }
         }
     }
-    public int      CalculateDefenses       (int damageRaw, DamageType damageType)
+    public void     UnlockResources         (List<SkillResources> resourcesUnlocked)
+    {
+        for (int i = 0; i < resourcesUnlocked.Count; i++)
+        {
+            unlockedResources[resourcesUnlocked[i]] = true;
+        }
+    }
+    public void     ModifyResource          (Dictionary<SkillResources, int> resources)
+    {
+        for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
+        {
+            SkillResources currentResource = RuleManager.SkillResourceHelper[i];
+
+            if (resources.ContainsKey(currentResource))
+            {
+                skillResources[currentResource] += resources[currentResource];
+            }
+        }
+    }
+    public void     ModifyStat              (Dictionary<Stats, int> modifiedStats)
+    {
+        for (int i = 0; i < RuleManager.StatHelper.Length; i++)
+        {
+            Stats currentStat = RuleManager.StatHelper[i];
+
+            if(modifiedStats.ContainsKey(currentStat))
+            {
+                stats[currentStat] += modifiedStats[currentStat];
+
+                if (modifiedStats[currentStat] < 0)
+                {
+                    curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Debuff);
+                }
+                else
+                {
+                    curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Buff);
+                }
+            }
+        }
+    }
+    #endregion
+
+    #region Useful Methods
+    public int CalculateDefenses(int damageRaw, DamageType damageType)
     {
         int targetMR = stats[Stats.MR];
         int targetPR = stats[Stats.PR];
@@ -120,40 +175,6 @@ public class Character
 
         return (int)Mathf.Ceil(resultDamage);
     }
-    public void     UnlockResources         (List<SkillResources> resourcesUnlocked)
-    {
-        for (int i = 0; i < resourcesUnlocked.Count; i++)
-        {
-            unlockedResources[resourcesUnlocked[i]] = true;
-        }
-    }
-    public void     ModifyResource          (Dictionary<SkillResources, int> resources)
-    {
-        for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
-        {
-            SkillResources currentResource = RuleManager.SkillResourceHelper[i];
-
-            if (resources.ContainsKey(currentResource))
-            {
-                skillResources[currentResource] += resources[currentResource];
-            }
-        }
-    }
-    public void     ModifyStat              (Dictionary<Stats, int> modifiedStats)
-    {
-        for (int i = 0; i < RuleManager.StatHelper.Length; i++)
-        {
-            Stats currentStat = RuleManager.StatHelper[i];
-
-            if(modifiedStats.ContainsKey(currentStat))
-            {
-                stats[currentStat] += modifiedStats[currentStat];
-            }
-        }
-    }
-    #endregion
-
-    #region Useful Methods
     public void UpdateCDs()
     {
         for (int i = 0; i < skillList.Count; i++)
@@ -170,6 +191,19 @@ public class Character
             {
                 character.skillList[i].SetActive();
             }
+        }
+    }
+    public void SetDefending(bool mode)
+    {
+        if (mode)
+        {
+            BattleManager.battleLog.LogBattleEffect($"{name} defends!");
+            defending = true;
+        }
+        else
+        {
+            BattleManager.battleLog.LogBattleEffect($"{name} stops defending.");
+            defending = false;
         }
     }
 

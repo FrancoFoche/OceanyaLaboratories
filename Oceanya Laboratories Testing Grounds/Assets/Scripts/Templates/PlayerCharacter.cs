@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerCharacter : Character
 {
+    public BaseSkillClass rpgClass;
     public PlayerCharacter(int ID, string name, int level, BaseSkillClass rpgClass, Dictionary<Stats, int> stats, List<Skill> skillList)
     {
         this.ID = ID;

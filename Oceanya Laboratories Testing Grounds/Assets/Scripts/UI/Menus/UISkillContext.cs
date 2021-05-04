@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UISkillContext : UIButtonScrollList
+public class UISkillContext : ButtonList
 {
     static Character loadedCharacter;
     public static UISkillContext instance;

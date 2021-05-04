@@ -36,7 +36,6 @@ public class DBPlayerCharacter : MonoBehaviour
                 DBSkills.GetAllClassSkills(DBClasses.GetClass(0))
             ),
 
-            //HEROES
             new PlayerCharacter(13 , "Vinnie" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
                 new Dictionary<Stats, int>
                 {
@@ -101,8 +100,8 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.INT      , 100000000  },
                     { Stats.CHR      , 100000000 },
                     { Stats.AGI      , 100000000 },
-                    { Stats.MR       , 100000000 },
-                    { Stats.PR       , 100000000 },
+                    { Stats.MR       , 250 },
+                    { Stats.PR       , 250 },
                     { Stats.CON      , 100000000  },
                     { Stats.HPREGEN  , 100000000  }
                 },
@@ -113,105 +112,7 @@ public class DBPlayerCharacter : MonoBehaviour
             ),
 
             //ENEMIGOS
-            new PlayerCharacter(1 , "Tank" , 10, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 200 },
-                    { Stats.CURHP       , 200 },
-                    { Stats.STR      , 20 },
-                    { Stats.INT      , 0  },
-                    { Stats.CHR      , 0 },
-                    { Stats.AGI      , 0 },
-                    { Stats.MR       , 100 },
-                    { Stats.PR       , 100 },
-                    { Stats.CON      , 0  },
-                    { Stats.HPREGEN  , 0  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            new PlayerCharacter(666 , "Castro (el de las coins)" , 999, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 1000 },
-                    { Stats.CURHP       , 1000 },
-                    { Stats.STR      , 100 },
-                    { Stats.INT      , 200  },
-                    { Stats.CHR      , 99999 },
-                    { Stats.AGI      , 80 },
-                    { Stats.MR       , 100 },
-                    { Stats.PR       , 100 },
-                    { Stats.CON      , 2000  },
-                    { Stats.HPREGEN  , 1000  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            new PlayerCharacter(420 , "DaBaby (ConvertibleForm)" , 10, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 200 },
-                    { Stats.CURHP       , 200 },
-                    { Stats.STR      , 1 },
-                    { Stats.INT      , 1  },
-                    { Stats.CHR      , 1 },
-                    { Stats.AGI      , 10000 },
-                    { Stats.MR       , 1 },
-                    { Stats.PR       , 1 },
-                    { Stats.CON      , 20  },
-                    { Stats.HPREGEN  , 0  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            new PlayerCharacter(17 , "Sans SmashBros" , 1, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 1 },
-                    { Stats.CURHP       , 1 },
-                    { Stats.STR         , 1 },
-                    { Stats.INT         , 1 },
-                    { Stats.CHR         , 1 },
-                    { Stats.AGI         , 1 },
-                    { Stats.MR          , 1 },
-                    { Stats.PR          , 1 },
-                    { Stats.CON         , 1 },
-                    { Stats.HPREGEN     , 1 }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            new PlayerCharacter(31 , "Edmund McNerfs" , 8, DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , Random.Range(1,1001) },
-                    { Stats.CURHP       , Random.Range(1,1001) },
-                    { Stats.STR      , Random.Range(1,1001) },
-                    { Stats.INT      , Random.Range(1,1001)  },
-                    { Stats.CHR      , Random.Range(1,1001) },
-                    { Stats.AGI      , Random.Range(1,1001) },
-                    { Stats.MR       , Random.Range(1,201) },
-                    { Stats.PR       , Random.Range(1,201) },
-                    { Stats.CON      , Random.Range(1,1001)  },
-                    { Stats.HPREGEN  , Random.Range(1,1001)  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            )
+            
         };
     }
 

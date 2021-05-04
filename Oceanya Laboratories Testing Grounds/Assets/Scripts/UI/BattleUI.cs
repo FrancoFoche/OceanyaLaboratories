@@ -3,76 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public struct StatLine
-{
-    public Text statName;
-    public Text baseStat;
-    public Text resultStat;
-}
-
 public class BattleUI : MonoBehaviour
 {
     [Header("Character Loaded")]
-    public int                                      charID;
-    public string                                   charName;
+    public CharacterType type;
+    public int charID;
+    public string charName;
 
-    public Character                          loadedChar;
+    public Character loadedChar { get; private set; }
 
     [Header("BASE INFO")]
-    public Text                                     nameText;
-    public Text                                     levelText;
+    public Text nameText;
 
-    public Slider                                   hpSlider;
-    public Text                                     hpText;
+    public Slider hpSlider;
+    public Text hpText;
 
-    public Text                                     classText;
-    public Text                                     statusEffectText;
-    public CharacterStatToolTip                     toolTip;
+    public Text statusEffectText;
 
+    public CharacterStatToolTip toolTip;
+    public EffectAnimator effectAnimator;
 
     private void Update()
     {
-        if(loadedChar != null)
+        if (loadedChar != null)
         {
             charName = loadedChar.name;
         }
         else
         {
-            charName = "Does not exist";
+            charName = "Char does not exist";
         }
     }
 
-    public void LoadPlayerCharacter(Character character)
+    public virtual void LoadChar(Character character)
     {
         loadedChar = character;
         charID = character.ID;
-
         nameText.text = character.name;
-        levelText.text = "LV. " + character.level.ToString();
-
         hpSlider.minValue = 0;
         hpSlider.maxValue = character.stats[Stats.MAXHP];
         hpSlider.value = character.stats[Stats.CURHP];
 
         hpText.text = character.stats[Stats.CURHP] + " / " + character.stats[Stats.MAXHP];
 
-        classText.text = character.rpgClass.baseInfo.name;
         statusEffectText.text = "None";
 
         toolTip.LoadCharStats(character);
     }
 
-    public void UpdateUI()
+    public virtual void UpdateUI()
     {
-        LoadPlayerCharacter(loadedChar);
-    }
-
-    public void CheckSelection()
-    {
-        if (GetComponentInChildren<Toggle>().isOn)
-        {
-            AllyUIList.curCharacterSelected = loadedChar;
-        }
+        
     }
 }
