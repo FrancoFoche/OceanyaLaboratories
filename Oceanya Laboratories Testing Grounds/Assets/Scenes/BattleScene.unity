@@ -2163,10 +2163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 255676e4d800e284b93c4644d29bdf32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleState: 0
-  inCombat: 0
-  enemyTeamDeath: 0
-  allyTeamDeath: 0
   easteregg: {fileID: 1941859085}
 --- !u!1 &951406233
 GameObject:
@@ -2639,7 +2635,7 @@ PrefabInstance:
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 117.13
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
@@ -2660,6 +2656,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 7988005460079559523, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
@@ -3951,10 +3952,8 @@ MonoBehaviour:
   list: []
   toggleGroup: {fileID: 1399045340}
   toggles: []
-  interactable: {fileID: 1730712834}
   enemyUI: {fileID: 1559641479412879702, guid: 7f43afe67a95ca14ca696560a23f953d, type: 3}
   enemyParent: {fileID: 778562210}
-  enemyInteractable: {fileID: 701932881}
 --- !u!1 &1407307329
 GameObject:
   m_ObjectHideFlags: 0

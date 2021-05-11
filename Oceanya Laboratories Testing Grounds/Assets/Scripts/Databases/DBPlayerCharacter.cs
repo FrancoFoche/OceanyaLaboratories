@@ -36,83 +36,74 @@ public class DBPlayerCharacter : MonoBehaviour
                 DBSkills.GetAllClassSkills(DBClasses.GetClass(0))
             ),
 
-            new PlayerCharacter(13 , "Vinnie" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
+            new PlayerCharacter(13 , "Vinnie" , 1,  DBClasses.GetClass(ClassNames.Vampire.ToString()) ,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 47 },
                     { Stats.CURHP       , 47 },
                     { Stats.STR      , 10 },
-                    { Stats.INT      , 3  },
-                    { Stats.CHR      , 13 },
+                    { Stats.INT      , 20  },
+                    { Stats.CHR      , 30 },
                     { Stats.AGI      , 35 },
                     { Stats.MR       , 16 },
                     { Stats.PR       , 15 },
                     { Stats.CON      , 9  },
                     { Stats.HPREGEN  , 0  }
                 },
-                new List<Skill>()//DBSkills.GetAllSkills()
+                new List<Skill>()
+                {
+                    DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Vampire Fangs"),
+                    DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Bat Swarm"),
+                    DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Dry their blood"),
+                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
+                }
             ),
-            new PlayerCharacter(10 , "Cientifico" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
+            new PlayerCharacter(5 , "Da Docta" , 9,  DBClasses.GetClass(ClassNames.Doctor.ToString()),
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 1 },
-                    { Stats.CURHP       , 1 },
-                    { Stats.STR      , 1 },
-                    { Stats.INT      , 300  },
-                    { Stats.CHR      , 0 },
-                    { Stats.AGI      , 1 },
-                    { Stats.MR       , 0 },
-                    { Stats.PR       , 0 },
-                    { Stats.CON      , 0  },
-                    { Stats.HPREGEN  , 0  }
+                    { Stats.MAXHP       , 83    },
+                    { Stats.CURHP       , 83    },
+                    { Stats.STR         , 1     },
+                    { Stats.INT         , 57    },
+                    { Stats.CHR         , 9     },
+                    { Stats.AGI         , 37    },
+                    { Stats.MR          , 2     },
+                    { Stats.PR          , 3     },
+                    { Stats.CON         , 13    },
+                    { Stats.HPREGEN     , 0     }
                 },
                 new List<Skill>()
                 {
-                    
+                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Chakra Scalples"),
+                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Revival Ritual"),
+                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
+                    DBSkills.GetSkill("Testing Class","Regenerative Meditation"),
                 }
             ),
-            new PlayerCharacter(11 , "Programador" , 1,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
+
+            new PlayerCharacter(9 , "Archive" , 5,  DBClasses.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 1 },
-                    { Stats.CURHP       , 1 },
-                    { Stats.STR      , 1 },
-                    { Stats.INT      , 300  },
-                    { Stats.CHR      , 0 },
-                    { Stats.AGI      , 1 },
-                    { Stats.MR       , 0 },
-                    { Stats.PR       , 0 },
-                    { Stats.CON      , 0  },
-                    { Stats.HPREGEN  , 0  }
+                    { Stats.MAXHP       , 50    },
+                    { Stats.CURHP       , 50    },
+                    { Stats.STR         , 1     },
+                    { Stats.INT         , 36    },
+                    { Stats.CHR         , 2     },
+                    { Stats.AGI         , 30    },
+                    { Stats.MR          , 10    },
+                    { Stats.PR          , 5     },
+                    { Stats.CON         , 6     },
+                    { Stats.HPREGEN     , 0     }
                 },
                 new List<Skill>()
                 {
-
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
+                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
+                    DBSkills.GetSkill("Testing Class","Arcane Overflow"),
                 }
             ),
-
-            new PlayerCharacter(40 , "Magno" , 999,  DBClasses.GetClass(0)/*nobody, change later to vampire*/ ,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 100000000 },
-                    { Stats.CURHP       , 100000000 },
-                    { Stats.STR      , 100000000 },
-                    { Stats.INT      , 100000000  },
-                    { Stats.CHR      , 100000000 },
-                    { Stats.AGI      , 100000000 },
-                    { Stats.MR       , 250 },
-                    { Stats.PR       , 250 },
-                    { Stats.CON      , 100000000  },
-                    { Stats.HPREGEN  , 100000000  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            //ENEMIGOS
-            
         };
     }
 

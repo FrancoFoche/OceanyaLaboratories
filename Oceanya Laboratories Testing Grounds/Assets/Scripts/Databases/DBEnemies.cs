@@ -9,105 +9,69 @@ public class DBEnemies : MonoBehaviour
     {
         enemies = new List<Enemy>()
         {
-            new Enemy(1 , "Tank" , GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
+            new Enemy(1 , "TankDummy" , GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 200 },
-                    { Stats.CURHP       , 200 },
-                    { Stats.STR      , 20 },
-                    { Stats.INT      , 0  },
-                    { Stats.CHR      , 0 },
-                    { Stats.AGI      , 0 },
-                    { Stats.MR       , 100 },
-                    { Stats.PR       , 100 },
-                    { Stats.CON      , 0  },
-                    { Stats.HPREGEN  , 0  }
+                    { Stats.MAXHP       , 200   },
+                    { Stats.CURHP       , 200   },
+                    { Stats.STR         , 20    },
+                    { Stats.INT         , 1     },
+                    { Stats.CHR         , 1     },
+                    { Stats.AGI         , 25     },
+                    { Stats.MR          , 100   },
+                    { Stats.PR          , 100   },
+                    { Stats.CON         , 30     },
+                    { Stats.HPREGEN     , 0     }
                 },
                 new List<Skill>()
                 {
-
+                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Great Fire Ball"),
                 }
             ),
 
-            new Enemy(666 , "Castro (el de las coins)" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 999,
+            new Enemy(2 , "Wizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 1000 },
-                    { Stats.CURHP       , 1000 },
-                    { Stats.STR      , 100 },
-                    { Stats.INT      , 200  },
-                    { Stats.CHR      , 99999 },
-                    { Stats.AGI      , 80 },
-                    { Stats.MR       , 100 },
-                    { Stats.PR       , 100 },
-                    { Stats.CON      , 2000  },
-                    { Stats.HPREGEN  , 1000  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            new Enemy(420 , "DaBaby (ConvertibleForm)" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 200 },
-                    { Stats.CURHP       , 200 },
-                    { Stats.STR      , 1 },
-                    { Stats.INT      , 1  },
-                    { Stats.CHR      , 1 },
-                    { Stats.AGI      , 10000 },
-                    { Stats.MR       , 1 },
-                    { Stats.PR       , 1 },
-                    { Stats.CON      , 20  },
-                    { Stats.HPREGEN  , 0  }
-                },
-                new List<Skill>()
-                {
-
-                }
-            ),
-
-            new Enemy(17 , "Sans SmashBros" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 1,
-                new Dictionary<Stats, int>
-                {
-                    { Stats.MAXHP       , 1 },
-                    { Stats.CURHP       , 1 },
+                    { Stats.MAXHP       , 100 },
+                    { Stats.CURHP       , 100 },
                     { Stats.STR         , 1 },
-                    { Stats.INT         , 1 },
+                    { Stats.INT         , 20 },
                     { Stats.CHR         , 1 },
-                    { Stats.AGI         , 1 },
-                    { Stats.MR          , 1 },
-                    { Stats.PR          , 1 },
+                    { Stats.AGI         , 30 },
+                    { Stats.MR          , 0 },
+                    { Stats.PR          , 0 },
                     { Stats.CON         , 1 },
-                    { Stats.HPREGEN     , 1 }
+                    { Stats.HPREGEN     , 0 }
                 },
                 new List<Skill>()
                 {
-
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
+                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
                 }
             ),
 
-            new Enemy(31 , "Edmund McNerfs" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 8,
+            new Enemy(3 , "Archwizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 20,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , Random.Range(1,1001) },
-                    { Stats.CURHP       , Random.Range(1,1001) },
-                    { Stats.STR      , Random.Range(1,1001) },
-                    { Stats.INT      , Random.Range(1,1001)  },
-                    { Stats.CHR      , Random.Range(1,1001) },
-                    { Stats.AGI      , Random.Range(1,1001) },
-                    { Stats.MR       , Random.Range(1,201) },
-                    { Stats.PR       , Random.Range(1,201) },
-                    { Stats.CON      , Random.Range(1,1001)  },
-                    { Stats.HPREGEN  , Random.Range(1,1001)  }
+                    { Stats.MAXHP       , 150 },
+                    { Stats.CURHP       , 150 },
+                    { Stats.STR         , 1 },
+                    { Stats.INT         , 20 },
+                    { Stats.CHR         , 1 },
+                    { Stats.AGI         , 50 },
+                    { Stats.MR          , 100 },
+                    { Stats.PR          , 100 },
+                    { Stats.CON         , 1 },
+                    { Stats.HPREGEN     , 0 }
                 },
                 new List<Skill>()
                 {
-
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
+                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
+                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
                 }
-            )
+            ),
         };
     }
 

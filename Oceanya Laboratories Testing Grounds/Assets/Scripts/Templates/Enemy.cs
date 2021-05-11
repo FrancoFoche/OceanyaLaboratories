@@ -8,6 +8,8 @@ public class Enemy : Character
 
     public Enemy(int ID, string name, Sprite image, int level, Dictionary<Stats, int> stats, List<Skill> skillList)
     {
+        InitializeVariables();
+
         this.ID = ID;
         this.level = level;
         this.name = name;

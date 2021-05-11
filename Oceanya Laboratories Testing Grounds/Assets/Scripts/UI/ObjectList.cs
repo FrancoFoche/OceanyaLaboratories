@@ -93,7 +93,6 @@ public class ToggleList : ObjectList
     public List<Toggle> toggles = new List<Toggle>();
     public bool different { get; private set; }
 
-    public GameObject interactable;
 
     private void Update()
     {
@@ -189,7 +188,12 @@ public class ToggleList : ObjectList
     }
     public void InteractableToggles     (bool state)    
     {
-        interactable.SetActive(state);
+        for (int i = 0; i < toggles.Count; i++)
+        {
+            toggles[i].interactable = state;
+        }
+
+        Debug.Log("Set all toggles' interactables to " + state);
     }
 }
 

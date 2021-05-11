@@ -21,8 +21,7 @@ public class UISkillButton : MonoBehaviour
 
     public void ActivateLoadedSkill()
     {
-        loadedSkill.Activate(BattleManager.caster);
-        UICharacterActions.instance.skillToActivate = loadedSkill;
+        UICharacterActions.instance.SetSkillToActivate(loadedSkill);
     }
 
     public void UpdateFormat()

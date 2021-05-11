@@ -7,10 +7,19 @@ public class UICharacterActions : ButtonList
 {
     public int maxTargets;
     public CharActions action;
-    public Skill skillToActivate; //in case of using the skill action, this skill will activate after targetting
+    public Skill skillToActivate { get; private set; } //in case of using the skill action, this skill will activate after targetting
     public string actionString;
 
     public static UICharacterActions instance;
+
+    #region Setters
+    public void SetSkillToActivate(Skill skill)
+    {
+        skill.Activate(BattleManager.caster);
+        skillToActivate = skill;
+        Debug.Log("Set skill to activate to " + skill.baseInfo.name);
+    }
+    #endregion
 
     private void Start()
     {
@@ -45,22 +54,22 @@ public class UICharacterActions : ButtonList
         switch (action)
         {
             case CharActions.Attack:
-                result = "Target an enemy, and if you win the SPD contest for hit, roll 20 for damage.";
+                result = "Target an enemy, and deal 100% your STR stat as physical damage";
                 break;
             case CharActions.Defend:
-                result = "For this turn, you take 50% damage from all sources except status effects.";
+                result = "For this turn, you take 50% damage from all sources.";
                 break;
             case CharActions.Skill:
                 result = "Use a skill from your skill list";
                 break;
             case CharActions.Item:
-                result = "Utilize an item from your inventory";
+                result = "(NOT YET IMPLEMENTED) Utilize an item from your inventory";
                 break;
             case CharActions.Rearrange:
-                result = "Use this turn to rearrange yourself in the team order. Both you and the one you swap with must agree to this arrangement.";
+                result = "Use this turn to rearrange yourself in the team order.";
                 break;
             case CharActions.Prepare:
-                result = "Prepare yourself to be attacked, gain advantage in dodge roll IF you get attacked this turn. However, if a turn passes without being attacked while Ready, you gain DISTRACTED";
+                result = "(NOT YET IMPLEMENTED) Prepare yourself to be attacked, gain advantage in dodge roll IF you get attacked this turn. However, if a turn passes without being attacked while Ready, you gain DISTRACTED";
                 break;
             case CharActions.Skip:
                 result = "Just skips your turn without doing anything.";
@@ -92,13 +101,13 @@ public class UICharacterActions : ButtonList
 
                                 if (!target[i].checkedPassives)
                                 {
-                                    target[i].checkedPassives = true;
+                                    target[i].SetCheckedPassives(true);
                                     target[i].ActivatePassiveEffects(ActivationTime.WhenAttacked);
                                 }
 
                                 if (target[i].stats[Stats.CURHP] <= 0)
                                 {
-                                    target[i].dead = true;
+                                    target[i].SetDead(true);
                                     BattleManager.battleLog.LogBattleEffect($"{target[i].name} is now dead as fuck!");
                                 }
                             }
@@ -128,6 +137,7 @@ public class UICharacterActions : ButtonList
 
             case CharActions.Skill:
                 {
+                    Debug.Log("Entered Skill ACT; Skill to activate: " + skillToActivate.baseInfo.name);
                     skillToActivate.SkillAction(caster, target);
                 }
                 break;
@@ -151,7 +161,7 @@ public class UICharacterActions : ButtonList
                     {
                         TeamOrderManager.spdSystem.Swap(caster, target[0]);
                         BattleManager.battleLog.LogBattleEffect($"{caster.name} swaps places with {target[0].name} to delay their turn!");
-                        TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+                        TeamOrderManager.SetTurnState(TurnState.Start);
                         TeamOrderManager.SetCurrentTurn(target[0]);
                         BattleManager.battleLog.LogBattleEffect($"{target[0].name}'s turn is skipped due to being swapped!");
                         TeamOrderManager.Continue();
@@ -179,7 +189,6 @@ public class UICharacterActions : ButtonList
         }
 
         BattleManager.instance.ResetCheckedPassives();
-        BattleManager.instance.ClearTargets();
     }
 
     /// <summary>
@@ -188,6 +197,7 @@ public class UICharacterActions : ButtonList
     /// <param name="action"></param>
     public void ButtonAction(CharActions action)
     {
+        Debug.Log("ButtonAction called, with action: " + action);
         Character caster = BattleManager.caster;
 
         switch (action)
@@ -210,7 +220,11 @@ public class UICharacterActions : ButtonList
                 else
                 {
                     BattleManager.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
-                    UISkillContext.instance.Show();
+
+                    if(!TeamOrderManager.AIturn || BattleManager.instance.debugMode) 
+                    {
+                        UISkillContext.instance.Show();
+                    }
                 }
                 break;
 

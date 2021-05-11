@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -158,6 +159,42 @@ public class BattleLog : MonoBehaviour
         }
 
         SendMessageToChat(messageToSend, type);
+    }
+
+    /// <summary>
+    /// Starts a countdown in the battleLog, logging a text every second. When the countdown ends, an event happens.
+    /// </summary>
+    /// <param name="countdownTime">Time you want the countdown to last</param>
+    /// <param name="text">Text you want the battleLog to log every second (Use "_countdown_" in the text in the case you want it to log the current countdown.)</param>
+    /// <param name="eventAfterCountdown">Action it will do after the countdown is over</param>
+    /// <returns></returns>
+    public void LogCountdown(int countdownTime, string text, Action eventAfterCountdown)
+    {
+        StartCoroutine(LogCountdownCoroutine(countdownTime, text, eventAfterCountdown));
+    }
+
+
+    /// <summary>
+    /// Starts a countdown in the battleLog, logging a text every second. When the countdown ends, an event happens.
+    /// </summary>
+    /// <param name="countdownTime">Time you want the countdown to last</param>
+    /// <param name="text">Text you want the battleLog to log every second (Use "_countdown_" in the text in the case you want it to log the current countdown.)</param>
+    /// <param name="eventAfterCountdown">Action it will do after the countdown is over</param>
+    /// <returns></returns>
+    IEnumerator LogCountdownCoroutine(int countdownTime, string text, Action eventAfterCountdown)
+    {
+        for (int i = 0; i < countdownTime; i++)
+        {
+            int secondsLeft = countdownTime - i;
+
+            string replacedText = text.Replace("_countdown_", secondsLeft.ToString());
+
+            LogBattleEffect(replacedText);
+
+            yield return new WaitForSeconds(1);
+        }
+
+        eventAfterCountdown.Invoke();
     }
 }
 

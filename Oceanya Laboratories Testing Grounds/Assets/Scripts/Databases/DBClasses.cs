@@ -116,7 +116,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorActivationRequirement(new List<ActivationRequirement>(){ new ActivationRequirement(0,7) })
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(new Dictionary<Stats, SkillFormula>(){{ Stats.AGI, new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)} }),
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){ { Stats.AGI, new List<SkillFormula>() { new SkillFormula(Stats.INT, operationActions.Multiply, 0.5f) } } }),
 
                     new Skill
                     (
@@ -137,9 +137,34 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(new Dictionary<Stats, SkillFormula>(){{ Stats.STR, new SkillFormula(Stats.STR,operationActions.Multiply,0.5f)} })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){{ Stats.STR, new List<SkillFormula>() { new SkillFormula(Stats.STR,operationActions.Multiply,0.5f)} } })
                     .BehaviorPassive(ActivationTime.StartOfTurn)
-                    .BehaviorLastsFor(2)
+                    .BehaviorLastsFor(2),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Regenerative Meditation", 11 , "You take a moment, and sit still... you regenerate by 50% INT each turn for 2 turns")
+                            ,"_caster_ feels the effects of their meditation! +_heal_ HP!"
+                            ,SkillType.Active
+                            ,TargetType.Self
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)})
+                    .BehaviorLastsFor(2),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! You will receive a 50% INT increase at the start of your next 3 turns, BUT you will also receive 10% of your MaxHP as direct damage each time.")
+                            ,"_caster_'s body is overflowing with energy! Their INT is buffed by 50%, yet their body takes _damage_ DMG."
+                            ,SkillType.Active
+                            ,TargetType.Self
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){{ Stats.INT, new List<SkillFormula>() { new SkillFormula(Stats.INT, operationActions.Multiply,0.5f)} } })
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.MAXHP,operationActions.Multiply,0.1f)})
+                    .BehaviorLastsFor(3)
                 }
             ),
 
@@ -190,12 +215,12 @@ public class DBClasses : MonoBehaviour
                             {SkillResources.NatureEnergy , -1 }
                         }
                     )
-                    .BehaviorModifiesStat(
-                        new Dictionary<Stats, SkillFormula>()
+                    .BehaviorModifiesStat( StatModificationTypes.Buff,
+                        new Dictionary<Stats, List<SkillFormula>>()
                         {
-                            {Stats.STR , new SkillFormula(Stats.STR, operationActions.Multiply, 0.1f) },
-                            {Stats.MAXHP , new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.1f) },
-                            {Stats.HPREGEN , new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.05f) }
+                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.1f) } },
+                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.1f) } },
+                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.05f) } }
                         }
                     ),
                     
@@ -214,12 +239,12 @@ public class DBClasses : MonoBehaviour
                             {SkillResources.NatureEnergy , -1 }
                         }
                     )
-                    .BehaviorModifiesStat(
-                        new Dictionary<Stats, SkillFormula>()
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,
+                        new Dictionary<Stats, List<SkillFormula>>()
                         {
-                            {Stats.STR , new SkillFormula(Stats.STR, operationActions.Multiply, 0.15f) },
-                            {Stats.MAXHP , new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.15f) },
-                            {Stats.HPREGEN , new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.1f) }
+                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.15f) } },
+                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.15f) } },
+                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.1f) } }
                         }
                     ),
                     
@@ -238,12 +263,12 @@ public class DBClasses : MonoBehaviour
                             {SkillResources.NatureEnergy , -2 }
                         }
                     )
-                    .BehaviorModifiesStat(
-                        new Dictionary<Stats, SkillFormula>()
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,
+                        new Dictionary<Stats, List<SkillFormula>>()
                         {
-                            {Stats.STR , new SkillFormula(Stats.STR, operationActions.Multiply, 0.2f) },
-                            {Stats.MAXHP , new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.5f) },
-                            {Stats.HPREGEN , new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) }
+                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.2f) } },
+                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.5f) } },
+                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } }
                         }
                     ),
 
@@ -262,12 +287,12 @@ public class DBClasses : MonoBehaviour
                             {SkillResources.NatureEnergy , -2 }
                         }
                     )
-                    .BehaviorModifiesStat(
-                        new Dictionary<Stats, SkillFormula>()
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,
+                        new Dictionary<Stats, List<SkillFormula>>()
                         {
-                            {Stats.STR , new SkillFormula(Stats.STR, operationActions.Multiply, 0.2f) },
-                            {Stats.MAXHP , new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.2f) },
-                            {Stats.HPREGEN , new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.2f) }
+                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.2f) } },
+                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.2f) } },
+                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.2f) } }
                         }
                     ),
                 }
@@ -356,7 +381,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(new Dictionary<Stats, SkillFormula>(){ { Stats.HPREGEN, new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, List<SkillFormula>>(){ { Stats.HPREGEN, new List<SkillFormula> { new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } } })
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {
@@ -420,7 +445,8 @@ public class DBClasses : MonoBehaviour
                         {
                             {SkillResources.NatureEnergy , -3 }
                         }
-                    ),
+                    )
+                    .BehaviorHasCooldown(CDType.Turns,2),
 
                     //
 
@@ -449,7 +475,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.AllEnemies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(new Dictionary<Stats, SkillFormula>(){ { Stats.AGI, new SkillFormula(Stats.AGI,operationActions.Multiply,-0.2f)} })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){ { Stats.AGI, new List<SkillFormula> { new SkillFormula(Stats.AGI,operationActions.Multiply,-0.2f)} } })
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {
@@ -478,6 +504,142 @@ public class DBClasses : MonoBehaviour
                             {SkillResources.NatureEnergy , -3 }
                         }
                     ),
+                }
+            ),
+
+            new BaseSkillClass(new BaseObjectInfo(ClassNames.Doctor.ToString(), 10 , "As a Doctor, you’re the team’s main healer, your job is to keep the DPS alive as long as possible"),
+                new List<Skill>
+                {
+                    new Skill
+                    (
+                        new BaseObjectInfo("Chakra Scalples", 1 , "You utilize your knowledge and control over chakra to powe your attacks! Your basic attacks now deal 50% INT as magic damage instead of 100% STR as physical damage")
+                        ,"_caster_'s doctor training comes in handy! Their base attacks now deal 50% INT as magic damage!"
+                        ,SkillType.Passive
+                        ,TargetType.Self
+                    )
+                    .BehaviorPassive(ActivationTime.StartOfBattle)
+                    .BehaviorChangesBasicAttack(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}, DamageType.Magical),
+
+                    new Skill
+                    (
+                        new BaseObjectInfo("Healing Chakra Aura", 2 , "Utilize your medical ninjutsu to cover your team in a regenerative aura! This aura stays on all battle and heals 25% INT (Once a battle)")
+                        ,"_caster_ casts a magic spell around the team! Everyone will regenerate by 25% of their INT"
+                        ,SkillType.Active
+                        ,TargetType.AllAllies
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorDoesHeal(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,0.25f)})
+                    .BehaviorHasCooldown(CDType.Other),
+
+                    new Skill
+                    (
+                        new BaseObjectInfo("Regeneration", 3 , "Utilize your medical ninjutsu to cover a team member in regenerative chakra! This effect stays on for 3 turns and heals for 50% INT (5 turns CD)")
+                        ,"_caster_ casts a regeneration spell on _target_! They will regenerate for 50% of their INT"
+                        ,SkillType.Active
+                        ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorDoesHeal(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)})
+                    .BehaviorHasCooldown(CDType.Turns,5),
+
+                    new Skill
+                    (
+                        new BaseObjectInfo("Revival Ritual", 4 , "Make preparations for a turn and revive a team member to full HP next turn! (6 turns CD)")
+                        ,"_caster_ revives _target_!"
+                        ,SkillType.Active
+                        ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Turns,6)
+                    .BehaviorRevives(),
+
+                    new Skill
+                    (
+                        new BaseObjectInfo("Heal", 5 , "Heals target for INT divided by 3. (1 Turn CD)")
+                        ,"_caster_ heals _target_ for _heal_ HP!"
+                        ,SkillType.Active
+                        ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Turns,1)
+                    .BehaviorDoesHeal(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Divide,3)}),
+
+                }
+            ),
+
+            new BaseSkillClass(new BaseObjectInfo(ClassNames.MasterOfDarkArts.ToString(), 6 , "As a Master of the Dark Arts, your job is to deal Magic DMG to as many targets as possible and utilize your magic to be creative and resourceful"),
+                new List<Skill>
+                {
+                    new Skill
+                    (
+                        new BaseObjectInfo("Mind Over Body", 1 , "Your attacks are INT based instead of STR based, Masters of Dark Arts have this by default.")
+                        ,"_caster_'s mind is more powerful than their body. Their base attacks now deal 100% INT as magic damage!"
+                        ,SkillType.Passive
+                        ,TargetType.Self
+                    )
+                    .BehaviorPassive(ActivationTime.StartOfBattle)
+                    .BehaviorChangesBasicAttack(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical),
+
+                    new Skill
+                    (
+                        new BaseObjectInfo("White Dragon Breath", 2 , "You channel the energy of the great white dragon (not necessarily one with blue eyes) to unleash a powerful ice barrage! All enemies get hit with 75% your INT.")
+                        ,"_caster_ channels the energy of the great white dragon! _target_ gets hit by _damage_!"
+                        ,SkillType.Active
+                        ,TargetType.AllEnemies
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Ice, new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.75f)})
+                    .BehaviorHasCooldown(CDType.Turns,3),
+
+                    new Skill
+                    (
+                        new BaseObjectInfo("Soul Spear", 3 , "You materialize your soul's will into a powerful Spear that strikes through your enemy's soul! It deals 150% INT")
+                        ,"_caster_ manifests a Soul Spear! _target_ receives _damage_ DMG!"
+                        ,SkillType.Active
+                        ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,1.5f)})
+                    .BehaviorHasCooldown(CDType.Turns,2),
+                }
+            ),
+
+            new BaseSkillClass(new BaseObjectInfo(ClassNames.Vampire.ToString(), 5 , ""),
+                new List<Skill>
+                {
+                    new Skill
+                    (
+                            new BaseObjectInfo("Vampire Fangs", 1 , "You utilize your (maybe kinda sexy) vampire fangs. Your basic attacks deal 50% STR and 50% CHR, Vampires have this skill by default")
+                            ,"_caster_ remembers that they're a vampire! Bite the enemy! Their basic attacks will now deal 50% STR + 50% CHR"
+                            ,SkillType.Passive
+                            ,TargetType.Self
+                    )
+                    .BehaviorPassive(ActivationTime.StartOfBattle)
+                    .BehaviorChangesBasicAttack(new List<SkillFormula>(){new SkillFormula(Stats.STR,operationActions.Multiply,0.5f), new SkillFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Bat Swarm", 2 , "Call your Bat friends to attack the enemy team for 25% your CHR! 2 Turn CD")
+                            ,"_caster_'s bat friends come help! _target_ receives _damage_ DMG!"
+                            ,SkillType.Active
+                            ,TargetType.AllEnemies
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<SkillFormula>(){new SkillFormula(Stats.CHR,operationActions.Multiply,0.25f) })
+                    .BehaviorHasCooldown(CDType.Turns,2),
+
+                    new Skill
+                    (
+                            new BaseObjectInfo("Dry their blood", 3 , "You suck the blood out of the enemy, leaving them weaker. Their STR is debuffed by 50% your CHR. You can only use this skill once.")
+                            ,"_caster_ weakens _target_! Their STR is debuffed by 50% of _caster_'s CHR!"
+                            ,SkillType.Active
+                            ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<SkillFormula>>(){ { Stats.STR, new List<SkillFormula>{new SkillFormula(Stats.CHR, operationActions.Multiply, 0.5f)} } })
+                    .BehaviorHasCooldown(CDType.Other)
                 }
             ),
         };

@@ -10,55 +10,62 @@ public class Skill
     /// <summary>
     /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
     /// </summary>
-    public bool                             done                                { get; private set; }
+    public bool                                     done                                { get; private set; }
 
-    public BaseObjectInfo                   baseInfo                            { get; private set; }
-    public BaseSkillClass                   skillClass                          { get; set; }         //RPG Class it's from
-    public SkillType                        skillType                           { get; private set; }
+    public BaseObjectInfo                           baseInfo                            { get; private set; }
+    public BaseSkillClass                           skillClass                          { get; set; }         //RPG Class it's from
+    public SkillType                                skillType                           { get; private set; }
 
-    public string                           activationText                      { get; private set; }
+    public string                                   activationText                      { get; private set; }
 
-    public bool                             hasActivationRequirement            { get; private set; }
-    public List<ActivationRequirement>      activationRequirements              { get; private set; }
+    public bool                                     hasActivationRequirement            { get; private set; }
+    public List<ActivationRequirement>              activationRequirements              { get; private set; }
 
-    public bool                             hasPassive                          { get; private set; }
-    public ActivationTime                   passiveActivationType               { get; private set; }
+    public bool                                     hasPassive                          { get; private set; }
+    public ActivationTime                           passiveActivationType               { get; private set; }
 
-    public bool                             lasts                               { get; private set; }
-    public int                              lastsFor                            { get; private set; }
+    public bool                                     lasts                               { get; private set; }
+    public int                                      lastsFor                            { get; private set; }
 
-    public TargetType                       targetType                          { get; private set; } //If the skill targets anyone, what is its target type?
-    public int                              maxTargets                          { get; private set; }
+    public TargetType                               targetType                          { get; private set; } //If the skill targets anyone, what is its target type?
+    public int                                      maxTargets                          { get; private set; }
 
-    public CDType                           cdType                              { get; private set; }
-    public int                              cooldown                            { get; private set; }
+    public CDType                                   cdType                              { get; private set; }
+    public int                                      cooldown                            { get; private set; }
 
-    public bool                             doesDamage                          { get; private set; } //If the skill does damage
-    public DamageType                       damageType                          { get; private set; } //What type of damage does it do
-    public ElementType                      damageElement                       { get; private set; } //What elemental type is the damage skill
-    public List<SkillFormula>               damageFormula                       { get; private set; } //list of formulas to sum to get the damage number
+    public bool                                     doesDamage                          { get; private set; } //If the skill does damage
+    public DamageType                               damageType                          { get; private set; } //What type of damage does it do
+    public ElementType                              damageElement                       { get; private set; } //What elemental type is the damage skill
+    public List<SkillFormula>                       damageFormula                       { get; private set; } //list of formulas to sum to get the damage number
 
-    public bool                             doesHeal                            { get; private set; } //if the skill heals
-    public List<SkillFormula>               healFormula                         { get; private set; } //list of formulas to sum to get the heal number
+    public bool                                     doesHeal                            { get; private set; } //if the skill heals
+    public List<SkillFormula>                       healFormula                         { get; private set; } //list of formulas to sum to get the heal number
 
-    public bool                             flatModifiesStat                    { get; private set; } //does the skill buff any stat by a flat number
-    public Dictionary<Stats, int>           flatStatModifiers                   { get; private set; }
-    public bool                             formulaModifiesStat                 { get; private set; } //does the skill buff any stat by a formula
-    public Dictionary<Stats, SkillFormula>  formulaStatModifiers                { get; private set; }
+    public bool                                     flatModifiesStat                    { get; private set; } //does the skill buff any stat by a flat number
+    public Dictionary<Stats, int>                   flatStatModifiers                   { get; private set; }
+    public bool                                     formulaModifiesStat                 { get; private set; } //does the skill buff any stat by a formula
+    public Dictionary<Stats, List<SkillFormula>>    formulaStatModifiers                { get; private set; }
+    public StatModificationTypes                    modificationType                    { get; private set; }
 
-    public bool                             modifiesResource                    { get; private set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
-    public Dictionary<SkillResources, int>  resourceModifiers                   { get; private set; } //what does it modify and by how much
+    public bool                                     modifiesResource                    { get; private set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
+    public Dictionary<SkillResources, int>          resourceModifiers                   { get; private set; } //what does it modify and by how much
 
-    public bool                             unlocksResource                     { get; private set; } //does it unlock a resource
-    public List<SkillResources>             unlockedResources                   { get; private set; } //what resources does it unlock
+    public bool                                     unlocksResource                     { get; private set; } //does it unlock a resource
+    public List<SkillResources>                     unlockedResources                   { get; private set; } //what resources does it unlock
 
-    public bool                             costsTurn                           { get; private set; } //does the skill end your turn
+    public bool                                     changesBasicAttack                  { get; private set; }
+    public List<SkillFormula>                       newBasicAttackFormula               { get; private set; }
+    public DamageType                               newBasicAttackDamageType            { get; private set; }
 
-    public bool                             appliesStatusEffects                { get; private set; } //does the skill apply a status effect?
+    public bool                                     revives                             { get; private set; }
 
-    public bool                             doesSummon                          { get; private set; } //does the skill summon anything
+    public bool                                     costsTurn                           { get; private set; } //does the skill end your turn
 
-    public bool                             doesShield                          { get; private set; } //does the skill shield anything
+    public bool                                     appliesStatusEffects                { get; private set; } //does the skill apply a status effect?
+
+    public bool                                     doesSummon                          { get; private set; } //does the skill summon anything
+
+    public bool                                     doesShield                          { get; private set; } //does the skill shield anything
 
     #region Constructors
     public Skill                                (BaseObjectInfo baseInfo, string activationText, SkillType skillType, TargetType targetType, int maxTargets = 1)    
@@ -82,6 +89,11 @@ public class Skill
         this.damageFormula = damageFormula;
         return this;
     }
+    public Skill BehaviorHasCooldown            (CDType cdType)                                                                                                     
+    {
+        this.cdType = cdType;
+        return this;
+    }
     public Skill BehaviorHasCooldown            (CDType cdType, int cooldown)                                                                                       
     {
         this.cdType = cdType;
@@ -94,16 +106,19 @@ public class Skill
         this.healFormula = healFormula;
         return this;
     }
-    public Skill BehaviorModifiesStat           (Dictionary<Stats, int> statModifiers)                                                                              
+    public Skill BehaviorModifiesStat           (StatModificationTypes modificationType, Dictionary<Stats, int> statModifiers)                                                                              
     {
         flatModifiesStat = true;
         flatStatModifiers = statModifiers;
+        this.modificationType = modificationType;
         return this;
     }
-    public Skill BehaviorModifiesStat           (Dictionary<Stats, SkillFormula> statModifiers)                                                                     
+    public Skill BehaviorModifiesStat           (StatModificationTypes modificationType, Dictionary<Stats, List<SkillFormula>> statModifiers)                                                                     
     {
         formulaModifiesStat = true;
         formulaStatModifiers = statModifiers;
+        this.modificationType = modificationType;
+
         return this;
     }
     public Skill BehaviorModifiesResource       (Dictionary<SkillResources, int> resourceModifiers)                                                                 
@@ -142,7 +157,18 @@ public class Skill
 
         return this;
     }
-
+    public Skill BehaviorChangesBasicAttack     (List<SkillFormula> newBaseFormula, DamageType newDamageType)                                                       
+    {
+        this.newBasicAttackFormula = newBaseFormula;
+        this.newBasicAttackDamageType = newDamageType;
+        changesBasicAttack = true;
+        return this;
+    }
+    public Skill BehaviorRevives                ()                                                                                                                  
+    {
+        revives = true;
+        return this;
+    }
 
     public Skill BehaviorAppliesStatusEffects   ()                                                                                                                  
     {
@@ -275,7 +301,7 @@ public class Skill
                 }
                 if (flatModifiesStat)
                 {
-                    target[i].ModifyStat(flatStatModifiers);
+                    target[i].ModifyStat(modificationType, flatStatModifiers);
                 }
                 if (formulaModifiesStat)
                 {
@@ -286,11 +312,11 @@ public class Skill
 
                         if (formulaStatModifiers.ContainsKey(currentStat))
                         {
-                            resultModifiers.Add(currentStat, SkillFormula.Read(formulaStatModifiers[currentStat], caster.stats));
+                            resultModifiers.Add(currentStat, SkillFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
                         }
                     }
 
-                    target[i].ModifyStat(resultModifiers);
+                    target[i].ModifyStat(modificationType ,resultModifiers);
                 }
                 if (unlocksResource)
                 {
@@ -299,6 +325,14 @@ public class Skill
                 if (modifiesResource)
                 {
                     target[i].ModifyResource(resourceModifiers);
+                }
+                if (changesBasicAttack)
+                {
+                    target[i].ChangeBaseAttack(newBasicAttackFormula, newBasicAttackDamageType);
+                }
+                if (revives)
+                {
+                    target[i].Revive();
                 }
 
                 if (appliesStatusEffects)

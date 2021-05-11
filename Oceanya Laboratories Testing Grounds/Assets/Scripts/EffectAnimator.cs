@@ -10,7 +10,8 @@ public class EffectAnimator : MonoBehaviour
         Debuff,
         Buff,
         Heal,
-        Death
+        Death,
+        Revive
     }
 
     public BattleUI ui;
@@ -72,6 +73,11 @@ public class EffectAnimator : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             PlayEffect(Effects.Death);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            PlayEffect(Effects.Revive);
         }
     }
 }

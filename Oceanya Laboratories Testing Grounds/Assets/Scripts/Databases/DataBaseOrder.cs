@@ -7,10 +7,10 @@ using UnityEngine;
 /// </summary>
 public class DataBaseOrder : MonoBehaviour
 {
-    public static List<DataBaseOrder> databases;
-
     private void Awake()
     {
+        Debug.Log("Building Databases");
+
         RuleManager.BuildHelpers();
         DBClasses.BuildDatabase();
         DBSkills.BuildDatabase();

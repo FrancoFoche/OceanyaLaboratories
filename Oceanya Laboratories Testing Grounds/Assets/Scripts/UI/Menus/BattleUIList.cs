@@ -13,7 +13,6 @@ public class BattleUIList : ToggleList
     [Header("Enemy Vars")]
     public GameObject enemyUI;
     public Transform enemyParent;
-    public GameObject enemyInteractable;
 
     /// <summary>
     /// Creates and adds a player character to the ally battle UIs.
@@ -110,10 +109,5 @@ public class BattleUIList : ToggleList
         {
             curCharacterSelected = curObjectsSelected[0].GetComponent<BattleUI>().loadedChar;
         }
-    }
-    public void             SetInteractable(bool state)                        
-    {
-        InteractableToggles(!state);
-        enemyInteractable.SetActive(!state);
     }
 }

@@ -7,7 +7,8 @@ public enum TurnState
     Start,
     WaitingForAction,
     WaitingForTarget,
-    End
+    End,
+    NonDefined
 }
 
 
@@ -16,32 +17,35 @@ public enum TurnState
 /// </summary>
 public static class TeamOrderManager
 {
-    public  static  List<Character>     allySide;
-    public  static  List<Character>     enemySide;
+    public  static  List<Character>     allySide                        { get; private set; }
+    public  static  List<Character>     enemySide                       { get; private set; }
     public  static  List<Character>     totalCharList                   { get; private set; }
     public  static  TurnState           turnState                       { get; private set; }
-    public  static  int                 currentTeamOrderIndex   = 0;
+    public  static  bool                AIturn                          { get; private set; }
+    public  static  int                 currentTeamOrderIndex           { get; private set; }
     public  static  Character           currentTurn;
     public  static  SPDSystem           spdSystem;
 
     public static void                  BuildTeamOrder  ()                      {
+        allySide = new List<Character>() { DBPlayerCharacter.GetPC(13), DBPlayerCharacter.GetPC(5), DBPlayerCharacter.GetPC(9) };
+        enemySide = new List<Character>() { DBEnemies.GetEnemy(1), DBEnemies.GetEnemy(2), DBEnemies.GetEnemy(3) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
+        
         totalCharList = new List<Character>();
-
-        allySide = new List<Character>() { DBPlayerCharacter.GetPC(0), DBPlayerCharacter.GetPC(13), DBPlayerCharacter.GetPC(10), DBPlayerCharacter.GetPC(11), DBPlayerCharacter.GetPC(40) };
-        enemySide = new List<Character>() { DBEnemies.GetEnemy(1), DBEnemies.GetEnemy(17), DBEnemies.GetEnemy(31) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
-
-
         for (int i = 0; i < allySide.Count; i++)
         {
             totalCharList.Add(allySide[i]);
-            allySide[i].team = Team.Ally;
+            allySide[i].SetTeam(Team.Ally);
         }
-
         for (int i = 0; i < enemySide.Count; i++)
         {
             totalCharList.Add(enemySide[i]);
-            enemySide[i].team = Team.Enemy;
+            enemySide[i].SetTeam(Team.Enemy);
         }
+
+        turnState = TurnState.NonDefined;
+
+        currentTeamOrderIndex = 0;
+        currentTurn = new Character();
 
         spdSystem = new SPDSystem(allySide, enemySide);
         spdSystem.BuildSPDSystem();
@@ -55,45 +59,86 @@ public static class TeamOrderManager
     }
     public static void                  SetTurnState    (TurnState state)       
     {
-        switch (state)
+        if (turnState == state && state != TurnState.NonDefined)
         {
-            case TurnState.Start:
-                turnState = TurnState.Start;
+            Debug.LogWarning("Turn state is ALREADY set to " + state.ToString() + ".");
+        }
+        else
+        {
+            Character caster = BattleManager.caster;
 
-                if (BattleManager.caster.defending)
-                {
-                    BattleManager.caster.SetDefending(false);
-                }
+            switch (state)
+            {
+                case TurnState.Start:
+                    turnState = TurnState.Start;
 
-                
-                BattleManager.caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+                    if (caster.defending)
+                    {
+                        caster.SetDefending(false);
+                    }
 
-                SetTurnState(TurnState.WaitingForAction);
-                break;
+                    if (!caster.dead)
+                    {
+                        caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+                    }
 
-            case TurnState.WaitingForAction:
-                UICharacterActions.instance.InteractableButtons(true);
-                UISkillContext.instance.InteractableButtons(true);
-                BattleManager.uiList.TurnToggleGroup(true);
-                BattleManager.uiList.SetInteractable(true);
-                turnState = TurnState.WaitingForAction;
-                break;
+                    if (caster.team == Team.Ally || BattleManager.instance.debugMode)
+                    {
+                        AIturn = false;
+                        SetTurnState(TurnState.WaitingForAction);
+                    }
+                    else
+                    {
+                        AIturn = true;
+                        UICharacterActions.instance.InteractableButtons(false);
+                        UISkillContext.instance.InteractableButtons(false);
+                        BattleManager.uiList.InteractableToggles(false);
+
+                        BattleManager.instance.DelayAction(3, caster.AITurn);
+                    }
+
+                    break;
+
+                case TurnState.WaitingForAction:
+                    UICharacterActions.instance.InteractableButtons(true);
+                    UISkillContext.instance.InteractableButtons(true);
+                    BattleManager.uiList.TurnToggleGroup(true);
+
+                    if (BattleManager.instance.debugMode)
+                    {
+                        BattleManager.uiList.InteractableToggles(true);
+                    }
+                    else
+                    {
+                        BattleManager.uiList.InteractableToggles(false);
+                    }
+
+                    turnState = TurnState.WaitingForAction;
+                    break;
 
 
-            case TurnState.WaitingForTarget:
-                UICharacterActions.instance.InteractableButtons(false);
-                UISkillContext.instance.InteractableButtons(false);
-                BattleManager.uiList.TurnToggleGroup(false);
-                BattleManager.uiList.TurnToggles(false);
-                BattleManager.uiList.SetInteractable(true);
+                case TurnState.WaitingForTarget:
+                    UICharacterActions.instance.InteractableButtons(false);
+                    UISkillContext.instance.InteractableButtons(false);
+                    BattleManager.uiList.TurnToggleGroup(false);
+                    BattleManager.uiList.TurnToggles(false);
+                    BattleManager.uiList.InteractableToggles(true);
 
-                turnState = TurnState.WaitingForTarget;
-                break;
+                    BattleManager.instance.ClearTargets();
+                    turnState = TurnState.WaitingForTarget;
+                    break;
 
-            case TurnState.End:
-                turnState = TurnState.End;
-                BattleManager.caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
-                break;
+                case TurnState.End:
+                    turnState = TurnState.End;
+
+                    if (!caster.dead)
+                    {
+                        caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
+                    }
+
+                    BattleManager.instance.CheckTotalTeamKill();
+                    break;
+            }
         }
     }
 
@@ -113,35 +158,38 @@ public static class TeamOrderManager
             currentTeamOrderIndex++;
         }
 
-        SetCurrentTurn(spdSystem.teamOrder[currentTeamOrderIndex]);
+        Character newTurn = spdSystem.teamOrder[currentTeamOrderIndex];
+        SetCurrentTurn(newTurn);
+
+        if (currentTurn.dead)
+        {
+            BattleManager.battleLog.LogBattleEffect($"But {currentTurn.name} was already dead... F.");
+            Continue();
+            return;
+        }
     }
     public static void                  EndTurn         ()                      
     {
         SetTurnState(TurnState.End);
 
-        if (BattleManager.caster == currentTurn)
+        if (BattleManager.instance.inCombat)
         {
-            currentTurn.timesPlayed += !currentTurn.dead ? 1 : 0;
-            currentTurn.UpdateCDs();
-            Continue();
-        }
-        else
-        {
-            BattleManager.caster.timesPlayed += 1;
-            BattleManager.caster.UpdateCDs();
-            BattleManager.instance.ReselectOriginalTurn();
-        }
+            if (BattleManager.caster == currentTurn)
+            {
+                currentTurn.SetPlayed();
+                currentTurn.UpdateCDs();
+                Continue();
+            }
+            else
+            {
+                BattleManager.caster.SetPlayed();
+                BattleManager.caster.UpdateCDs();
+                BattleManager.instance.ReselectOriginalTurn();
+            }
 
-        BattleManager.instance.GetCaster();
+            BattleManager.instance.GetCaster();
 
-        SetTurnState(TurnState.Start);
-
-        SetTurnState(TurnState.WaitingForAction);
-
-        if (currentTurn.dead)
-        {
-            BattleManager.battleLog.LogBattleEffect($"But {currentTurn.name} was already dead... F.");
-            EndTurn();
+            SetTurnState(TurnState.Start);
         }
     }
 }
