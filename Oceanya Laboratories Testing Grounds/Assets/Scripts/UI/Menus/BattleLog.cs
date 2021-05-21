@@ -11,7 +11,12 @@ public class BattleLog : MonoBehaviour
     public GameObject chatPanel, textObject;
     public InputField chatBox;
 
-    public Color playerMessage, battleStatus, battleEffect, allyTurn, enemyTurn, outOfCombatTurn; 
+    public Color playerMessage;
+    public Color battleStatus;
+    public Color battleEffect;
+    public Color allyTurn;
+    public Color enemyTurn;
+    public Color outOfCombatTurn; 
 
     [SerializeField]
     List<Message> messageList = new List<Message>();

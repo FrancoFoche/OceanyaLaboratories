@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 /// <summary>
 /// Template for any skill that is created
 /// </summary>
-public class Skill
+[CreateAssetMenu(fileName = "NewSkill", menuName = "Skill")]
+public class Skill: ScriptableObject
 {
     /// <summary>
     /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
@@ -66,6 +71,24 @@ public class Skill
     public bool                                     doesSummon                          { get; private set; } //does the skill summon anything
 
     public bool                                     doesShield                          { get; private set; } //does the skill shield anything
+
+    public enum Behaviors
+    {
+        None,
+        DoesDamage,
+        HasCooldown,
+        DoesHeal,
+        FlatModifiesStat,
+        FormulaModifiesStat,
+        ModifiesResource,
+        UnlocksResource,
+        Passive,
+        CostsTurn,
+        ActivationRequirement,
+        LastsFor,
+        ChangesBasicAttack,
+        Revives
+    }
 
     #region Constructors
     public Skill                                (BaseObjectInfo baseInfo, string activationText, SkillType skillType, TargetType targetType, int maxTargets = 1)    
@@ -399,14 +422,434 @@ public class Skill
 
         return resultText;
     }
+
+    #region CustomEditor
+    #if UNITY_EDITOR
+    [CustomEditor(typeof(Skill))]
+    public class SkillCustomEditor : Editor
+    {
+        List<Behaviors> behaviors;
+        static Skill Target;
+
+        public override void OnInspectorGUI()
+        {
+            Target = (Skill)target;
+
+            #region BaseObjectInfo
+            BaseObjectInfo info = Target.baseInfo;
+
+            if (info == null)
+            {
+                info = new BaseObjectInfo("ExampleName", 0, "ExampleDescription");
+            }
+
+            EditorGUILayout.LabelField("Base Info", EditorStyles.boldLabel);
+            BaseObjectInfo.BaseObjectInfoCustomEditor.PaintBaseObjectInfo(info);
+            Target.baseInfo = info;
+            #endregion
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            #region Targets
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Target Type", EditorStyles.boldLabel);
+            Target.targetType = (TargetType)EditorGUILayout.EnumPopup(Target.targetType);
+            EditorGUILayout.EndHorizontal();
+
+            switch (Target.targetType)
+            {
+                case TargetType.Multiple:
+                    Target.maxTargets = EditorGUILayout.IntField("Max Targets", Target.maxTargets);
+                    break;
+            }
+            #endregion
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            #region Activation Texts
+            GUIStyle style = GUI.skin.textArea;
+            style.wordWrap = true;
+
+            string tooltipText = "The text that is sent to the chat when the skill is activated. Before sending, it replaces certain values with the results of the skill. The variables are: \n";
+            string variables = "";
+            RuleManager.BuildHelpers();
+            for (int i = 0; i < RuleManager.ReplaceableStringsHelper.Length; i++)
+            {
+                if (i != 0)
+                {
+                    variables += ",\n";
+                }
+
+                variables += RuleManager.ReplaceableStringsHelper[i].ToString();
+            }
+
+            EditorGUILayout.LabelField(new GUIContent("Activation Text", tooltipText + variables), EditorStyles.boldLabel);
+            Target.activationText = EditorGUILayout.TextField(Target.activationText, style);
+            #endregion
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            #region Behaviors
+            if (behaviors == null)
+            {
+                behaviors = new List<Behaviors>();
+            }
+            ClearBehaviors();
+
+            EditorGUILayout.LabelField("Behaviors", EditorStyles.boldLabel);
+            PaintBehaviorList(behaviors);
+            #endregion
+        }
+
+        public static void PaintBehaviorList(List<Behaviors> targetList)
+        {
+            List<Behaviors> list = targetList;
+            int size = Mathf.Max(0, EditorGUILayout.IntField("Behavior Count", list.Count));
+
+            Behaviors defaultEnum = Behaviors.None;
+
+            while (size > list.Count)
+            {
+                list.Add(defaultEnum);
+            }
+
+            while (size < list.Count)
+            {
+                list.RemoveAt(list.Count - 1);
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+                EditorGUILayout.LabelField("Behavior " + (i + 1), EditorStyles.boldLabel);
+                EditorGUILayout.Space();
+
+                if (list[i] == Behaviors.None)
+                {
+                    list[i] = Behaviors.CostsTurn;
+                }
+
+                Behaviors behavior = list[i];
+                behavior = (Behaviors)EditorGUILayout.EnumPopup("Type", behavior);
+
+                EditorGUI.indentLevel++;
+                PaintBehavior(behavior);
+                EditorGUI.indentLevel--;
+
+
+                list[i] = behavior;
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            }
+        }
+
+        public static void PaintBehavior(Behaviors behavior)
+        {
+            EditorGUI.indentLevel++;
+            switch (behavior)
+            {
+                case Behaviors.DoesDamage:
+                    {
+                        Target.doesDamage = true;
+
+                        Target.damageType = (DamageType)EditorGUILayout.EnumPopup("Type", Target.damageType);
+                        Target.damageElement = (ElementType)EditorGUILayout.EnumPopup("Element", Target.damageElement);
+
+
+                        if (Target.damageFormula == null)
+                        {
+                            Target.damageFormula = new List<SkillFormula>();
+                        }
+
+                        SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.damageFormula);
+                    }
+                    break;
+
+                case Behaviors.HasCooldown:
+                    {
+                        Target.cdType = (CDType)EditorGUILayout.EnumPopup("Type", Target.cdType);
+
+                        if (Target.cdType == CDType.Turns)
+                        {
+                            Target.cooldown = EditorGUILayout.IntField("TurnCount", Target.cooldown);
+                        }
+                    }
+                    break;
+
+                case Behaviors.DoesHeal:
+                    {
+                        Target.doesHeal = true;
+
+                        if (Target.healFormula == null)
+                        {
+                            Target.healFormula = new List<SkillFormula>();
+                        }
+
+                        SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.healFormula);
+                    }
+                    break;
+
+                case Behaviors.FlatModifiesStat:
+                    {
+                        Target.flatModifiesStat = true;
+
+                        if (Target.flatStatModifiers == null)
+                        {
+                            Target.flatStatModifiers = new Dictionary<Stats, int>();
+                        }
+
+                        RuleManager.BuildHelpers();
+                        for (int i = 0; i < RuleManager.StatHelper.Length; i++)
+                        {
+                            Stats curStat = RuleManager.StatHelper[i];
+
+                            if (Target.flatStatModifiers.ContainsKey(curStat))
+                            {
+                                Target.flatStatModifiers[curStat] = EditorGUILayout.IntField(curStat.ToString(), Target.flatStatModifiers[curStat]);
+                            }
+                            else
+                            {
+                                Target.flatStatModifiers.Add(curStat, 0);
+                                Target.flatStatModifiers[curStat] = EditorGUILayout.IntField(curStat.ToString(), Target.flatStatModifiers[curStat]);
+                            }
+                        }
+                    }
+                    break;
+
+                case Behaviors.FormulaModifiesStat:
+                    {
+                        Target.formulaModifiesStat = true;
+
+                        if (Target.formulaStatModifiers == null)
+                        {
+                            Target.formulaStatModifiers = new Dictionary<Stats, List<SkillFormula>>();
+                        }
+
+                        RuleManager.BuildHelpers();
+                        for (int i = 0; i < RuleManager.StatHelper.Length; i++)
+                        {
+                            Stats curStat = RuleManager.StatHelper[i];
+                            EditorGUILayout.LabelField(curStat.ToString(), EditorStyles.boldLabel);
+
+                            if (!Target.formulaStatModifiers.ContainsKey(curStat))
+                            {
+                                Target.formulaStatModifiers.Add(curStat, new List<SkillFormula>());
+                            }
+
+                            SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.formulaStatModifiers[curStat]);
+                            EditorGUILayout.Space();
+                        }
+                    }
+                    break;
+
+                case Behaviors.ModifiesResource:
+                    {
+                        Target.modifiesResource = true;
+
+                        if (Target.resourceModifiers == null)
+                        {
+                            Target.resourceModifiers = new Dictionary<SkillResources, int>();
+                        }
+
+                        RuleManager.BuildHelpers();
+                        for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
+                        {
+                            SkillResources curResource = RuleManager.SkillResourceHelper[i];
+
+                            if (Target.resourceModifiers.ContainsKey(curResource))
+                            {
+                                Target.resourceModifiers[curResource] = EditorGUILayout.IntField(curResource.ToString(), Target.resourceModifiers[curResource]);
+                            }
+                            else
+                            {
+                                Target.resourceModifiers.Add(curResource, 0);
+                                Target.resourceModifiers[curResource] = EditorGUILayout.IntField(curResource.ToString(), Target.resourceModifiers[curResource]);
+                            }
+                        }
+                    }
+                    break;
+
+                case Behaviors.UnlocksResource:
+                    {
+                        Target.unlocksResource = true;
+
+                        List<SkillResources> list = Target.unlockedResources;
+
+                        if (list == null)
+                        {
+                            list = new List<SkillResources>();
+                        }
+
+
+                        int size = Mathf.Max(0, EditorGUILayout.IntField("ResourceCount", list.Count));
+
+                        while (size > list.Count)
+                        {
+                            list.Add(SkillResources.none);
+                        }
+
+                        while (size < list.Count)
+                        {
+                            list.RemoveAt(list.Count - 1);
+                        }
+
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            SkillResources actRequirement = list[i];
+
+                            if (actRequirement == SkillResources.none)
+                            {
+                                actRequirement = SkillResources.Mana;
+                            }
+
+                            actRequirement = (SkillResources)EditorGUILayout.EnumPopup("Resource", actRequirement);
+
+                            list[i] = actRequirement;
+                        }
+                    }
+                    break;
+
+                case Behaviors.Passive:
+                    {
+                        Target.hasPassive = true;
+                        Target.passiveActivationType = (ActivationTime)EditorGUILayout.EnumPopup("Activation Type", Target.passiveActivationType);
+                    }
+                    break;
+
+                case Behaviors.CostsTurn:
+                    {
+                        Target.costsTurn = true;
+                    }
+                    break;
+
+                case Behaviors.ActivationRequirement:
+                    {
+                        Target.hasActivationRequirement = true;
+                        if (Target.activationRequirements == null)
+                        {
+                            Target.activationRequirements = new List<ActivationRequirement>();
+                        }
+
+                        ActivationRequirement.ActivationRequirementEditor.PaintActivationRequirementList(Target.activationRequirements);
+                    }
+                    break;
+
+                case Behaviors.LastsFor:
+                    {
+                        Target.lasts = true;
+                        Target.lastsFor = EditorGUILayout.IntField("Lasts For", Target.lastsFor);
+                    }
+                    break;
+
+                case Behaviors.ChangesBasicAttack:
+                    {
+                        Target.changesBasicAttack = true;
+                        Target.newBasicAttackDamageType = (DamageType)EditorGUILayout.EnumPopup("DMG Type", Target.newBasicAttackDamageType);
+
+                        if (Target.newBasicAttackFormula == null)
+                        {
+                            Target.newBasicAttackFormula = new List<SkillFormula>();
+                        }
+
+                        SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.newBasicAttackFormula);
+                    }
+                    break;
+
+                case Behaviors.Revives:
+                    {
+                        Target.revives = true;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            EditorGUI.indentLevel--;
+        }
+
+        public static void ClearBehaviors()
+        {
+            Target.hasActivationRequirement = false;
+
+            Target.hasPassive = false;
+
+            Target.lasts = false;
+
+            Target.doesDamage = false;
+            Target.doesHeal = false;
+
+            Target.flatModifiesStat = false;
+            Target.formulaModifiesStat = false;
+
+            Target.modifiesResource = false;
+
+            Target.unlocksResource = false;
+
+            Target.changesBasicAttack = false;
+
+            Target.revives = false;
+
+            Target.costsTurn = false;
+
+            Target.appliesStatusEffects = false;
+
+            Target.doesSummon = false;
+
+            Target.doesShield = false;
+        }
+
+        public static Skill PaintSkillObjectSlot(Skill skill)
+        {
+            skill = (Skill)EditorGUILayout.ObjectField(skill, typeof(Skill), false);
+
+            return skill;
+        }
+
+        public static List<Skill> PaintSkillObjectList(List<Skill> skillList)
+        {
+            int size = Mathf.Max(0, EditorGUILayout.IntField("Skill Count", skillList.Count));
+
+            while (size > skillList.Count)
+            {
+                skillList.Add(null);
+            }
+
+            while (size < skillList.Count)
+            {
+                skillList.RemoveAt(skillList.Count - 1);
+            }
+
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < skillList.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Skill " + (i + 1), GUILayout.MaxWidth(100));
+
+                Skill skill = skillList[i];
+                skill = PaintSkillObjectSlot(skill);
+                skillList[i] = skill;
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUI.indentLevel--;
+
+            return skillList;
+        }
+    }
+    #endif
+    #endregion
 }
 
-public struct SkillFormula
+public class SkillFormula
 {
-    Stats StatToUse { get; }
-    operationActions OperationModifier { get; }
-    float NumberModifier { get; } 
+    public Stats StatToUse { get; private set; }
+    public operationActions OperationModifier { get; private set; }
+    public float NumberModifier { get; private set; } 
 
+    public SkillFormula()                                                                                       
+    {
+        StatToUse = Stats.STR;
+        OperationModifier = operationActions.Multiply;
+        NumberModifier = 1f;
+    }
     public SkillFormula(Stats StatToUse, operationActions OperationModifier, float NumberModifier)              
     {
         this.StatToUse = StatToUse;
@@ -495,6 +938,71 @@ public struct SkillFormula
 
         return result;
     }
+
+    #region CustomEditor
+#if UNITY_EDITOR
+
+    [CustomEditor(typeof(SkillFormula))]
+    public class SkillFormulaCustomEditor : Editor
+    {
+        SkillFormula editor;
+
+        public override void OnInspectorGUI()
+        {
+            if (editor == null)
+            {
+                editor = new SkillFormula(Stats.STR,operationActions.Multiply,1);
+            }
+
+            PaintSkillFormula(editor);
+        }
+
+        public static void PaintSkillFormula(SkillFormula targetskillFormula)
+        {
+            SkillFormula skillFormula = targetskillFormula;
+
+            skillFormula.StatToUse = (Stats)EditorGUILayout.EnumPopup("Stat", skillFormula.StatToUse);
+            skillFormula.OperationModifier = (operationActions)EditorGUILayout.EnumPopup("Operation", skillFormula.OperationModifier);
+            skillFormula.NumberModifier = EditorGUILayout.FloatField("Number", skillFormula.NumberModifier);
+        }
+
+        public static void PaintSkillFormulaList(List<SkillFormula> targetList)
+        {
+            List<SkillFormula> list = targetList;
+            int size = Mathf.Max(0, EditorGUILayout.IntField("FormulaCount", list.Count));
+
+            while (size > list.Count)
+            {
+                list.Add(null);
+            }
+
+            while (size < list.Count)
+            {
+                list.RemoveAt(list.Count - 1);
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+                EditorGUILayout.LabelField("Formula " + (i + 1), EditorStyles.boldLabel);
+
+                SkillFormula formula = list[i];
+
+                if (formula == null)
+                {
+                    formula = new SkillFormula(Stats.STR, operationActions.Multiply, 1);
+                }
+
+                PaintSkillFormula(formula);
+
+                list[i] = formula;
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            }
+        }
+    }
+
+#endif
+    #endregion
 }
 
 
@@ -613,15 +1121,16 @@ public class SkillInfo
     }
 }
 
+
 public class ActivationRequirement
 {
-    public  RequirementType type        { get; private set; }
+    public  RequirementType type        { get; set; }
 
     public  SkillResources  resource    { get; private set; }
     public  Stats           stat        { get; private set; }
     //add a status one here whenever it's done
-            int             skillclassID;
-            int             skillID;
+    public  int             skillclassID{ get; private set; }
+    public  int             skillID     { get; private set; }
     public  Skill           skill       { get; private set; }
     public  ComparerType    comparer    { get; private set; }
     public  int             number      { get; private set; }
@@ -675,8 +1184,7 @@ public class ActivationRequirement
     public ActivationRequirement(int skillclassID, int skillID)
     {
         type = RequirementType.SkillIsActive;
-        this.skillclassID = skillclassID;
-        this.skillID = skillID;
+        SetSkill(skillclassID, skillID);
     }
     #endregion
 
@@ -726,4 +1234,127 @@ public class ActivationRequirement
                 return true;
         }
     }
+
+    #region Setters
+    public void SetStat(Stats stat)
+    {
+        this.stat = stat;
+    }
+
+    public void SetComparerType(ComparerType comparer)
+    {
+        this.comparer = comparer;
+    }
+
+    public void SetNumber(int number)
+    {
+        this.number = number;
+    }
+
+    public void SetResource(SkillResources resource)
+    {
+        this.resource = resource;
+    }
+
+    public void SetSkill(int classID, int skillID)
+    {
+        skillclassID = classID;
+        this.skillID = skillID;
+    }
+    #endregion
+
+    #region CustomEditor
+    #if UNITY_EDITOR
+
+    [CustomEditor(typeof(ActivationRequirement))]
+    public class ActivationRequirementEditor : Editor
+    {
+        ActivationRequirement editor;
+
+        public override void OnInspectorGUI()
+        {
+            if(editor == null)
+            {
+                editor = new ActivationRequirement(0, 0);
+            }
+
+            PaintActivationRequirement(editor);
+        }
+
+        public static void PaintActivationRequirement(ActivationRequirement targetActRequirement)
+        {
+            ActivationRequirement actRequirement = targetActRequirement;
+
+            actRequirement.type = (RequirementType)EditorGUILayout.EnumPopup("Type", actRequirement.type);
+
+            EditorGUI.indentLevel++;
+
+            switch (actRequirement.type)
+            {
+                case RequirementType.Stat:
+                    actRequirement.SetStat((Stats)EditorGUILayout.EnumPopup("Stat", actRequirement.stat));
+                    actRequirement.SetComparerType((ComparerType)EditorGUILayout.EnumPopup("CompareType", actRequirement.comparer));
+                    actRequirement.SetNumber(EditorGUILayout.IntField("Number", actRequirement.number));
+                    break;
+
+                case RequirementType.Resource:
+                    actRequirement.SetResource((SkillResources)EditorGUILayout.EnumPopup("Resource", actRequirement.resource));
+                    actRequirement.SetComparerType((ActivationRequirement.ComparerType)EditorGUILayout.EnumPopup("CompareType", actRequirement.comparer));
+                    actRequirement.SetNumber(EditorGUILayout.IntField("Number", actRequirement.number));
+                    break;
+
+                case RequirementType.Status:
+                    EditorGUILayout.LabelField("Not yet implemented, sorry.");
+                    break;
+
+                case RequirementType.SkillIsActive:
+                    actRequirement.SetSkill(EditorGUILayout.IntField("Skill Class ID", actRequirement.skillclassID), EditorGUILayout.IntField("Skill ID", actRequirement.skillID));
+                    break;
+
+                default:
+                    break;
+            }
+            EditorGUILayout.Space();
+
+            EditorGUI.indentLevel--;
+        }
+
+        public static void PaintActivationRequirementList(List<ActivationRequirement> targetList)
+        {
+            List<ActivationRequirement> list = targetList;
+            int size = Mathf.Max(0, EditorGUILayout.IntField("RequirementCount", list.Count));
+
+            while (size > list.Count)
+            {
+                list.Add(null);
+            }
+
+            while (size < list.Count)
+            {
+                list.RemoveAt(list.Count - 1);
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+                EditorGUILayout.LabelField("Requirement " + (i + 1), EditorStyles.boldLabel);
+                EditorGUILayout.Space();
+
+                ActivationRequirement actRequirement = list[i];
+
+                if (actRequirement == null)
+                {
+                    actRequirement = new ActivationRequirement(0, 0);
+                }
+
+                PaintActivationRequirement(actRequirement);
+
+                list[i] = actRequirement;
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            }
+        }
+    }
+
+#endif
+    #endregion
 }

@@ -15,7 +15,8 @@ public enum SkillResources
     Mana,
     Bloodstacks,
     Puppets,
-    other
+    other,
+    none
 }
 public enum SkillType               
 {
