@@ -33,7 +33,11 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 100  },
                     { Stats.HPREGEN  , 100  }
                 },
-                DBSkills.GetAllClassSkills(DBClasses.GetClass(0))
+                DBSkills.GetAllClassSkills(DBClasses.GetClass(0)),
+                new List<Item>
+                {
+                    DBItems.GetItem(1)
+                }
             ),
 
             new PlayerCharacter(13 , "Vinnie" , 1,  DBClasses.GetClass(ClassNames.Vampire.ToString()) ,
@@ -50,12 +54,18 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 9  },
                     { Stats.HPREGEN  , 0  }
                 },
+
                 new List<Skill>()
                 {
                     DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Vampire Fangs"),
                     DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Bat Swarm"),
                     DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Dry their blood"),
                     DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
+                },
+                new List<Item>
+                {
+                    DBItems.GetItem(1),
+                    DBItems.GetItem(1)
                 }
             ),
             new PlayerCharacter(5 , "Da Docta" , 9,  DBClasses.GetClass(ClassNames.Doctor.ToString()),
@@ -78,7 +88,8 @@ public class DBPlayerCharacter : MonoBehaviour
                     DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Revival Ritual"),
                     DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
                     DBSkills.GetSkill("Testing Class","Regenerative Meditation"),
-                }
+                },
+                new List<Item>()
             ),
 
             new PlayerCharacter(9 , "Archive" , 5,  DBClasses.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
@@ -97,12 +108,14 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
+
                     DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
                     DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
                     DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
                     DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
                     DBSkills.GetSkill("Testing Class","Arcane Overflow"),
-                }
+                },
+                new List<Item>()
             ),
         };
     }

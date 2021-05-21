@@ -7,7 +7,10 @@ public class UICharacterActions : ButtonList
 {
     public int maxTargets;
     public CharActions action;
+
     public Skill skillToActivate { get; private set; } //in case of using the skill action, this skill will activate after targetting
+    public Item itemToUse;
+
     public string actionString;
 
     public static UICharacterActions instance;
@@ -144,9 +147,7 @@ public class UICharacterActions : ButtonList
 
             case CharActions.Item:
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} uses an Item!");
-                    BattleManager.battleLog.LogBattleEffect($"Yet for time reasons, the programmer couldn't make it work yet...");
-                    TeamOrderManager.EndTurn();
+                    itemToUse.ItemAction(caster, target);
                 }
                 break;
 
@@ -221,15 +222,26 @@ public class UICharacterActions : ButtonList
                 {
                     BattleManager.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
 
+
                     if(!TeamOrderManager.AIturn || BattleManager.instance.debugMode) 
                     {
                         UISkillContext.instance.Show();
+                        UIItemContext.instance.Hide();
                     }
                 }
                 break;
 
             case CharActions.Item:
-                ActionDoesNotRequireTarget(CharActions.Item);
+                if (caster.inventory.Count == 0)
+                {
+                    BattleManager.battleLog.LogBattleEffect($"{caster.name} has no items to use...");
+                }
+                else
+                {
+                    BattleManager.battleLog.LogBattleEffect($"{caster.name} uses an item!");
+                    UISkillContext.instance.Hide();
+                    UIItemContext.instance.Show();
+                }
                 break;
 
             case CharActions.Rearrange:

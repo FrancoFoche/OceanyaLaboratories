@@ -22,6 +22,11 @@ public enum SkillType
     Passive,
     Active
 }
+public enum ItemType
+{
+    Equip,
+    consume
+}
 public enum Stats                   
 {
     CURHP,

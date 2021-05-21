@@ -34,6 +34,7 @@ public class Character
 
     public List<SkillInfo>                  skillList                       { get; protected set; }
     public int                              ID                              { get; protected set; }
+    public List<Item>                       inventory                       { get; protected set; }
 
     public int                              timesPlayed                     { get; protected set; }
 
@@ -65,7 +66,11 @@ public class Character
         skillList = new List<SkillInfo>();
         ID = -1;
 
+        inventory = new List<Item>();
+
+
         timesPlayed = 0;
+
 
         checkedPassives = false;
 
@@ -321,6 +326,8 @@ public class Character
         Debug.LogError($"{name} did not have the skill {skill.baseInfo.name}");
         return new SkillInfo(this, skill);
     }
+
+
     #endregion
 
     #region Setters

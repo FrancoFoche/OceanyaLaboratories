@@ -110,6 +110,7 @@ public class BattleManager : MonoBehaviour
                     Debug.LogWarning("The half-assed bugfix patch was triggered.");
                     uiList.SelectCharacter(TeamOrderManager.currentTurn);
                 }
+
             }
         }
 

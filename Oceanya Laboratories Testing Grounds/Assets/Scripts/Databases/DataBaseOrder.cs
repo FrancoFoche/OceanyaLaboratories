@@ -14,6 +14,7 @@ public class DataBaseOrder : MonoBehaviour
         RuleManager.BuildHelpers();
         DBClasses.BuildDatabase();
         DBSkills.BuildDatabase();
+        DBItems.buildDataBase();
         DBPlayerCharacter.BuildDatabase();
         DBEnemies.BuildDatabase();
     }

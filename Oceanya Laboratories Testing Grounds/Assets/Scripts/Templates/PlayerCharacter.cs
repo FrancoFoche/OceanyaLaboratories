@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerCharacter : Character
 {
     public BaseSkillClass rpgClass;
-    public PlayerCharacter(int ID, string name, int level, BaseSkillClass rpgClass, Dictionary<Stats, int> stats, List<Skill> skillList)
+    public PlayerCharacter(int ID, string name, int level, BaseSkillClass rpgClass, Dictionary<Stats, int> stats, List<Skill> skillList, List<Item> inventory)
     {
         InitializeVariables();
 
@@ -15,7 +15,7 @@ public class PlayerCharacter : Character
         this.name = name;
         this.rpgClass = rpgClass;
         this.stats = stats;
-
+        this.inventory = inventory;
         this.skillList = ConvertSkillsToSkillInfo(skillList);
     }
 }
