@@ -74,6 +74,13 @@ public class BaseSkillClass: ScriptableObject
             EditorGUI.indentLevel--;
             #endregion
         }
+
+        public static BaseSkillClass PaintSkillClassObjectSlot(BaseSkillClass rpgClass)
+        {
+            rpgClass = (BaseSkillClass)EditorGUILayout.ObjectField(rpgClass, typeof(BaseSkillClass), false);
+
+            return rpgClass;
+        }
     }
 
 #endif

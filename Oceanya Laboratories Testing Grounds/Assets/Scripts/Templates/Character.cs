@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public enum CharacterType
 {
     PlayerCharacter,
@@ -13,10 +17,11 @@ public enum StatModificationTypes
     Buff,
     Debuff
 }
-
-public class Character
+[CreateAssetMenu(fileName = "NewCharacter", menuName = "Character")]
+public class Character : ScriptableObject
 {
-    public string                           name                            { get; protected set; }
+    public int ID { get; protected set; }
+    public new string                       name                            { get; protected set; }
     public int                              level                           { get; protected set; }
     public Dictionary<Stats, int>           stats                           { get; protected set; }
     public Dictionary<SkillResources, int>  skillResources                  { get; protected set; }
@@ -31,9 +36,8 @@ public class Character
     public bool                             permadead                       { get; protected set; }
     public bool                             defending                       { get; private set; }
 
-
     public List<SkillInfo>                  skillList                       { get; protected set; }
-    public int                              ID                              { get; protected set; }
+    
     public List<Item>                       inventory                       { get; protected set; }
 
     public int                              timesPlayed                     { get; protected set; }
@@ -46,8 +50,15 @@ public class Character
     public Dictionary<CharActions, int>     importanceOfActions             { get; protected set; }
     public Dictionary<Skill, int>           importanceOfSkills              { get; protected set; }
 
+    #region EditorHelpers
+    public bool                             initialized                     { get; protected set; }
+    public bool                             editorShowStats                 { get; protected set; }
+    public bool                             editorShowResources             { get; protected set; }
+    #endregion
+
     protected void InitializeVariables()
     {
+        initialized = true;
         name = "InitializerName";
         level = 1;
         stats = new Dictionary<Stats, int>();
@@ -593,5 +604,129 @@ public class Character
 
         importanceOfSkills = normalImportance;
     }
+    #endregion
+
+
+    #region CustomEditor
+#if UNITY_EDITOR
+    [CustomEditor(typeof(Character))]
+    public class CharacterCustomEditor : Editor
+    {
+        static Character Target;
+
+        public override void OnInspectorGUI()
+        {
+            Target = (Character)target;
+
+            Target = PaintCharacter(Target);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+        }
+
+        static int index;
+        public static Character PaintCharacter(Character target)
+        {
+            Character character = target;
+
+            if (!character.initialized)
+            {
+                character.InitializeVariables();
+            }
+
+            #region ID
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("ID", EditorStyles.boldLabel);
+            character.ID = EditorGUILayout.IntField(character.ID);
+            EditorGUILayout.EndHorizontal();
+            #endregion
+
+            #region Name
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Name", EditorStyles.boldLabel);
+            character.name = EditorGUILayout.TextField(character.name);
+            EditorGUILayout.EndHorizontal();
+            #endregion
+
+            #region Level
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Level", EditorStyles.boldLabel);
+            character.level = EditorGUILayout.IntField(character.level);
+            EditorGUILayout.EndHorizontal();
+            #endregion
+
+            RuleManager.BuildHelpers();
+            #region Stats
+            character.editorShowStats = EditorGUILayout.Foldout(character.editorShowStats,"Stats");
+
+            if (character.editorShowStats)
+            {
+                for (int i = 0; i < RuleManager.StatHelper.Length; i++)
+                {
+                    Stats curStat = RuleManager.StatHelper[i];
+
+                    if (!character.stats.ContainsKey(curStat))
+                    {
+                        character.stats.Add(curStat, 0);
+                    }
+
+                    character.stats[curStat] = EditorGUILayout.IntField(curStat.ToString(), character.stats[curStat]);
+                    
+                }
+            }
+
+            #endregion
+
+            #region SkillResources
+            character.editorShowResources = EditorGUILayout.Foldout(character.editorShowResources, "Resources");
+
+            if (character.editorShowResources)
+            {
+                List<SkillResources> resourceOptions = new List<SkillResources>();
+                List<SkillResources> alreadyPicked = new List<SkillResources>(); 
+
+                for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
+                {
+                    SkillResources curResource = RuleManager.SkillResourceHelper[i];
+
+                    if (!character.skillResources.ContainsKey(curResource))
+                    {
+                        resourceOptions.Add(curResource);
+                    }
+                    else
+                    {
+                        alreadyPicked.Add(curResource);
+                    }
+                }
+
+                if(alreadyPicked.Count != RuleManager.SkillResourceHelper.Length)
+                {
+                    if (GUILayout.Button("Add Resource"))
+                    {
+                        character.skillResources.Add(SkillResources.none, 0);
+                    }
+                }
+
+                string[] stringResourceOptions = new string[resourceOptions.Count];
+                for (int i = 0; i < stringResourceOptions.Length; i++)
+                {
+                    stringResourceOptions[i] = resourceOptions[i].ToString();
+                }
+
+                for (int i = 0; i < character.skillResources.Count; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+
+                    index = EditorGUILayout.Popup("Resource" ,index, stringResourceOptions);
+                    character.skillResources[resourceOptions[index]] = EditorGUILayout.IntField(character.skillResources[resourceOptions[index]]);
+                    EditorGUILayout.EndHorizontal();
+                }
+
+            }
+
+            #endregion
+            return character;
+        }
+    }
+#endif
     #endregion
 }

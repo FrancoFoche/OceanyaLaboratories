@@ -21,6 +21,8 @@ public class Skill: ScriptableObject
     public BaseSkillClass                           skillClass                          { get; set; }         //RPG Class it's from
     public SkillType                                skillType                           { get; private set; }
 
+    public List<Behaviors>                          behaviors                           { get; private set; }
+
     public string                                   activationText                      { get; private set; }
 
     public bool                                     hasActivationRequirement            { get; private set; }
@@ -428,24 +430,29 @@ public class Skill: ScriptableObject
     [CustomEditor(typeof(Skill))]
     public class SkillCustomEditor : Editor
     {
-        List<Behaviors> behaviors;
         static Skill Target;
 
         public override void OnInspectorGUI()
         {
-            Target = (Skill)target;
+            Skill newTarget = (Skill)target;
+            Target = newTarget;
 
             #region BaseObjectInfo
-            BaseObjectInfo info = Target.baseInfo;
-
-            if (info == null)
-            {
-                info = new BaseObjectInfo("ExampleName", 0, "ExampleDescription");
-            }
-
             EditorGUILayout.LabelField("Base Info", EditorStyles.boldLabel);
-            BaseObjectInfo.BaseObjectInfoCustomEditor.PaintBaseObjectInfo(info);
-            Target.baseInfo = info;
+
+            BaseObjectInfo newInfo = newTarget.baseInfo;
+
+            if (newInfo == null)
+            {
+                Debug.Log("skill baseinfo was null");
+                newInfo = new BaseObjectInfo();
+            }
+            
+            EditorGUI.indentLevel++;
+            newInfo = BaseObjectInfo.BaseObjectInfoCustomEditor.PaintBaseObjectInfo(newInfo);
+            newTarget.baseInfo = newInfo;
+
+            EditorGUI.indentLevel--;
             #endregion
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -453,13 +460,13 @@ public class Skill: ScriptableObject
             #region Targets
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Target Type", EditorStyles.boldLabel);
-            Target.targetType = (TargetType)EditorGUILayout.EnumPopup(Target.targetType);
+            newTarget.targetType = (TargetType)EditorGUILayout.EnumPopup(newTarget.targetType);
             EditorGUILayout.EndHorizontal();
 
-            switch (Target.targetType)
+            switch (newTarget.targetType)
             {
                 case TargetType.Multiple:
-                    Target.maxTargets = EditorGUILayout.IntField("Max Targets", Target.maxTargets);
+                    newTarget.maxTargets = EditorGUILayout.IntField("Max Targets", newTarget.maxTargets);
                     break;
             }
             #endregion
@@ -484,24 +491,25 @@ public class Skill: ScriptableObject
             }
 
             EditorGUILayout.LabelField(new GUIContent("Activation Text", tooltipText + variables), EditorStyles.boldLabel);
-            Target.activationText = EditorGUILayout.TextField(Target.activationText, style);
+            newTarget.activationText = EditorGUILayout.TextField(newTarget.activationText, style);
             #endregion
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             #region Behaviors
-            if (behaviors == null)
+            if (newTarget.behaviors == null)
             {
-                behaviors = new List<Behaviors>();
+                newTarget.behaviors = new List<Behaviors>();
             }
             ClearBehaviors();
-
             EditorGUILayout.LabelField("Behaviors", EditorStyles.boldLabel);
-            PaintBehaviorList(behaviors);
+            newTarget.behaviors = PaintBehaviorList(newTarget.behaviors);
             #endregion
+
+            Target = newTarget;
         }
 
-        public static void PaintBehaviorList(List<Behaviors> targetList)
+        public static List<Behaviors> PaintBehaviorList(List<Behaviors> targetList)
         {
             List<Behaviors> list = targetList;
             int size = Mathf.Max(0, EditorGUILayout.IntField("Behavior Count", list.Count));
@@ -540,6 +548,8 @@ public class Skill: ScriptableObject
                 list[i] = behavior;
                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
             }
+
+            return list;
         }
 
         public static void PaintBehavior(Behaviors behavior)
@@ -560,7 +570,7 @@ public class Skill: ScriptableObject
                             Target.damageFormula = new List<SkillFormula>();
                         }
 
-                        SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.damageFormula);
+                        Target.damageFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.damageFormula);
                     }
                     break;
 
@@ -584,7 +594,7 @@ public class Skill: ScriptableObject
                             Target.healFormula = new List<SkillFormula>();
                         }
 
-                        SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.healFormula);
+                        Target.healFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.healFormula);
                     }
                     break;
 
@@ -635,7 +645,7 @@ public class Skill: ScriptableObject
                                 Target.formulaStatModifiers.Add(curStat, new List<SkillFormula>());
                             }
 
-                            SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.formulaStatModifiers[curStat]);
+                            Target.formulaStatModifiers[curStat] = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.formulaStatModifiers[curStat]);
                             EditorGUILayout.Space();
                         }
                     }
@@ -729,7 +739,7 @@ public class Skill: ScriptableObject
                             Target.activationRequirements = new List<ActivationRequirement>();
                         }
 
-                        ActivationRequirement.ActivationRequirementEditor.PaintActivationRequirementList(Target.activationRequirements);
+                        Target.activationRequirements = ActivationRequirement.ActivationRequirementEditor.PaintActivationRequirementList(Target.activationRequirements);
                     }
                     break;
 
@@ -750,7 +760,7 @@ public class Skill: ScriptableObject
                             Target.newBasicAttackFormula = new List<SkillFormula>();
                         }
 
-                        SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.newBasicAttackFormula);
+                        Target.newBasicAttackFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.newBasicAttackFormula);
                     }
                     break;
 
@@ -957,16 +967,18 @@ public class SkillFormula
             PaintSkillFormula(editor);
         }
 
-        public static void PaintSkillFormula(SkillFormula targetskillFormula)
+        public static SkillFormula PaintSkillFormula(SkillFormula targetskillFormula)
         {
             SkillFormula skillFormula = targetskillFormula;
 
             skillFormula.StatToUse = (Stats)EditorGUILayout.EnumPopup("Stat", skillFormula.StatToUse);
             skillFormula.OperationModifier = (operationActions)EditorGUILayout.EnumPopup("Operation", skillFormula.OperationModifier);
             skillFormula.NumberModifier = EditorGUILayout.FloatField("Number", skillFormula.NumberModifier);
+
+            return skillFormula;
         }
 
-        public static void PaintSkillFormulaList(List<SkillFormula> targetList)
+        public static List<SkillFormula> PaintSkillFormulaList(List<SkillFormula> targetList)
         {
             List<SkillFormula> list = targetList;
             int size = Mathf.Max(0, EditorGUILayout.IntField("FormulaCount", list.Count));
@@ -993,11 +1005,13 @@ public class SkillFormula
                     formula = new SkillFormula(Stats.STR, operationActions.Multiply, 1);
                 }
 
-                PaintSkillFormula(formula);
+                formula = PaintSkillFormula(formula);
 
                 list[i] = formula;
                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
             }
+
+            return list;
         }
     }
 
@@ -1281,7 +1295,7 @@ public class ActivationRequirement
             PaintActivationRequirement(editor);
         }
 
-        public static void PaintActivationRequirement(ActivationRequirement targetActRequirement)
+        public static ActivationRequirement PaintActivationRequirement(ActivationRequirement targetActRequirement)
         {
             ActivationRequirement actRequirement = targetActRequirement;
 
@@ -1317,9 +1331,11 @@ public class ActivationRequirement
             EditorGUILayout.Space();
 
             EditorGUI.indentLevel--;
+
+            return actRequirement;
         }
 
-        public static void PaintActivationRequirementList(List<ActivationRequirement> targetList)
+        public static List<ActivationRequirement> PaintActivationRequirementList(List<ActivationRequirement> targetList)
         {
             List<ActivationRequirement> list = targetList;
             int size = Mathf.Max(0, EditorGUILayout.IntField("RequirementCount", list.Count));
@@ -1352,6 +1368,8 @@ public class ActivationRequirement
                 list[i] = actRequirement;
                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
             }
+
+            return list;
         }
     }
 

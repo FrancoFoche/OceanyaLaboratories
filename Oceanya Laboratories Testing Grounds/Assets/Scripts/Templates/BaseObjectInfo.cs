@@ -10,13 +10,13 @@ public class BaseObjectInfo
 {
     public string name;
     public int id;
-    [TextArea(10,30)]
     public string description;
 
     public BaseObjectInfo()
     {
         name = "ExampleName";
         id = -1;
+        description = "ExampleDescription";
     }
     public BaseObjectInfo(string name, int id)
     {
@@ -44,31 +44,40 @@ public class BaseObjectInfo
 
             if (info == null)
             {
-                info = new BaseObjectInfo("ExampleName", 0, "ExampleDescription");
+                info = new BaseObjectInfo("test", 0, "test");
             }
 
-            PaintBaseObjectInfo(info);
+            info = PaintBaseObjectInfo(info);
 
             testClass = info;
         }
 
-        public static void PaintBaseObjectInfo(BaseObjectInfo info)
+        public static BaseObjectInfo PaintBaseObjectInfo(BaseObjectInfo info)
         {
+            BaseObjectInfo newInfo = new BaseObjectInfo(info.name, info.id,info.description);
             GUIStyle style = GUI.skin.textArea;
             style.wordWrap = true;
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Name", EditorStyles.boldLabel);
-            info.name = EditorGUILayout.TextField(info.name);
+            newInfo.name = EditorGUILayout.TextField(newInfo.name);
             EditorGUILayout.EndHorizontal();
+
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("ID", EditorStyles.boldLabel);
-            info.id = EditorGUILayout.IntField(info.id);
+            newInfo.id = EditorGUILayout.IntField(newInfo.id);
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.LabelField("Description",EditorStyles.boldLabel);
-            info.description = EditorGUILayout.TextArea(info.description, style);
+            newInfo.description = EditorGUILayout.TextArea(newInfo.description, style);
+
+            if(newInfo.name != info.name || newInfo.id != info.id || newInfo.description != info.description)
+            {
+                Debug.Log($"Skill Info change. Old: Name = {info.name}; ID = {info.id}; Description = {info.description}; NEW: {newInfo.name}, {newInfo.id}, {newInfo.description}");
+            }
+            info = newInfo;
+            return info;
         }
     }
 
