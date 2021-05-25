@@ -21,7 +21,7 @@ public class UIItemContext : ButtonList
         loadedCharacter = character;
         for (int a = 0; a < character.inventory.Count; a++)
         {
-            AddItem(character.inventory[a]);
+            AddItem(character.inventory[a].item);
         }
     }
 
@@ -30,7 +30,7 @@ public class UIItemContext : ButtonList
         GameObject newEntry = AddObject(); ;
         newEntry.GetComponent<UIItemButton>().LoadItem(item);
         buttons.Add(newEntry.GetComponent<Button>());
-        print(item.baseinfo.name);
+        print(item.baseInfo.name);
     }
 
     public void Show()

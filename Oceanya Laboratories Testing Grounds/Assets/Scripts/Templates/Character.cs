@@ -17,10 +17,10 @@ public enum StatModificationTypes
     Buff,
     Debuff
 }
-[CreateAssetMenu(fileName = "NewCharacter", menuName = "Character")]
 public class Character : ScriptableObject
 {
-    public int ID { get; protected set; }
+    public bool                             AIcontrolled                    { get; protected set; }
+    public int                              ID                              { get; protected set; }
     public new string                       name                            { get; protected set; }
     public int                              level                           { get; protected set; }
     public Dictionary<Stats, int>           stats                           { get; protected set; }
@@ -38,7 +38,7 @@ public class Character : ScriptableObject
 
     public List<SkillInfo>                  skillList                       { get; protected set; }
     
-    public List<Item>                       inventory                       { get; protected set; }
+    public List<ItemInfo>                   inventory                       { get; protected set; }
 
     public int                              timesPlayed                     { get; protected set; }
 
@@ -50,12 +50,8 @@ public class Character : ScriptableObject
     public Dictionary<CharActions, int>     importanceOfActions             { get; protected set; }
     public Dictionary<Skill, int>           importanceOfSkills              { get; protected set; }
 
-    #region EditorHelpers
-    public bool                             initialized                     { get; protected set; }
-    public bool                             editorShowStats                 { get; protected set; }
-    public bool                             editorShowResources             { get; protected set; }
-    #endregion
 
+    public bool                             initialized                     { get; protected set; }
     protected void InitializeVariables()
     {
         initialized = true;
@@ -77,7 +73,7 @@ public class Character : ScriptableObject
         skillList = new List<SkillInfo>();
         ID = -1;
 
-        inventory = new List<Item>();
+        inventory = new List<ItemInfo>();
 
 
         timesPlayed = 0;
@@ -255,7 +251,7 @@ public class Character : ScriptableObject
         Character character = this;
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            if (character.skillList[i].skill.skillType == SkillType.Passive)
+            if (character.skillList[i].skill.activatableType == ActivatableType.Passive)
             {
                 character.skillList[i].SetActive();
             }
@@ -287,7 +283,7 @@ public class Character : ScriptableObject
 
             if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
             {
-                if(curSkill.skillType == SkillType.Active && curSkillInfo.currentlyActive || curSkill.skillType == SkillType.Passive)
+                if(curSkill.activatableType == ActivatableType.Active && curSkillInfo.currentlyActive || curSkill.activatableType == ActivatableType.Passive)
                 {
                     curSkill.Activate(character);
 
@@ -315,13 +311,32 @@ public class Character : ScriptableObject
 
         return newList;
     }
+    public List<ItemInfo>   ConvertItemsToItemInfo(List<Item> infoList)
+    {
+        List<ItemInfo> newList = new List<ItemInfo>();
+
+        for (int i = 0; i < infoList.Count; i++)
+        {
+            newList.Add(ConvertItemToItemInfo(infoList[i]));
+        }
+
+        return newList;
+    }
 
     /// <summary>
     /// converts a skill type to a skill info type
     /// </summary>
     public SkillInfo        ConvertSkillToSkillInfo(Skill skill)
     {
-        return new SkillInfo(this, skill);
+        SkillInfo newInfo = CreateInstance<SkillInfo>();
+        newInfo.SetSkill(skill);
+        return newInfo;
+    }
+    public ItemInfo         ConvertItemToItemInfo(Item item)
+    {
+        ItemInfo newInfo = CreateInstance<ItemInfo>();
+        newInfo.SetItem(item);
+        return newInfo;
     }
 
     public SkillInfo        GetSkillFromSkillList(Skill skill)
@@ -335,7 +350,20 @@ public class Character : ScriptableObject
         }
 
         Debug.LogError($"{name} did not have the skill {skill.baseInfo.name}");
-        return new SkillInfo(this, skill);
+        return null;
+    }
+    public ItemInfo         GetItemFromInventory(Item item)
+    {
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            if (inventory[i].item.baseInfo.id == item.baseInfo.id)
+            {
+                return inventory[i];
+            }
+        }
+
+        Debug.LogError($"{name} did not have the item {item.baseInfo.name}");
+        return null;
     }
 
 
@@ -612,26 +640,217 @@ public class Character : ScriptableObject
     [CustomEditor(typeof(Character))]
     public class CharacterCustomEditor : Editor
     {
-        static Character Target;
+        Character Target;
+
+        #region EditorHelpers
+        public static bool editorShowBasicAttack           { get; protected set; }
+        public static bool editorShowStats                 { get; protected set; }
+        public static bool editorShowResources             { get; protected set; }
+        public static bool editorShowSkillList             { get; protected set; }
+        public static bool editorShowInventory             { get; protected set; }
+        #endregion
 
         public override void OnInspectorGUI()
         {
             Target = (Character)target;
 
             Target = PaintCharacter(Target);
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         }
 
-        static int index;
-        public static Character PaintCharacter(Character target)
+        static int resourceOptionIndex;
+        static int alreadyPickedIndex;
+        public Character PaintCharacter(Character target)
         {
             Character character = target;
+            PaintBasicCharacterInfo(character);
 
-            if (!character.initialized)
+            PaintBasicAttack(character);
+
+            RuleManager.BuildHelpers();
+
+            PaintStats(character);
+
+            PaintSkillResources(character);
+
+            PaintInventory(character);
+
+            PaintCharacterSkillList(character);
+
+            return character;
+        }
+
+        public static void PaintCharacterSkillList(Character character)
+        {
+            #region Skill List
+            editorShowSkillList = EditorGUILayout.Foldout(editorShowSkillList, "Skill List");
+
+            if (editorShowSkillList)
             {
-                character.InitializeVariables();
+                if (character.skillList == null)
+                {
+                    character.skillList = new List<SkillInfo>();
+                }
+
+                character.skillList = SkillInfo.SkillInfoEditor.PaintSkillInfoList(character, character.skillList);
             }
+
+
+            #endregion
+        }
+        public static void PaintSkillResources(Character character)
+        {
+            #region SkillResources
+            editorShowResources = EditorGUILayout.Foldout(editorShowResources, "Resources");
+
+            if (editorShowResources)
+            {
+                #region Initialize Skill Resources
+                if (character.skillResources == null)
+                {
+                    character.skillResources = new Dictionary<SkillResources, int>();
+                }
+                #endregion
+
+                List<SkillResources> resourceOptions = new List<SkillResources>();
+                List<SkillResources> alreadyPicked = new List<SkillResources>();
+
+                #region Check for which resources are available to add and which are already picked
+                for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
+                {
+                    SkillResources curResource = RuleManager.SkillResourceHelper[i];
+
+                    if (curResource != SkillResources.none)
+                    {
+                        if (!character.skillResources.ContainsKey(curResource))
+                        {
+                            resourceOptions.Add(curResource);
+                        }
+                        else
+                        {
+                            if (!alreadyPicked.Contains(curResource))
+                            {
+                                alreadyPicked.Add(curResource);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                string[] stringResourceOptions = new string[resourceOptions.Count];
+                string[] stringAlreadyPicked = new string[alreadyPicked.Count];
+
+                #region Transform the lists into string arrays so you can use them as popups
+                for (int i = 0; i < stringResourceOptions.Length; i++)
+                {
+                    stringResourceOptions[i] = resourceOptions[i].ToString();
+                }
+                for (int i = 0; i < stringAlreadyPicked.Length; i++)
+                {
+                    stringAlreadyPicked[i] = alreadyPicked[i].ToString();
+                }
+                #endregion
+
+                #region If you don't already have every skill resource, make an Add Resource section
+                if (alreadyPicked.Count != RuleManager.SkillResourceHelper.Length - 1)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Add", EditorStyles.boldLabel, GUILayout.MaxWidth(55f));
+                    resourceOptionIndex = EditorGUILayout.Popup(resourceOptionIndex, stringResourceOptions);
+                    SkillResources curResource = resourceOptions[resourceOptionIndex];
+                    if (GUILayout.Button("Add " + curResource.ToString()))
+                    {
+                        character.skillResources.Add(curResource, 0);
+                        alreadyPicked.Add(curResource);
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                #endregion
+
+                #region If you have some skill resources, make a remove resource section
+                if (character.skillResources.Count != 0)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Remove", EditorStyles.boldLabel, GUILayout.MaxWidth(55f));
+                    alreadyPickedIndex = EditorGUILayout.Popup(alreadyPickedIndex, stringAlreadyPicked);
+                    if (GUILayout.Button("Remove " + alreadyPicked[alreadyPickedIndex].ToString()))
+                    {
+                        character.skillResources.Remove(alreadyPicked[alreadyPickedIndex]);
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                #endregion
+
+                #region For every skill resource you have, add a line to set the resource
+                for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
+                {
+                    SkillResources curResource = RuleManager.SkillResourceHelper[i];
+
+                    if (character.skillResources.ContainsKey(curResource))
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(curResource.ToString(), GUILayout.MaxWidth(100f));
+                        character.skillResources[curResource] = EditorGUILayout.IntField(character.skillResources[curResource]);
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+                #endregion
+
+            }
+
+            #endregion
+        }
+        public static void PaintStats(Character character)
+        {
+            #region Stats
+            editorShowStats = EditorGUILayout.Foldout(editorShowStats, "Stats");
+
+            if (editorShowStats)
+            {
+                if (character.stats == null)
+                {
+                    character.stats = new Dictionary<Stats, int>();
+                }
+
+                for (int i = 0; i < RuleManager.StatHelper.Length; i++)
+                {
+                    Stats curStat = RuleManager.StatHelper[i];
+
+                    if (!character.stats.ContainsKey(curStat))
+                    {
+                        character.stats.Add(curStat, 0);
+                    }
+
+                    character.stats[curStat] = EditorGUILayout.IntField(curStat.ToString(), character.stats[curStat]);
+
+                }
+            }
+
+            #endregion
+        }
+        public static void PaintBasicAttack(Character character)
+        {
+            #region BasicAttack
+            editorShowBasicAttack = EditorGUILayout.Foldout(editorShowBasicAttack, "Basic Attack Settings");
+            if (editorShowBasicAttack)
+            {
+                if (character.basicAttackFormula == null)
+                {
+                    character.basicAttackFormula = new List<SkillFormula>();
+                }
+
+                character.basicAttackType = (DamageType)EditorGUILayout.EnumPopup("DMG Type", character.basicAttackType);
+                character.basicAttackFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(character.basicAttackFormula);
+            }
+            #endregion
+        }
+        public static void PaintBasicCharacterInfo(Character character)
+        {
+            #region Basic Info
+            #region AI Controlled
+            character.AIcontrolled = EditorGUILayout.Toggle("AI Controlled", character.AIcontrolled);
+            #endregion
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             #region ID
             EditorGUILayout.BeginHorizontal();
@@ -653,78 +872,21 @@ public class Character : ScriptableObject
             character.level = EditorGUILayout.IntField(character.level);
             EditorGUILayout.EndHorizontal();
             #endregion
-
-            RuleManager.BuildHelpers();
-            #region Stats
-            character.editorShowStats = EditorGUILayout.Foldout(character.editorShowStats,"Stats");
-
-            if (character.editorShowStats)
-            {
-                for (int i = 0; i < RuleManager.StatHelper.Length; i++)
-                {
-                    Stats curStat = RuleManager.StatHelper[i];
-
-                    if (!character.stats.ContainsKey(curStat))
-                    {
-                        character.stats.Add(curStat, 0);
-                    }
-
-                    character.stats[curStat] = EditorGUILayout.IntField(curStat.ToString(), character.stats[curStat]);
-                    
-                }
-            }
-
             #endregion
+        }
+        public static void PaintInventory(Character character)
+        {
+            editorShowInventory = EditorGUILayout.Foldout(editorShowInventory, "Inventory");
 
-            #region SkillResources
-            character.editorShowResources = EditorGUILayout.Foldout(character.editorShowResources, "Resources");
-
-            if (character.editorShowResources)
+            if (editorShowInventory)
             {
-                List<SkillResources> resourceOptions = new List<SkillResources>();
-                List<SkillResources> alreadyPicked = new List<SkillResources>(); 
-
-                for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
+                if (character.inventory == null)
                 {
-                    SkillResources curResource = RuleManager.SkillResourceHelper[i];
-
-                    if (!character.skillResources.ContainsKey(curResource))
-                    {
-                        resourceOptions.Add(curResource);
-                    }
-                    else
-                    {
-                        alreadyPicked.Add(curResource);
-                    }
+                    character.inventory = new List<ItemInfo>();
                 }
 
-                if(alreadyPicked.Count != RuleManager.SkillResourceHelper.Length)
-                {
-                    if (GUILayout.Button("Add Resource"))
-                    {
-                        character.skillResources.Add(SkillResources.none, 0);
-                    }
-                }
-
-                string[] stringResourceOptions = new string[resourceOptions.Count];
-                for (int i = 0; i < stringResourceOptions.Length; i++)
-                {
-                    stringResourceOptions[i] = resourceOptions[i].ToString();
-                }
-
-                for (int i = 0; i < character.skillResources.Count; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
-
-                    index = EditorGUILayout.Popup("Resource" ,index, stringResourceOptions);
-                    character.skillResources[resourceOptions[index]] = EditorGUILayout.IntField(character.skillResources[resourceOptions[index]]);
-                    EditorGUILayout.EndHorizontal();
-                }
-
+                character.inventory = ItemInfo.ItemInfoCustomEditor.PaintItemInfoList(character, character.inventory);
             }
-
-            #endregion
-            return character;
         }
     }
 #endif

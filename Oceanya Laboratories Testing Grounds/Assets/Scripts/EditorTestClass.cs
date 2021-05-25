@@ -13,7 +13,7 @@ public class EditorTestClass
 {
     public BaseObjectInfo                           baseInfo                            { get; private set; }
     public BaseSkillClass                           skillClass                          { get; set; }         //RPG Class it's from
-    public SkillType                                skillType                           { get; private set; }
+    public ActivatableType                                skillType                           { get; private set; }
     public string                                   activationText                      { get; private set; }
 
     public bool                                     hasActivationRequirement            { get; private set; }

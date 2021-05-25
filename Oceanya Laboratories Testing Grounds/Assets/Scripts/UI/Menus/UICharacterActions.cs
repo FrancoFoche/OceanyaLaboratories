@@ -141,13 +141,13 @@ public class UICharacterActions : ButtonList
             case CharActions.Skill:
                 {
                     Debug.Log("Entered Skill ACT; Skill to activate: " + skillToActivate.baseInfo.name);
-                    skillToActivate.SkillAction(caster, target);
+                    skillToActivate.Action(caster, target);
                 }
                 break;
 
             case CharActions.Item:
                 {
-                    itemToUse.ItemAction(caster, target);
+                    itemToUse.Action(caster, target);
                 }
                 break;
 

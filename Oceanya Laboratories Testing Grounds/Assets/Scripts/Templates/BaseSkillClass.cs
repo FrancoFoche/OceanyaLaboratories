@@ -13,11 +13,6 @@ public class BaseSkillClass: ScriptableObject
     public List<Skill> skillList;
     public Dictionary<string, int> statBoosts = new Dictionary<string, int>();
 
-    public BaseSkillClass()
-    {
-        baseInfo = new BaseObjectInfo();
-        skillList = new List<Skill>();
-    }
     public BaseSkillClass(BaseObjectInfo baseInfo, List<Skill> skillList)
     {
         this.baseInfo = baseInfo;
@@ -49,7 +44,7 @@ public class BaseSkillClass: ScriptableObject
             BaseObjectInfo info = rpgClass.baseInfo;
             if(info == null)
             {
-                info = new BaseObjectInfo();
+                info = CreateInstance<BaseObjectInfo>();
             }
 
             BaseObjectInfo.BaseObjectInfoCustomEditor.PaintBaseObjectInfo(info);

@@ -36,6 +36,23 @@ public class GameAssetsManager : MonoBehaviour
             if(_instance == null)
             {
                 _instance = (Instantiate(Resources.Load("GameAssets") as GameObject).GetComponent<GameAssetsManager>());
+
+                if(_instance.skills == null)
+                {
+                    _instance.skills = new List<Skill>();
+                }
+
+                for (int i = 0; i < _instance.classes.Length; i++)
+                {
+                    BaseSkillClass currentClass = _instance.classes[i];
+
+                    for (int j = 0; j < currentClass.skillList.Count; j++)
+                    {
+                        Skill currentSkill = currentClass.skillList[j];
+                        currentSkill.skillClass = currentClass;
+                        _instance.skills.Add(currentSkill);
+                    }
+                }
             }
 
             return _instance;
@@ -45,9 +62,15 @@ public class GameAssetsManager : MonoBehaviour
 
     #region Arrays/Databases
 
-    public SpriteInfo[] sprites;
-    public SoundAudioClip[] sounds;
-    public MusicInfo[] music;
+
+    public PlayerCharacter[]    playerCharacters;
+    public Enemy[]              enemies;
+    public Item[]               items;
+    public BaseSkillClass[]     classes;
+    private List<Skill>         skills;
+    public SpriteInfo[]         sprites;
+    public SoundAudioClip[]     sounds;
+    public MusicInfo[]          music;
 
     #endregion
 
@@ -70,7 +93,138 @@ public class GameAssetsManager : MonoBehaviour
     #endregion
 
     #region Getter Functions
-    public Sprite GetSprite(Sprites sprite)
+
+    public PlayerCharacter  GetPC           (int id)        
+    {
+        for (int i = 0; i < playerCharacters.Length; i++)
+        {
+            if (playerCharacters[i].ID == id)
+            {
+                return playerCharacters[i];
+            }
+        }
+
+        Debug.LogError("Could not find the Player Character with id " + id + ".");
+        return null;
+    }
+    public PlayerCharacter  GetPC           (string name)   
+    {
+        for (int i = 0; i < playerCharacters.Length; i++)
+        {
+            if (playerCharacters[i].name == name)
+            {
+                return playerCharacters[i];
+            }
+        }
+
+        Debug.LogError("Could not find the Player Character with name " + name + ".");
+        return null;
+    }
+    public Enemy            GetEnemy        (int id)        
+    {
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i].ID == id)
+            {
+                return enemies[i];
+            }
+        }
+
+        Debug.LogError("Could not find the enemy with id " + id + ".");
+        return null;
+    }
+    public Enemy            GetEnemy        (string name)   
+    {
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i].name == name)
+            {
+                return enemies[i];
+            }
+        }
+
+        Debug.LogError("Could not find the enemy with name " + name + ".");
+        return null;
+    }
+    public Item             GetItem         (int id)                                
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].baseInfo.id == id)
+            {
+                return items[i];
+            }
+        }
+
+        Debug.LogError("Could not find the enemy with id " + id + ".");
+        return null;
+    }
+    public Item             GetItem         (string name)                           
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].baseInfo.name == name)
+            {
+                return items[i];
+            }
+        }
+
+        Debug.LogError("Could not find the enemy with name " + name + ".");
+        return null;
+    }
+    public BaseSkillClass   GetClass        (int id)                                
+    {
+        for (int i = 0; i < classes.Length; i++)
+        {
+            if (classes[i].baseInfo.id == id)
+            {
+                return classes[i];
+            }
+        }
+
+        Debug.LogError("Could not find the class with id " + id + ".");
+        return null;
+    }
+    public BaseSkillClass   GetClass        (string name)                           
+    {
+        for (int i = 0; i < classes.Length; i++)
+        {
+            if (classes[i].baseInfo.name == name)
+            {
+                return classes[i];
+            }
+        }
+
+        Debug.LogError("Could not find the class with name " + name + ".");
+        return null;
+    }   
+    public Skill            GetSkill        (int classID, int skillID)              
+    {
+        for (int i = 0; i < skills.Count; i++)
+        {
+            if (skills[i].baseInfo.id == skillID && skills[i].skillClass.baseInfo.id == classID)
+            {
+                return skills[i];
+            }
+        }
+
+        Debug.LogError("Could not find the skill with class ID " + classID + " and skill ID " + skillID + ".");
+        return null;
+    }
+    public Skill            GetSkill        (string className, string skillName)    
+    {
+        for (int i = 0; i < skills.Count; i++)
+        {
+            if (skills[i].baseInfo.name == skillName && skills[i].skillClass.baseInfo.name == className)
+            {
+                return skills[i];
+            }
+        }
+
+        Debug.LogError($"Could not find the skill '{skillName}' of class {className}.");
+        return null;
+    }
+    public Sprite           GetSprite       (Sprites sprite)                        
     {
         for (int i = 0; i < sprites.Length; i++)
         {
@@ -83,7 +237,7 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the sprite " + sprite.ToString() + ".");
         return null;
     }
-    public AudioClip GetAudioClip(Sounds sound)
+    public AudioClip        GetAudioClip    (Sounds sound)                          
     {
         for (int i = 0; i < sounds.Length; i++)
         {
@@ -96,7 +250,7 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the sound " + sound.ToString() + ".");
         return null;
     }
-    public AudioClip GetMusic(Music music)
+    public AudioClip        GetMusic        (Music music)                           
     {
         for (int i = 0; i < sounds.Length; i++)
         {
@@ -109,5 +263,6 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the sound " + music.ToString() + ".");
         return null;
     }
+    
     #endregion
 }

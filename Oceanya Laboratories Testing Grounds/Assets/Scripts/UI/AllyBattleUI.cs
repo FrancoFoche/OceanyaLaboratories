@@ -40,7 +40,7 @@ public class AllyBattleUI : BattleUI
         if (type == typeof(PlayerCharacter))
         {
             this.type = CharacterType.PlayerCharacter;
-            classText.text = DBPlayerCharacter.GetPC(charID).rpgClass.baseInfo.name;
+            classText.text = GameAssetsManager.instance.GetPC(charID).rpgClass.baseInfo.name;
         }
         else if (type == typeof(Enemy))
         {
@@ -54,10 +54,10 @@ public class AllyBattleUI : BattleUI
         switch (type)
         {
             case CharacterType.PlayerCharacter:
-                LoadChar(DBPlayerCharacter.GetPC(charID));
+                LoadChar(GameAssetsManager.instance.GetPC(charID));
                 break;
             case CharacterType.Enemy:
-                LoadChar(DBEnemies.GetEnemy(charID));
+                LoadChar(GameAssetsManager.instance.GetEnemy(charID));
                 break;
         }
     }

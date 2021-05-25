@@ -43,6 +43,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cbf664e2c77341488c6b155eb9f5eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerCharacters:
+  - {fileID: 11400000, guid: 404bf931171c32c4494e9023162e2dd1, type: 2}
+  - {fileID: 11400000, guid: f8391de0165881641acc9c9377078f3d, type: 2}
+  - {fileID: 11400000, guid: 3507915eea33b5544bd400cb9d8648a8, type: 2}
+  - {fileID: 11400000, guid: bbd5ba6e43a2ed249ad8e4ec50c469a2, type: 2}
+  enemies:
+  - {fileID: 11400000, guid: 1eb5fecd0de78294dab34fc3910e50d3, type: 2}
+  - {fileID: 11400000, guid: 28b20e25140c6e94eabd647fced1c009, type: 2}
+  - {fileID: 11400000, guid: fee3b34ff28ce034da48b464011ad6ea, type: 2}
+  items:
+  - {fileID: 11400000, guid: b3faafb9943331949b691c08b1804ae5, type: 2}
+  classes:
+  - {fileID: 11400000, guid: 2e706e7d8ebb61041a33f35fe72d788f, type: 2}
+  - {fileID: 11400000, guid: 61f914e7e1045994fa083a180c4d9c91, type: 2}
+  - {fileID: 11400000, guid: 5a7127aa08a675f48809b3bebab95b59, type: 2}
+  - {fileID: 11400000, guid: ceab257a66d7665479239140f6869d30, type: 2}
+  - {fileID: 11400000, guid: 83ed88dbd8da2da458f3b53a010f7c3b, type: 2}
+  - {fileID: 11400000, guid: 65436c5fdc0ac364991d1fe2ba4e7c36, type: 2}
+  - {fileID: 11400000, guid: e64fafb8c50b4a34a89aca8662d0af09, type: 2}
   sprites:
   - spriteName: 0
     sprite: {fileID: 21300000, guid: 8efc7f0fed324ad458f7a8aef14bbd6e, type: 3}

@@ -32,11 +32,11 @@ public class BattleUIList : ToggleList
         System.Type type = character.GetType();
         if (type == typeof(PlayerCharacter))
         {
-            newCharUI.LoadChar(DBPlayerCharacter.GetPC(character.ID));
+            newCharUI.LoadChar(GameAssetsManager.instance.GetPC(character.ID));
         }
         else if (type == typeof(Enemy))
         {
-            newCharUI.LoadChar(DBEnemies.GetEnemy(character.ID));
+            newCharUI.LoadChar(GameAssetsManager.instance.GetEnemy(character.ID));
         }
 
         return newCharUI;
@@ -58,11 +58,11 @@ public class BattleUIList : ToggleList
         System.Type type = character.GetType();
         if (type == typeof(PlayerCharacter))
         {
-            newCharUI.LoadChar(DBPlayerCharacter.GetPC(character.ID));
+            newCharUI.LoadChar(GameAssetsManager.instance.GetPC(character.ID));
         }
         else if (type == typeof(Enemy))
         {
-            newCharUI.LoadChar(DBEnemies.GetEnemy(character.ID));
+            newCharUI.LoadChar(GameAssetsManager.instance.GetEnemy(character.ID));
         }
 
         return newCharUI;

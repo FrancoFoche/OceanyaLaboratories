@@ -6,18 +6,12 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-public class BaseObjectInfo
+public class BaseObjectInfo : ScriptableObject
 {
-    public string name;
+    public new string name;
     public int id;
     public string description;
 
-    public BaseObjectInfo()
-    {
-        name = "ExampleName";
-        id = -1;
-        description = "ExampleDescription";
-    }
     public BaseObjectInfo(string name, int id)
     {
         this.name = name;
@@ -42,11 +36,6 @@ public class BaseObjectInfo
         {
             BaseObjectInfo info = testClass;
 
-            if (info == null)
-            {
-                info = new BaseObjectInfo("test", 0, "test");
-            }
-
             info = PaintBaseObjectInfo(info);
 
             testClass = info;
@@ -54,7 +43,7 @@ public class BaseObjectInfo
 
         public static BaseObjectInfo PaintBaseObjectInfo(BaseObjectInfo info)
         {
-            BaseObjectInfo newInfo = new BaseObjectInfo(info.name, info.id,info.description);
+            BaseObjectInfo newInfo = info;
             GUIStyle style = GUI.skin.textArea;
             style.wordWrap = true;
 
@@ -62,7 +51,6 @@ public class BaseObjectInfo
             EditorGUILayout.LabelField("Name", EditorStyles.boldLabel);
             newInfo.name = EditorGUILayout.TextField(newInfo.name);
             EditorGUILayout.EndHorizontal();
-
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("ID", EditorStyles.boldLabel);

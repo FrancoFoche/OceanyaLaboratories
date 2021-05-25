@@ -26,10 +26,10 @@ public class EnemyBattleUI : BattleUI
         switch (type)
         {
             case CharacterType.PlayerCharacter:
-                LoadChar(DBPlayerCharacter.GetPC(charID));
+                LoadChar(GameAssetsManager.instance.GetPC(charID));
                 break;
             case CharacterType.Enemy:
-                LoadChar(DBEnemies.GetEnemy(charID));
+                LoadChar(GameAssetsManager.instance.GetEnemy(charID));
                 break;
         }
     }

@@ -9,6 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f2bd24861d65694ca6c43f33c2f3a18, type: 3}
-  m_Name: s
+  m_Script: {fileID: 11500000, guid: 580848dc9117ad9438a567bdca5fa2e6, type: 3}
+  m_Name: NewEnemy
   m_EditorClassIdentifier: 
+  image: {fileID: 0}

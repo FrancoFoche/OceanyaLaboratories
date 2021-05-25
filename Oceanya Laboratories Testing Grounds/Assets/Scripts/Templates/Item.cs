@@ -1,131 +1,81 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Jobs;
 
-public class Item
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+[CreateAssetMenu(fileName = "NewItem", menuName = "Item")]
+public class Item : Activatables
 {
-    public BaseObjectInfo baseinfo;
-    public ItemType type;
-    public string activationText;
-
-    public TargetType targetType;
-    public int maxTargets;
-
-    public bool doesDamage;
-    public DamageType DamageType;
-
-    public bool doesHeal;
-
-    public bool modifiesStats;
-    public Dictionary<Stats, int> StatModifier;
-    public StatModificationTypes modificationType;
-
-    public bool modifiesResourse;
-    public Dictionary<SkillResources, int> resourseModifiers;
-
-    public bool appliesStatusEffects;
-
-    public bool doesShield;
-
-    public bool revives;
-
-    public enum ItemStats
+    public override void Activate(Character caster)
     {
-        Damage,
-        Heal
-    }
-    public Dictionary<ItemStats, int> Stats = new Dictionary<ItemStats, int>()
-    {
-        {ItemStats.Damage, 0 },
-        {ItemStats.Heal, 0 }
-    };
+        ItemInfo itemInfo = caster.GetItemFromInventory(this);
 
+        itemInfo.CheckActivatable();
 
-    public Item(BaseObjectInfo baseInfo, ItemType itemType, TargetType targetType, Dictionary<ItemStats, int> stats)
-    {
-        this.baseinfo = baseInfo;
-        this.type = itemType;
-        this.targetType = targetType;
-        this.Stats = stats;
-    }
-
-    public Item BehaviorDoesDamage(DamageType damageType)
-    {
-        doesDamage = true;
-        DamageType = damageType;
-        return this;
-    }
-
-    public Item BehaviorDoesHeal()
-    {
-        doesHeal = true;
-        return this;
-    }
-
-    public Item BEhaviorModifiesStat(Dictionary<Stats, int> statModifier)
-    {
-        modifiesStats = true;
-        StatModifier = statModifier;
-        return this;
-    }
-
-    public Item BehabiorModifiesResourse(Dictionary<SkillResources, int> Resoursemodifier)
-    {
-        modifiesResourse = true;
-        resourseModifiers = Resoursemodifier;
-        return this;
-    }
-
-    public Item BehabiorDoesShield()
-    {
-        doesShield = true;
-        return this;
-    }
-
-    public void Activate(Character caster)
-    {
-        switch (targetType)
+        if (itemInfo.activatable)
         {
-            case TargetType.Self:
-                ItemAction(caster, new List<Character>() { caster });
-                break;
+            bool firstActivation = !itemInfo.currentlyActive;
+            itemInfo.SetActive();
 
-            case TargetType.Single:
-            case TargetType.Multiple:
-                UICharacterActions.instance.maxTargets = maxTargets;
-                UICharacterActions.instance.ActionRequiresTarget(CharActions.Item);
-                break;
+            if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
+            {
+                BattleManager.battleLog.LogBattleEffect($"The passive of {baseInfo.name} was activated for {caster.name}.");
 
-            case TargetType.AllAllies:
-                if (caster.team == Team.Ally)
+                if (costsTurn)
                 {
-                    ItemAction(caster, TeamOrderManager.allySide);
+                    TeamOrderManager.EndTurn();
                 }
-                else
+            }
+            else
+            {
+                switch (targetType)
                 {
-                    ItemAction(caster, TeamOrderManager.enemySide);
-                }
-                break;
+                    case TargetType.Self:
+                        Action(caster, new List<Character>() { caster });
+                        break;
 
-            case TargetType.AllEnemies:
-                if (caster.team == Team.Ally)
-                {
-                    ItemAction(caster, TeamOrderManager.enemySide);
-                }
-                else
-                {
-                    ItemAction(caster, TeamOrderManager.allySide);
-                }
-                break;
+                    case TargetType.Single:
+                    case TargetType.Multiple:
+                        UICharacterActions.instance.maxTargets = maxTargets;
+                        UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
+                        break;
 
-            case TargetType.Bounce:
-                ItemAction(caster, new List<Character>() { BattleManager.caster });
-                break;
+                    case TargetType.AllAllies:
+                        if (caster.team == Team.Ally)
+                        {
+                            Action(caster, TeamOrderManager.allySide);
+                        }
+                        else
+                        {
+                            Action(caster, TeamOrderManager.enemySide);
+                        }
+                        break;
+                    case TargetType.AllEnemies:
+                        if (caster.team == Team.Ally)
+                        {
+                            Action(caster, TeamOrderManager.enemySide);
+                        }
+                        else
+                        {
+                            Action(caster, TeamOrderManager.allySide);
+                        }
+                        break;
+                    case TargetType.Bounce:
+                        Action(caster, new List<Character>() { BattleManager.caster });
+                        break;
+                }
+            }
+        }
+        else
+        {
+            BattleManager.battleLog.LogBattleEffect($"But {caster.name} did not meet the requirements to activate the skill!");
         }
     }
 
-    public void ItemAction(Character caster, List<Character> target)
+    public override void Action(Character caster, List<Character> target)
     {
         for (int i = 0; i < target.Count; i++)
         {
@@ -134,53 +84,286 @@ public class Item
             activationText.Add(ReplaceStringVariables._caster_, caster.name);
             activationText.Add(ReplaceStringVariables._target_, target[i].name);
 
-
+            int tempDmg = 0;
+            bool wasDefending = false;
             if (target[i].targettable)
             {
                 if (doesDamage)
                 {
-                    target[i].GetsDamagedBy(Stats[ItemStats.Damage]);
+                    int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
+
+                    int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
+                    tempDmg = finalDMG;
+                    if (target[i].defending)
+                    {
+                        wasDefending = true;
+                    }
+
+                    target[i].GetsDamagedBy(finalDMG);
+
+                    activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
                 }
                 if (doesHeal)
                 {
-                    target[i].GetsHealedBy(Stats[ItemStats.Heal]);
+                    int healAmount = SkillFormula.ReadAndSumList(healFormula, caster.stats);
+
+                    target[i].GetsHealedBy(healAmount);
+
+                    activationText.Add(ReplaceStringVariables._heal_, healAmount.ToString());
                 }
-                if (modifiesStats)
+                if (flatModifiesStat)
                 {
-                    target[i].ModifyStat(modificationType, StatModifier);
+                    target[i].ModifyStat(modificationType, flatStatModifiers);
                 }
-                if (modifiesResourse)
+                if (formulaModifiesStat)
                 {
-                    target[i].ModifyResource(resourseModifiers);
+                    Dictionary<Stats, int> resultModifiers = new Dictionary<Stats, int>();
+                    for (int j = 0; j < RuleManager.StatHelper.Length; j++)
+                    {
+                        Stats currentStat = RuleManager.StatHelper[j];
+
+                        if (formulaStatModifiers.ContainsKey(currentStat))
+                        {
+                            resultModifiers.Add(currentStat, SkillFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
+                        }
+                    }
+
+                    target[i].ModifyStat(modificationType, resultModifiers);
+                }
+                if (unlocksResource)
+                {
+                    target[i].UnlockResources(unlockedResources);
+                }
+                if (modifiesResource)
+                {
+                    target[i].ModifyResource(resourceModifiers);
+                }
+                if (changesBasicAttack)
+                {
+                    target[i].ChangeBaseAttack(newBasicAttackFormula, newBasicAttackDamageType);
                 }
                 if (revives)
                 {
                     target[i].Revive();
                 }
+
+                if (appliesStatusEffects)
+                {
+
+                }
+
+                if (doesSummon)
+                {
+
+                }
+
+                if (doesShield)
+                {
+
+                }
+            }
+            else
+            {
+                BattleManager.battleLog.LogBattleEffect("Target wasn't targettable, smh");
+            }
+
+            BattleManager.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
+
+            if (wasDefending && doesDamage)
+            {
+                BattleManager.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(tempDmg / 2)} DMG.");
+            }
+
+        }
+
+
+        if (activatableType != ActivatableType.Passive && !hasPassive)
+        {
+            caster.GetItemFromInventory(this).SetDeactivated();
+        }
+
+        if (costsTurn)
+        {
+            if (!(activatableType == ActivatableType.Active && hasPassive && caster.GetItemFromInventory(this).currentlyActive))
+            {
+                TeamOrderManager.EndTurn();
             }
         }
+    }
 
-        if (this.type == ItemType.consume)
+    #region CustomEditor
+#if UNITY_EDITOR
+    [CustomEditor(typeof(Item))]
+    public class ItemCustomEditor : Editor
+    {
+        public override void OnInspectorGUI()
         {
-            caster.inventory.RemoveAt(caster.inventory.IndexOf(this));
-            UIItemContext.instance.Hide();
-            UIItemContext.instance.Show();
+            Item item = (Item)target;
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            item = PaintItem(item);
+
+            #region Rename
+            string newName = $"{item.baseInfo.id}-{item.baseInfo.name}";
+            target.name = newName;
+            string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
+            AssetDatabase.RenameAsset(path, newName);
+            #endregion
+        }
+
+        public Item PaintItem(Item item)
+        {
+            ActivatablesCustomEditor.PaintBaseObjectInfo(item);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            ActivatablesCustomEditor.PaintActivatableType(item);
+
+            ActivatablesCustomEditor.PaintTargets(item);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            ActivatablesCustomEditor.PaintActivationText(item);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            ActivatablesCustomEditor.PaintBehaviors(item);
+
+            return item;
+        }
+
+        public static Item PaintItemObjectSlot(Item item)
+        {
+            item = (Item)EditorGUILayout.ObjectField(item, typeof(Item), false);
+
+            return item;
+        }
+
+        public static List<Item> PaintSkillObjectList(List<Item> itemList)
+        {
+            int size = Mathf.Max(0, EditorGUILayout.IntField("Skill Count", itemList.Count));
+
+            while (size > itemList.Count)
+            {
+                itemList.Add(null);
+            }
+
+            while (size < itemList.Count)
+            {
+                itemList.RemoveAt(itemList.Count - 1);
+            }
+
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < itemList.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Skill " + (i + 1), GUILayout.MaxWidth(100));
+
+                Item item = itemList[i];
+                item = PaintItemObjectSlot(item);
+                itemList[i] = item;
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUI.indentLevel--;
+
+            return itemList;
         }
     }
+#endif
+    #endregion
 }
 
-public class ItemInfo
+public class ItemInfo : ActivatableInfo
 {
-    Character character;
-    public Item item { get; private set; }
-    public bool activatable { get; private set; }
-    public bool equipped { get; private set; }
+    public Item item                    { get; private set; }
+    public int amount                   { get; private set; }
 
-    public ItemInfo(Character character, Item item)
+    public void CheckActivatable()
     {
-        this.character = character;
-        this.item = item;
-        equipped = true;
-        activatable = true;
+        activatable = ActivatableInfo.CheckActivatable(item);
     }
+    public override void SetDeactivated()
+    {
+        base.SetDeactivated();
+        if (item.hasPassive)
+        {
+            BattleManager.battleLog.LogBattleEffect($"{item.baseInfo.name} deactivated for {character.name}.");
+        }
+    }
+    public void SetItem(Item item)
+    {
+        this.item = item;
+    }
+
+    #region CustomEditor
+#if UNITY_EDITOR
+    [CustomEditor(typeof(ItemInfo))]
+    public class ItemInfoCustomEditor : Editor
+    {
+        public static ItemInfo PaintItemInfo(ItemInfo targetInfo)
+        {
+            ItemInfo info = targetInfo;
+
+            EditorGUILayout.BeginHorizontal();
+            info.item = Item.ItemCustomEditor.PaintItemObjectSlot(info.item);
+            if (info.item != null)
+            {
+                info.showInfo = EditorGUILayout.Foldout(info.showInfo, "ExtraInfo", true);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (info.showInfo && info.item != null)
+            {
+                EditorGUI.indentLevel++;
+
+                EditorGUILayout.LabelField("Editor Modifyable", EditorStyles.boldLabel);
+                info.equipped = EditorGUILayout.Toggle("Equipped", info.equipped);
+                info.activatable = EditorGUILayout.Toggle("Activatable", info.activatable);
+
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUI.indentLevel++;
+            EditorGUILayout.Space();
+
+            EditorGUI.indentLevel--;
+
+            return info;
+        }
+
+        public static List<ItemInfo> PaintItemInfoList(Character character, List<ItemInfo> itemList)
+        {
+            int size = Mathf.Max(0, EditorGUILayout.IntField("Item Count", itemList.Count));
+
+            while (size > itemList.Count)
+            {
+                itemList.Add(null);
+            }
+
+            while (size < itemList.Count)
+            {
+                itemList.RemoveAt(itemList.Count - 1);
+            }
+
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < itemList.Count; i++)
+            {
+                ItemInfo itemInfo = itemList[i];
+
+                if (itemInfo == null)
+                {
+                    itemInfo = CreateInstance<ItemInfo>();
+                    itemInfo.character = character;
+                }
+
+                itemInfo = PaintItemInfo(itemInfo);
+                itemList[i] = itemInfo;
+            }
+            EditorGUI.indentLevel--;
+
+            return itemList;
+        }
+    }
+#endif
+    #endregion
 }

@@ -18,7 +18,7 @@ public enum SkillResources
     other,
     none
 }
-public enum SkillType               
+public enum ActivatableType               
 {
     Passive,
     Active
@@ -164,6 +164,16 @@ public static class RuleManager
     /// </summary>
     public static ReplaceStringVariables[] ReplaceableStringsHelper { get; private set; }
 
+    /// <summary>
+    /// An array that you can use in For functions to iterate through the behaviors of a skill.
+    /// </summary>
+    public static Skill.Behaviors[] SkillBehaviorHelper { get; private set; }
+
+    /// <summary>
+    /// An array that you can use in For functions to iterate through the behaviors of a skill.
+    /// </summary>
+    public static Item.Behaviors[] ItemBehaviorHelper { get; private set; }
+
     public static void BuildHelpers()
     {
         StatHelper = (Stats[])Enum.GetValues(typeof(Stats));
@@ -173,5 +183,8 @@ public static class RuleManager
         CharActionsHelper = (CharActions[])Enum.GetValues(typeof(CharActions));
 
         ReplaceableStringsHelper = (ReplaceStringVariables[])Enum.GetValues(typeof(ReplaceStringVariables));
+
+        SkillBehaviorHelper = (Skill.Behaviors[])Enum.GetValues(typeof(Skill.Behaviors));
+        ItemBehaviorHelper = (Item.Behaviors[])Enum.GetValues(typeof(Item.Behaviors));
     }
 }

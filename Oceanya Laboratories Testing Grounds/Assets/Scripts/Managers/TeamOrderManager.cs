@@ -27,8 +27,8 @@ public static class TeamOrderManager
     public  static  SPDSystem           spdSystem;
 
     public static void                  BuildTeamOrder  ()                      {
-        allySide = new List<Character>() { DBPlayerCharacter.GetPC(13), DBPlayerCharacter.GetPC(5), DBPlayerCharacter.GetPC(9) };
-        enemySide = new List<Character>() { DBEnemies.GetEnemy(1), DBEnemies.GetEnemy(2), DBEnemies.GetEnemy(3) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
+        allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) };
+        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(3) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
         
         totalCharList = new List<Character>();
         for (int i = 0; i < allySide.Count; i++)
