@@ -18,6 +18,130 @@ public class Skill: Activatables
     public bool                                     done                                { get; private set; }
     public BaseSkillClass                           skillClass                          { get; set; }         //RPG Class it's from
 
+    #region Constructors
+    public Skill(BaseObjectInfo baseInfo, string activationText, ActivatableType skillType, TargetType targetType, int maxTargets = 1)
+    {
+        this.baseInfo = baseInfo;
+        this.activationText = activationText;
+        this.targetType = targetType;
+        this.maxTargets = maxTargets;
+        activatableType = skillType;
+        //Default and initializer values go here
+        done = false;
+        cooldown = 0;
+    }
+    public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<SkillFormula> damageFormula)
+    {
+        behaviors.Add(Behaviors.DoesDamage);
+        doesDamage = true;
+        this.damageType = damageType;
+        this.damageElement = damageElement;
+        this.damageFormula = damageFormula;
+        return this;
+    }
+    public Skill BehaviorHasCooldown(CDType cdType)
+    {
+        behaviors.Add(Behaviors.HasCooldown);
+        this.cdType = cdType;
+        return this;
+    }
+    public Skill BehaviorHasCooldown(CDType cdType, int cooldown)
+    {
+        behaviors.Add(Behaviors.HasCooldown);
+        this.cdType = cdType;
+        this.cooldown = cooldown;
+        return this;
+    }
+    public Skill BehaviorDoesHeal(List<SkillFormula> healFormula)
+    {
+        behaviors.Add(Behaviors.DoesHeal);
+        doesHeal = true;
+        this.healFormula = healFormula;
+        return this;
+    }
+    public Skill BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, int> statModifiers)
+    {
+        behaviors.Add(Behaviors.FlatModifiesStat);
+        flatModifiesStat = true;
+        flatStatModifiers = statModifiers;
+        this.modificationType = modificationType;
+        return this;
+    }
+    public Skill BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, List<SkillFormula>> statModifiers)
+    {
+        behaviors.Add(Behaviors.FormulaModifiesStat);
+        formulaModifiesStat = true;
+        formulaStatModifiers = statModifiers;
+        this.modificationType = modificationType;
+        return this;
+    }
+    public Skill BehaviorModifiesResource(Dictionary<SkillResources, int> resourceModifiers)
+    {
+        behaviors.Add(Behaviors.ModifiesResource);
+        modifiesResource = true;
+        this.resourceModifiers = resourceModifiers;
+        return this;
+    }
+    public Skill BehaviorUnlocksResource(List<SkillResources> unlockedResources)
+    {
+        behaviors.Add(Behaviors.UnlocksResource);
+        unlocksResource = true;
+        this.unlockedResources = unlockedResources;
+        return this;
+    }
+    public Skill BehaviorPassive(ActivationTime activationType)
+    {
+        behaviors.Add(Behaviors.Passive);
+        hasPassive = true;
+        this.passiveActivationType = activationType;
+        return this;
+    }
+    public Skill BehaviorCostsTurn()
+    {
+        behaviors.Add(Behaviors.CostsTurn);
+        costsTurn = true;
+        return this;
+    }
+    public Skill BehaviorActivationRequirement(List<ActivationRequirement> requirements)
+    {
+        behaviors.Add(Behaviors.ActivationRequirement);
+        hasActivationRequirement = true;
+        activationRequirements = requirements;
+        return this;
+    }
+    public Skill BehaviorLastsFor(int maxActivationTimes)
+    {
+        behaviors.Add(Behaviors.LastsFor);
+        lasts = true;
+        lastsFor = maxActivationTimes;
+        return this;
+    }
+    public Skill BehaviorChangesBasicAttack(List<SkillFormula> newBaseFormula, DamageType newDamageType)
+    {
+        behaviors.Add(Behaviors.ChangesBasicAttack);
+        this.newBasicAttackFormula = newBaseFormula;
+        this.newBasicAttackDamageType = newDamageType;
+        changesBasicAttack = true;
+        return this;
+    }
+    public Skill BehaviorRevives()
+    {
+        behaviors.Add(Behaviors.Revives);
+        revives = true;
+        return this;
+    }
+
+    /// <summary>
+    /// just marks the skill as done, this is just for development purposes
+    /// </summary>
+    /// <returns></returns>
+    public Skill IsDone()
+    {
+        done = true;
+        return this;
+    }
+    #endregion
+
     public override void Activate(Character caster)
     {
         SkillInfo skillInfo = caster.GetSkillFromSkillList(this);

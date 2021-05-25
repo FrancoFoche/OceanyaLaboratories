@@ -19,13 +19,6 @@ public class BaseSkillClass: ScriptableObject
         this.skillList = skillList;
     }
 
-    public BaseSkillClass(BaseObjectInfo baseInfo, List<Skill> skillList, Dictionary<string, int> statBoosts)
-    {
-        this.baseInfo = baseInfo;
-        this.skillList = skillList;
-        this.statBoosts = statBoosts;
-    }
-
     #region CustomEditor
 #if UNITY_EDITOR
     [CustomEditor(typeof(BaseSkillClass))]

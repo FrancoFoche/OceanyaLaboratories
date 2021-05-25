@@ -26,7 +26,7 @@ public class DBEnemies : MonoBehaviour
                 new List<Skill>()
                 {
                     DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Great Fire Ball"),
-                }
+                }, new List<Item>()
             ),
 
             new Enemy(2 , "Wizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
@@ -47,7 +47,7 @@ public class DBEnemies : MonoBehaviour
                 {
                     DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
                     DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
-                }
+                }, new List<Item>()
             ),
 
             new Enemy(3 , "Archwizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 20,
@@ -70,7 +70,7 @@ public class DBEnemies : MonoBehaviour
                     DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
                     DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
                     DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
-                }
+                }, new List<Item>()
             ),
         };
     }

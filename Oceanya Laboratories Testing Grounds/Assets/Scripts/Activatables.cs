@@ -5,61 +5,61 @@ using UnityEditor;
 
 public abstract class Activatables : ScriptableObject
 {
-    public BaseObjectInfo                           baseInfo                            { get; private set; }
-    public ActivatableType                          activatableType                     { get; private set; }
+    public BaseObjectInfo                           baseInfo                            { get; protected set; }
+    public ActivatableType                          activatableType                     { get; protected set; }
 
-    public List<Behaviors>                          behaviors                           { get; private set; }
+    public List<Behaviors>                          behaviors                           { get; protected set; }
 
-    public string                                   activationText                      { get; private set; }
+    public string                                   activationText                      { get; protected set; }
 
-    public bool                                     hasActivationRequirement            { get; private set; }
-    public List<ActivationRequirement>              activationRequirements              { get; private set; }
+    public bool                                     hasActivationRequirement            { get; protected set; }
+    public List<ActivationRequirement>              activationRequirements              { get; protected set; }
 
-    public bool                                     hasPassive                          { get; private set; }
-    public ActivationTime                           passiveActivationType               { get; private set; }
+    public bool                                     hasPassive                          { get; protected set; }
+    public ActivationTime                           passiveActivationType               { get; protected set; }
 
-    public bool                                     lasts                               { get; private set; }
-    public int                                      lastsFor                            { get; private set; }
+    public bool                                     lasts                               { get; protected set; }
+    public int                                      lastsFor                            { get; protected set; }
 
-    public TargetType                               targetType                          { get; private set; } //If the skill targets anyone, what is its target type?
-    public int                                      maxTargets                          { get; private set; }
+    public TargetType                               targetType                          { get; protected set; } //If the skill targets anyone, what is its target type?
+    public int                                      maxTargets                          { get; protected set; }
 
-    public CDType                                   cdType                              { get; private set; }
-    public int                                      cooldown                            { get; private set; }
+    public CDType                                   cdType                              { get; protected set; }
+    public int                                      cooldown                            { get; protected set; }
 
-    public bool                                     doesDamage                          { get; private set; } //If the skill does damage
-    public DamageType                               damageType                          { get; private set; } //What type of damage does it do
-    public ElementType                              damageElement                       { get; private set; } //What elemental type is the damage skill
-    public List<SkillFormula>                       damageFormula                       { get; private set; } //list of formulas to sum to get the damage number
+    public bool                                     doesDamage                          { get; protected set; } //If the skill does damage
+    public DamageType                               damageType                          { get; protected set; } //What type of damage does it do
+    public ElementType                              damageElement                       { get; protected set; } //What elemental type is the damage skill
+    public List<SkillFormula>                       damageFormula                       { get; protected set; } //list of formulas to sum to get the damage number
 
-    public bool                                     doesHeal                            { get; private set; } //if the skill heals
-    public List<SkillFormula>                       healFormula                         { get; private set; } //list of formulas to sum to get the heal number
+    public bool                                     doesHeal                            { get; protected set; } //if the skill heals
+    public List<SkillFormula>                       healFormula                         { get; protected set; } //list of formulas to sum to get the heal number
 
-    public bool                                     flatModifiesStat                    { get; private set; } //does the skill buff any stat by a flat number
-    public Dictionary<Stats, int>                   flatStatModifiers                   { get; private set; }
-    public bool                                     formulaModifiesStat                 { get; private set; } //does the skill buff any stat by a formula
-    public Dictionary<Stats, List<SkillFormula>>    formulaStatModifiers                { get; private set; }
-    public StatModificationTypes                    modificationType                    { get; private set; }
+    public bool                                     flatModifiesStat                    { get; protected set; } //does the skill buff any stat by a flat number
+    public Dictionary<Stats, int>                   flatStatModifiers                   { get; protected set; }
+    public bool                                     formulaModifiesStat                 { get; protected set; } //does the skill buff any stat by a formula
+    public Dictionary<Stats, List<SkillFormula>>    formulaStatModifiers                { get; protected set; }
+    public StatModificationTypes                    modificationType                    { get; protected set; }
 
-    public bool                                     modifiesResource                    { get; private set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
-    public Dictionary<SkillResources, int>          resourceModifiers                   { get; private set; } //what does it modify and by how much
+    public bool                                     modifiesResource                    { get; protected set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
+    public Dictionary<SkillResources, int>          resourceModifiers                   { get; protected set; } //what does it modify and by how much
 
-    public bool                                     unlocksResource                     { get; private set; } //does it unlock a resource
-    public List<SkillResources>                     unlockedResources                   { get; private set; } //what resources does it unlock
+    public bool                                     unlocksResource                     { get; protected set; } //does it unlock a resource
+    public List<SkillResources>                     unlockedResources                   { get; protected set; } //what resources does it unlock
 
-    public bool                                     changesBasicAttack                  { get; private set; }
-    public List<SkillFormula>                       newBasicAttackFormula               { get; private set; }
-    public DamageType                               newBasicAttackDamageType            { get; private set; }
+    public bool                                     changesBasicAttack                  { get; protected set; }
+    public List<SkillFormula>                       newBasicAttackFormula               { get; protected set; }
+    public DamageType                               newBasicAttackDamageType            { get; protected set; }
 
-    public bool                                     revives                             { get; private set; }
+    public bool                                     revives                             { get; protected set; }
 
-    public bool                                     costsTurn                           { get; private set; } //does the skill end your turn
+    public bool                                     costsTurn                           { get; protected set; } //does the skill end your turn
 
-    public bool                                     appliesStatusEffects                { get; private set; } //does the skill apply a status effect?
+    public bool                                     appliesStatusEffects                { get; protected set; } //does the skill apply a status effect?
 
-    public bool                                     doesSummon                          { get; private set; } //does the skill summon anything
+    public bool                                     doesSummon                          { get; protected set; } //does the skill summon anything
 
-    public bool                                     doesShield                          { get; private set; } //does the skill shield anything
+    public bool                                     doesShield                          { get; protected set; } //does the skill shield anything
 
     public enum Behaviors
     {
@@ -665,6 +665,45 @@ public class ActivationRequirement : ScriptableObject
     public Skill skill { get; private set; }
     public ComparerType comparer { get; private set; }
     public int number { get; private set; }
+
+    #region Constructors
+    /// <summary>
+    /// StatRequirement
+    /// </summary>
+    /// <param name="stat"></param>
+    /// <param name="comparingType"></param>
+    /// <param name="number"></param>
+    public ActivationRequirement(Stats stat, ComparerType comparingType, int number)
+    {
+        type = RequirementType.Stat;
+        this.stat = stat;
+        comparer = comparingType;
+        this.number = number;
+    }
+    /// <summary>
+    /// Resource requirement
+    /// </summary>
+    /// <param name="resource"></param>
+    /// <param name="comparingType"></param>
+    /// <param name="number"></param>
+    public ActivationRequirement(SkillResources resource, ComparerType comparingType, int number)
+    {
+        type = RequirementType.Resource;
+        this.resource = resource;
+        comparer = comparingType;
+        this.number = number;
+    }
+    /// <summary>
+    /// SkillIsActive requirement.
+    /// </summary>
+    /// <param name="skillclassID"></param>
+    /// <param name="skillID"></param>
+    public ActivationRequirement(int skillclassID, int skillID)
+    {
+        type = RequirementType.SkillIsActive;
+        SetSkill(skillclassID, skillID);
+    }
+    #endregion
 
     public enum RequirementType
     {

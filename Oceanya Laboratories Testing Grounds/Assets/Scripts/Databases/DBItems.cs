@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 public class DBItems : MonoBehaviour
 {
     public static List<Item> items = new List<Item>();
+    /*
     public static void buildDataBase()
     {
         items = new List<Item>()
@@ -22,19 +23,5 @@ public class DBItems : MonoBehaviour
 
         };
     }
-
-    public static Item GetItem(int id)
-    {
-        return items.Find(item => item.baseinfo.id == id);
-    }
-
-    public static Item GetItem(string name)
-    {
-        return items.Find(resultItem => resultItem.baseinfo.name == name);
-    }
-
-    public static List<Item> GetAllItems()
-    {
-        return items;
-    }
+    */
 }

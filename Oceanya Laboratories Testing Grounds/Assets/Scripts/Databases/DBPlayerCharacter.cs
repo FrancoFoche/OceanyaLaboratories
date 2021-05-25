@@ -36,7 +36,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 DBSkills.GetAllClassSkills(DBClasses.GetClass(0)),
                 new List<Item>
                 {
-                    DBItems.GetItem(1)
+                    GameAssetsManager.instance.GetItem(1)
                 }
             ),
 
@@ -64,8 +64,8 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Item>
                 {
-                    DBItems.GetItem(1),
-                    DBItems.GetItem(1)
+                    GameAssetsManager.instance.GetItem(1),
+                    GameAssetsManager.instance.GetItem(1)
                 }
             ),
             new PlayerCharacter(5 , "Da Docta" , 9,  DBClasses.GetClass(ClassNames.Doctor.ToString()),
