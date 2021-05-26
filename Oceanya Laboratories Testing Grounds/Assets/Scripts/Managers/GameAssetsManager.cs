@@ -150,7 +150,7 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i].baseInfo.id == id)
+            if (items[i].ID == id)
             {
                 return items[i];
             }
@@ -163,7 +163,7 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i].baseInfo.name == name)
+            if (items[i].name == name)
             {
                 return items[i];
             }
@@ -202,7 +202,7 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < skills.Count; i++)
         {
-            if (skills[i].baseInfo.id == skillID && skills[i].skillClass.baseInfo.id == classID)
+            if (skills[i].ID == skillID && skills[i].skillClass.baseInfo.id == classID)
             {
                 return skills[i];
             }
@@ -215,7 +215,7 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < skills.Count; i++)
         {
-            if (skills[i].baseInfo.name == skillName && skills[i].skillClass.baseInfo.name == className)
+            if (skills[i].name == skillName && skills[i].skillClass.name == className)
             {
                 return skills[i];
             }

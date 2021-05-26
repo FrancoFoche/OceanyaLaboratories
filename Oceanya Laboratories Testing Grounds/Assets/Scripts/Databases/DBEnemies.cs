@@ -25,7 +25,7 @@ public class DBEnemies : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Great Fire Ball"),
+                    GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Great Fire Ball"),
                 }, new List<Item>()
             ),
 
@@ -45,8 +45,8 @@ public class DBEnemies : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
-                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
+                    GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
                 }, new List<Item>()
             ),
 
@@ -66,22 +66,12 @@ public class DBEnemies : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
-                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
+                    GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
                 }, new List<Item>()
             ),
         };
-    }
-
-    public static Enemy GetEnemy(int id)
-    {
-        return enemies.Find(resultEnemy => resultEnemy.ID == id);
-    }
-
-    public static Enemy GetEnemy(string name)
-    {
-        return enemies.Find(resultEnemy => resultEnemy.name == name);
     }
 }

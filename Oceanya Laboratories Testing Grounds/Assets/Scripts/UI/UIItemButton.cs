@@ -13,10 +13,10 @@ public class UIItemButton : MonoBehaviour
 
     public void LoadItem(Item item)
     {
-        gameObject.name = item.baseInfo.name;
+        gameObject.name = item.name;
         loadedItem = item;
         button = GetComponent<Button>();
-        buttonText.text = loadedItem.baseInfo.name;
+        buttonText.text = loadedItem.name;
     }
     public void ActivateLoadedItem()
     {

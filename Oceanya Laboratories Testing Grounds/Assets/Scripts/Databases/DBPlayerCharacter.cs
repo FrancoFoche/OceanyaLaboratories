@@ -33,7 +33,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 100  },
                     { Stats.HPREGEN  , 100  }
                 },
-                DBSkills.GetAllClassSkills(DBClasses.GetClass(0)),
+                GameAssetsManager.instance.GetClass(0).skillList,
                 new List<Item>
                 {
                     GameAssetsManager.instance.GetItem(1)
@@ -57,10 +57,10 @@ public class DBPlayerCharacter : MonoBehaviour
 
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Vampire Fangs"),
-                    DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Bat Swarm"),
-                    DBSkills.GetSkill(ClassNames.Vampire.ToString(),"Dry their blood"),
-                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Vampire.ToString(),"Vampire Fangs"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Vampire.ToString(),"Bat Swarm"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Vampire.ToString(),"Dry their blood"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
                 },
                 new List<Item>
                 {
@@ -84,10 +84,10 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Skill>()
                 {
-                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Chakra Scalples"),
-                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Revival Ritual"),
-                    DBSkills.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
-                    DBSkills.GetSkill("Testing Class","Regenerative Meditation"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Doctor.ToString(),"Chakra Scalples"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Doctor.ToString(),"Revival Ritual"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
+                    GameAssetsManager.instance.GetSkill("Testing Class","Regenerative Meditation"),
                 },
                 new List<Item>()
             ),
@@ -109,11 +109,11 @@ public class DBPlayerCharacter : MonoBehaviour
                 new List<Skill>()
                 {
 
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
-                    DBSkills.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
-                    DBSkills.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
-                    DBSkills.GetSkill("Testing Class","Arcane Overflow"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
+                    GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
+                    GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
+                    GameAssetsManager.instance.GetSkill("Testing Class","Arcane Overflow"),
                 },
                 new List<Item>()
             ),

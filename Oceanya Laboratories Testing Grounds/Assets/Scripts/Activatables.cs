@@ -1,11 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public abstract class Activatables : ScriptableObject
 {
-    public BaseObjectInfo                           baseInfo                            { get; protected set; }
+    public new string                               name                                { get; protected set; }
+    public int                                      ID                                  { get; protected set; }
+    public string                                   description                         { get; protected set; }
     public ActivatableType                          activatableType                     { get; protected set; }
 
     public List<Behaviors>                          behaviors                           { get; protected set; }
@@ -30,15 +35,15 @@ public abstract class Activatables : ScriptableObject
     public bool                                     doesDamage                          { get; protected set; } //If the skill does damage
     public DamageType                               damageType                          { get; protected set; } //What type of damage does it do
     public ElementType                              damageElement                       { get; protected set; } //What elemental type is the damage skill
-    public List<SkillFormula>                       damageFormula                       { get; protected set; } //list of formulas to sum to get the damage number
+    public List<RPGFormula>                       damageFormula                       { get; protected set; } //list of formulas to sum to get the damage number
 
     public bool                                     doesHeal                            { get; protected set; } //if the skill heals
-    public List<SkillFormula>                       healFormula                         { get; protected set; } //list of formulas to sum to get the heal number
+    public List<RPGFormula>                       healFormula                         { get; protected set; } //list of formulas to sum to get the heal number
 
     public bool                                     flatModifiesStat                    { get; protected set; } //does the skill buff any stat by a flat number
     public Dictionary<Stats, int>                   flatStatModifiers                   { get; protected set; }
     public bool                                     formulaModifiesStat                 { get; protected set; } //does the skill buff any stat by a formula
-    public Dictionary<Stats, List<SkillFormula>>    formulaStatModifiers                { get; protected set; }
+    public Dictionary<Stats, List<RPGFormula>>    formulaStatModifiers                { get; protected set; }
     public StatModificationTypes                    modificationType                    { get; protected set; }
 
     public bool                                     modifiesResource                    { get; protected set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
@@ -48,7 +53,7 @@ public abstract class Activatables : ScriptableObject
     public List<SkillResources>                     unlockedResources                   { get; protected set; } //what resources does it unlock
 
     public bool                                     changesBasicAttack                  { get; protected set; }
-    public List<SkillFormula>                       newBasicAttackFormula               { get; protected set; }
+    public List<RPGFormula>                       newBasicAttackFormula               { get; protected set; }
     public DamageType                               newBasicAttackDamageType            { get; protected set; }
 
     public bool                                     revives                             { get; protected set; }
@@ -110,17 +115,17 @@ public abstract class Activatables : ScriptableObject
     public class ActivatablesCustomEditor : Editor
     {
         static Activatables Target;
+        static Activatables oldTarget;
         public static Dictionary<Behaviors, bool> behaviorShow;
         public static bool editorShowBehaviors;
         public override void OnInspectorGUI()
         {
             Activatables newTarget = (Activatables)target;
-            Target = newTarget;
 
 
             PaintBaseObjectInfo(newTarget);
             #region Rename
-            string newName = $"{newTarget.baseInfo.id}-{newTarget.baseInfo.name}";
+            string newName = $"{newTarget.ID}-{newTarget.name}";
             target.name = newName;
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
@@ -147,21 +152,23 @@ public abstract class Activatables : ScriptableObject
         {
             EditorGUILayout.LabelField("Base Info", EditorStyles.boldLabel);
 
-            BaseObjectInfo newInfo = activatable.baseInfo;
-            
-            if (newInfo == null)
-            {
-                Debug.Log("skill baseinfo was null");
-                newInfo = CreateInstance<BaseObjectInfo>();
-                EditorUtility.SetDirty(newInfo);
-                UnityEditor.AssetDatabase.SaveAssets();
-            }
-
             EditorGUI.indentLevel++;
-            newInfo = BaseObjectInfo.BaseObjectInfoCustomEditor.PaintBaseObjectInfo(newInfo);
-            EditorGUI.indentLevel--;
+            GUIStyle style = GUI.skin.textArea;
+            style.wordWrap = true;
 
-            activatable.baseInfo = newInfo;
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Name", EditorStyles.boldLabel);
+            activatable.name = EditorGUILayout.TextField(activatable.name);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("ID", EditorStyles.boldLabel);
+            activatable.ID = EditorGUILayout.IntField(activatable.ID);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField("Description", EditorStyles.boldLabel);
+            activatable.description = EditorGUILayout.TextArea(activatable.description, style);
+            EditorGUI.indentLevel--;
         }
         public static void PaintActivatableType(Activatables activatable)
         {
@@ -361,10 +368,10 @@ public abstract class Activatables : ScriptableObject
 
                         if (Target.damageFormula == null)
                         {
-                            Target.damageFormula = new List<SkillFormula>();
+                            Target.damageFormula = new List<RPGFormula>();
                         }
 
-                        Target.damageFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.damageFormula);
+                        Target.damageFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.damageFormula);
                     }
                     break;
 
@@ -385,10 +392,10 @@ public abstract class Activatables : ScriptableObject
 
                         if (Target.healFormula == null)
                         {
-                            Target.healFormula = new List<SkillFormula>();
+                            Target.healFormula = new List<RPGFormula>();
                         }
 
-                        Target.healFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.healFormula);
+                        Target.healFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.healFormula);
                     }
                     break;
 
@@ -425,7 +432,7 @@ public abstract class Activatables : ScriptableObject
 
                         if (Target.formulaStatModifiers == null)
                         {
-                            Target.formulaStatModifiers = new Dictionary<Stats, List<SkillFormula>>();
+                            Target.formulaStatModifiers = new Dictionary<Stats, List<RPGFormula>>();
                         }
 
                         RuleManager.BuildHelpers();
@@ -436,10 +443,10 @@ public abstract class Activatables : ScriptableObject
 
                             if (!Target.formulaStatModifiers.ContainsKey(curStat))
                             {
-                                Target.formulaStatModifiers.Add(curStat, new List<SkillFormula>());
+                                Target.formulaStatModifiers.Add(curStat, new List<RPGFormula>());
                             }
 
-                            Target.formulaStatModifiers[curStat] = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.formulaStatModifiers[curStat]);
+                            Target.formulaStatModifiers[curStat] = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.formulaStatModifiers[curStat]);
                             EditorGUILayout.Space();
                         }
                     }
@@ -533,7 +540,7 @@ public abstract class Activatables : ScriptableObject
                             Target.activationRequirements = new List<ActivationRequirement>();
                         }
 
-                        Target.activationRequirements = ActivationRequirement.ActivationRequirementEditor.PaintActivationRequirementList(Target.activationRequirements);
+                        Target.activationRequirements = ActivationRequirement.ActivationRequirementEditor.PaintActivationRequirementObjectList(Target.activationRequirements);
                     }
                     break;
 
@@ -551,10 +558,10 @@ public abstract class Activatables : ScriptableObject
 
                         if (Target.newBasicAttackFormula == null)
                         {
-                            Target.newBasicAttackFormula = new List<SkillFormula>();
+                            Target.newBasicAttackFormula = new List<RPGFormula>();
                         }
 
-                        Target.newBasicAttackFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(Target.newBasicAttackFormula);
+                        Target.newBasicAttackFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.newBasicAttackFormula);
                     }
                     break;
 
@@ -652,237 +659,4 @@ public class ActivatableInfo : ScriptableObject
 
         return activatableBool;
     }
-}
-public class ActivationRequirement : ScriptableObject
-{
-    public RequirementType type { get; set; }
-
-    public SkillResources resource { get; private set; }
-    public Stats stat { get; private set; }
-    //add a status one here whenever it's done
-    public int skillclassID { get; private set; }
-    public int skillID { get; private set; }
-    public Skill skill { get; private set; }
-    public ComparerType comparer { get; private set; }
-    public int number { get; private set; }
-
-    #region Constructors
-    /// <summary>
-    /// StatRequirement
-    /// </summary>
-    /// <param name="stat"></param>
-    /// <param name="comparingType"></param>
-    /// <param name="number"></param>
-    public ActivationRequirement(Stats stat, ComparerType comparingType, int number)
-    {
-        type = RequirementType.Stat;
-        this.stat = stat;
-        comparer = comparingType;
-        this.number = number;
-    }
-    /// <summary>
-    /// Resource requirement
-    /// </summary>
-    /// <param name="resource"></param>
-    /// <param name="comparingType"></param>
-    /// <param name="number"></param>
-    public ActivationRequirement(SkillResources resource, ComparerType comparingType, int number)
-    {
-        type = RequirementType.Resource;
-        this.resource = resource;
-        comparer = comparingType;
-        this.number = number;
-    }
-    /// <summary>
-    /// SkillIsActive requirement.
-    /// </summary>
-    /// <param name="skillclassID"></param>
-    /// <param name="skillID"></param>
-    public ActivationRequirement(int skillclassID, int skillID)
-    {
-        type = RequirementType.SkillIsActive;
-        SetSkill(skillclassID, skillID);
-    }
-    #endregion
-
-    public enum RequirementType
-    {
-        Stat,
-        Resource,
-        Status,
-        SkillIsActive
-    }
-    public enum ComparerType
-    {
-        MoreThan,
-        LessThan,
-        Equal
-    }
-
-    public bool CheckRequirement()
-    {
-        Character caster = BattleManager.caster;
-
-        switch (type)
-        {
-            case RequirementType.Stat:
-                return CheckRequirement(caster.stats[stat]);
-
-            case RequirementType.Resource:
-                return CheckRequirement(caster.skillResources[resource]);
-
-            case RequirementType.Status:
-                Debug.LogError("Requirement type status not yet implemented, returning true");
-                return true;
-
-            case RequirementType.SkillIsActive:
-                if (skill == null)
-                {
-                    skill = GameAssetsManager.instance.GetSkill(skillclassID, skillID);
-                }
-                return caster.GetSkillFromSkillList(skill).currentlyActive;
-
-            default:
-                Debug.LogError("Invalid Requirement type, returning true");
-                return true;
-        }
-    }
-    public bool CheckRequirement(int number)
-    {
-        switch (comparer)
-        {
-            case ComparerType.MoreThan:
-                return number > this.number;
-
-            case ComparerType.LessThan:
-                return number < this.number;
-
-            case ComparerType.Equal:
-                return number == this.number;
-
-            default:
-                Debug.LogError("Invalid Comparer type, returning true");
-                return true;
-        }
-    }
-
-    #region Setters
-    public void SetStat(Stats stat)
-    {
-        this.stat = stat;
-    }
-    public void SetComparerType(ComparerType comparer)
-    {
-        this.comparer = comparer;
-    }
-    public void SetNumber(int number)
-    {
-        this.number = number;
-    }
-    public void SetResource(SkillResources resource)
-    {
-        this.resource = resource;
-    }
-    public void SetSkill(int classID, int skillID)
-    {
-        skillclassID = classID;
-        this.skillID = skillID;
-    }
-    #endregion
-
-    #region CustomEditor
-#if UNITY_EDITOR
-
-    [CustomEditor(typeof(ActivationRequirement))]
-    public class ActivationRequirementEditor : Editor
-    {
-        ActivationRequirement editor;
-
-        public override void OnInspectorGUI()
-        {
-            editor = (ActivationRequirement)target;
-
-            editor = PaintActivationRequirement(editor);
-        }
-
-        public static ActivationRequirement PaintActivationRequirement(ActivationRequirement targetActRequirement)
-        {
-            ActivationRequirement actRequirement = targetActRequirement;
-
-            actRequirement.type = (RequirementType)EditorGUILayout.EnumPopup("Type", actRequirement.type);
-
-            EditorGUI.indentLevel++;
-
-            switch (actRequirement.type)
-            {
-                case RequirementType.Stat:
-                    actRequirement.SetStat((Stats)EditorGUILayout.EnumPopup("Stat", actRequirement.stat));
-                    actRequirement.SetComparerType((ComparerType)EditorGUILayout.EnumPopup("CompareType", actRequirement.comparer));
-                    actRequirement.SetNumber(EditorGUILayout.IntField("Number", actRequirement.number));
-                    break;
-
-                case RequirementType.Resource:
-                    actRequirement.SetResource((SkillResources)EditorGUILayout.EnumPopup("Resource", actRequirement.resource));
-                    actRequirement.SetComparerType((ActivationRequirement.ComparerType)EditorGUILayout.EnumPopup("CompareType", actRequirement.comparer));
-                    actRequirement.SetNumber(EditorGUILayout.IntField("Number", actRequirement.number));
-                    break;
-
-                case RequirementType.Status:
-                    EditorGUILayout.LabelField("Not yet implemented, sorry.");
-                    break;
-
-                case RequirementType.SkillIsActive:
-                    actRequirement.SetSkill(EditorGUILayout.IntField("Skill Class ID", actRequirement.skillclassID), EditorGUILayout.IntField("Skill ID", actRequirement.skillID));
-                    break;
-
-                default:
-                    break;
-            }
-            EditorGUILayout.Space();
-
-            EditorGUI.indentLevel--;
-
-            return actRequirement;
-        }
-
-        public static List<ActivationRequirement> PaintActivationRequirementList(List<ActivationRequirement> targetList)
-        {
-            List<ActivationRequirement> list = targetList;
-            int size = Mathf.Max(0, EditorGUILayout.IntField("RequirementCount", list.Count));
-
-            while (size > list.Count)
-            {
-                list.Add(null);
-            }
-
-            while (size < list.Count)
-            {
-                list.RemoveAt(list.Count - 1);
-            }
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-                EditorGUILayout.LabelField("Requirement " + (i + 1), EditorStyles.boldLabel);
-                EditorGUILayout.Space();
-
-                ActivationRequirement actRequirement = list[i];
-
-                if (actRequirement == null)
-                {
-                    actRequirement = CreateInstance<ActivationRequirement>();
-                }
-
-                PaintActivationRequirement(actRequirement);
-
-                list[i] = actRequirement;
-                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-            }
-
-            return list;
-        }
-    }
-
-#endif
-    #endregion
 }

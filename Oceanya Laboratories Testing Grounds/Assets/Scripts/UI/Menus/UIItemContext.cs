@@ -30,7 +30,7 @@ public class UIItemContext : ButtonList
         GameObject newEntry = AddObject(); ;
         newEntry.GetComponent<UIItemButton>().LoadItem(item);
         buttons.Add(newEntry.GetComponent<Button>());
-        print(item.baseInfo.name);
+        print(item.name);
     }
 
     public void Show()

@@ -13,7 +13,7 @@ public class UISkillButton : MonoBehaviour
 
     public void LoadSkill(Skill skill)
     {
-        gameObject.name = skill.baseInfo.name;
+        gameObject.name = skill.name;
         loadedSkill = skill;
         button = GetComponent<Button>();
         UpdateFormat();
@@ -26,7 +26,7 @@ public class UISkillButton : MonoBehaviour
 
     public void UpdateFormat()
     {
-        buttonText.text = CooldownStateFormatting(loadedSkill.baseInfo.name);
+        buttonText.text = CooldownStateFormatting(loadedSkill.name);
     }
 
     /// <summary>

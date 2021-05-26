@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f2bd24861d65694ca6c43f33c2f3a18, type: 3}
-  m_Name: 2-1
+  m_Script: {fileID: 11500000, guid: e105bedad7d58a249a7772a8453156ba, type: 3}
+  m_Name: If STR is equal to 2
   m_EditorClassIdentifier: 

@@ -20,7 +20,7 @@ public class UICharacterActions : ButtonList
     {
         skill.Activate(BattleManager.caster);
         skillToActivate = skill;
-        Debug.Log("Set skill to activate to " + skill.baseInfo.name);
+        Debug.Log("Set skill to activate to " + skill.name);
     }
     #endregion
 
@@ -97,7 +97,7 @@ public class UICharacterActions : ButtonList
                         {
                             if (target[i].targettable)
                             {
-                                int basicAttackRaw = SkillFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
+                                int basicAttackRaw = RPGFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
                                 int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
                                 BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
                                 target[i].GetsDamagedBy(resultDMG);
@@ -140,7 +140,7 @@ public class UICharacterActions : ButtonList
 
             case CharActions.Skill:
                 {
-                    Debug.Log("Entered Skill ACT; Skill to activate: " + skillToActivate.baseInfo.name);
+                    Debug.Log("Entered Skill ACT; Skill to activate: " + skillToActivate.name);
                     skillToActivate.Action(caster, target);
                 }
                 break;

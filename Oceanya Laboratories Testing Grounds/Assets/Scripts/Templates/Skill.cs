@@ -21,7 +21,9 @@ public class Skill: Activatables
     #region Constructors
     public Skill(BaseObjectInfo baseInfo, string activationText, ActivatableType skillType, TargetType targetType, int maxTargets = 1)
     {
-        this.baseInfo = baseInfo;
+        this.name = baseInfo.name;
+        ID = baseInfo.id;
+        description = baseInfo.description;
         this.activationText = activationText;
         this.targetType = targetType;
         this.maxTargets = maxTargets;
@@ -30,7 +32,7 @@ public class Skill: Activatables
         done = false;
         cooldown = 0;
     }
-    public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<SkillFormula> damageFormula)
+    public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<RPGFormula> damageFormula)
     {
         behaviors.Add(Behaviors.DoesDamage);
         doesDamage = true;
@@ -52,7 +54,7 @@ public class Skill: Activatables
         this.cooldown = cooldown;
         return this;
     }
-    public Skill BehaviorDoesHeal(List<SkillFormula> healFormula)
+    public Skill BehaviorDoesHeal(List<RPGFormula> healFormula)
     {
         behaviors.Add(Behaviors.DoesHeal);
         doesHeal = true;
@@ -67,7 +69,7 @@ public class Skill: Activatables
         this.modificationType = modificationType;
         return this;
     }
-    public Skill BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, List<SkillFormula>> statModifiers)
+    public Skill BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, List<RPGFormula>> statModifiers)
     {
         behaviors.Add(Behaviors.FormulaModifiesStat);
         formulaModifiesStat = true;
@@ -116,7 +118,7 @@ public class Skill: Activatables
         lastsFor = maxActivationTimes;
         return this;
     }
-    public Skill BehaviorChangesBasicAttack(List<SkillFormula> newBaseFormula, DamageType newDamageType)
+    public Skill BehaviorChangesBasicAttack(List<RPGFormula> newBaseFormula, DamageType newDamageType)
     {
         behaviors.Add(Behaviors.ChangesBasicAttack);
         this.newBasicAttackFormula = newBaseFormula;
@@ -155,7 +157,7 @@ public class Skill: Activatables
 
             if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
             {
-                BattleManager.battleLog.LogBattleEffect($"The passive of {baseInfo.name} was activated for {caster.name}.");
+                BattleManager.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
 
                 if (costsTurn)
                 {
@@ -223,7 +225,7 @@ public class Skill: Activatables
             {
                 if (doesDamage)
                 {
-                    int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
+                    int rawDMG = RPGFormula.ReadAndSumList(damageFormula, caster.stats);
 
                     int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
                     tempDmg = finalDMG;
@@ -238,7 +240,7 @@ public class Skill: Activatables
                 }
                 if (doesHeal)
                 {
-                    int healAmount = SkillFormula.ReadAndSumList(healFormula, caster.stats);
+                    int healAmount = RPGFormula.ReadAndSumList(healFormula, caster.stats);
 
                     target[i].GetsHealedBy(healAmount);
 
@@ -257,7 +259,7 @@ public class Skill: Activatables
 
                         if (formulaStatModifiers.ContainsKey(currentStat))
                         {
-                            resultModifiers.Add(currentStat, SkillFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
+                            resultModifiers.Add(currentStat, RPGFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
                         }
                     }
 
@@ -329,17 +331,15 @@ public class Skill: Activatables
     [CustomEditor(typeof(Skill))]
     public class SkillCustomEditor : Editor
     {
-        static Skill Target;
         public static Dictionary<Behaviors, bool> behaviorShow;
         public static bool editorShowBehaviors;
         public override void OnInspectorGUI()
         {
             Skill newTarget = (Skill)target;
-            Target = newTarget;
 
             ActivatablesCustomEditor.PaintBaseObjectInfo(newTarget);
             #region Rename
-            string newName = $"{newTarget.baseInfo.id}-{newTarget.baseInfo.name}";
+            string newName = $"{newTarget.ID}-{newTarget.name}";
             target.name = newName;
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
@@ -358,7 +358,20 @@ public class Skill: Activatables
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             ActivatablesCustomEditor.PaintBehaviors(newTarget);
-            Target = newTarget;
+
+            if (GUILayout.Button("Set Dirty"))
+            {
+                Debug.Log("Skill set as dirty");
+                EditorUtility.SetDirty(newTarget);
+                //Already tried this too.
+                //EditorUtility.SetDirty(target);
+            }
+
+            if (GUILayout.Button("Save Assets"))
+            {
+                Debug.Log("Saved Assets.");
+                AssetDatabase.SaveAssets();
+            }
         }
 
         public static Skill PaintSkillObjectSlot(Skill skill)
@@ -402,173 +415,6 @@ public class Skill: Activatables
     #endregion
 }
 
-public class SkillFormula : ScriptableObject
-{
-    public Stats StatToUse { get; private set; }
-    public operationActions OperationModifier { get; private set; }
-    public float NumberModifier { get; private set; } 
-
-    public SkillFormula()                                                                                       
-    {
-        StatToUse = Stats.STR;
-        OperationModifier = operationActions.Multiply;
-        NumberModifier = 1f;
-    }
-    public SkillFormula(Stats StatToUse, operationActions OperationModifier, float NumberModifier)              
-    {
-        this.StatToUse = StatToUse;
-        this.OperationModifier = OperationModifier;
-        this.NumberModifier = NumberModifier;
-    }
-
-
-    public static int       ReadAndSumList      (List<SkillFormula> formulas, Dictionary<Stats, int> stats)     
-    {
-        int result = 0;
-
-        for (int i = 0; i < formulas.Count; i++)
-        {
-            result += Read(formulas[i] , stats);
-        }
-
-        return result;
-    }
-
-    public static int       Read                (SkillFormula skillFormula, Dictionary<Stats, int> stats)       
-    {
-        int stat = stats[skillFormula.StatToUse];
-        float number = skillFormula.NumberModifier;
-        int result = 0;
-
-        switch (skillFormula.OperationModifier)
-        {
-            case operationActions.Multiply:
-                result = Mathf.CeilToInt(stat * number);
-                break;
-
-            case operationActions.Divide:
-                result = number != 0 ? Mathf.CeilToInt(stat / number) : 0;
-                break;
-
-            case operationActions.ToThePowerOf:
-                result = Mathf.CeilToInt(Mathf.Pow(stat, number));
-                break;
-        }
-
-        return result;
-    }
-
-    public static string    FormulaToString     (SkillFormula skillFormula)                                     
-    {
-        string stat = skillFormula.StatToUse.ToString();
-        string operationSymbol = "";
-        string number = skillFormula.NumberModifier.ToString();
-
-        switch (skillFormula.OperationModifier)
-        {
-            case operationActions.Multiply:
-                operationSymbol = "*";
-                break;
-            case operationActions.Divide:
-                operationSymbol = "/";
-                break;
-            case operationActions.ToThePowerOf:
-                operationSymbol = "to the power of";
-                break;
-        }
-
-        string result = stat + " " + operationSymbol + " " + number;
-        
-        return result;
-    }
-
-    public static string    FormulaListToString (List<SkillFormula> skillFormulas)                              
-    {
-        string result = "";
-
-        for (int i = 0; i < skillFormulas.Count; i++)
-        {
-            string currentFormula = FormulaToString(skillFormulas[i]);
-
-            if (i == 0) 
-            { 
-                result += currentFormula;
-            }
-            else
-            {
-                result += " + " + currentFormula;
-            }
-        }
-
-        return result;
-    }
-
-    #region CustomEditor
-#if UNITY_EDITOR
-
-    [CustomEditor(typeof(SkillFormula))]
-    public class SkillFormulaCustomEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            SkillFormula editor = (SkillFormula)target;
-
-            PaintSkillFormula(editor);
-        }
-
-        public static SkillFormula PaintSkillFormula(SkillFormula targetskillFormula)
-        {
-            SkillFormula skillFormula = targetskillFormula;
-
-            skillFormula.StatToUse = (Stats)EditorGUILayout.EnumPopup("Stat", skillFormula.StatToUse);
-            skillFormula.OperationModifier = (operationActions)EditorGUILayout.EnumPopup("Operation", skillFormula.OperationModifier);
-            skillFormula.NumberModifier = EditorGUILayout.FloatField("Number", skillFormula.NumberModifier);
-
-            return skillFormula;
-        }
-
-        public static List<SkillFormula> PaintSkillFormulaList(List<SkillFormula> targetList)
-        {
-            List<SkillFormula> list = targetList;
-            int size = Mathf.Max(0, EditorGUILayout.IntField("FormulaCount", list.Count));
-
-            while (size > list.Count)
-            {
-                list.Add(null);
-            }
-
-            while (size < list.Count)
-            {
-                list.RemoveAt(list.Count - 1);
-            }
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-                EditorGUILayout.LabelField("Formula " + (i + 1), EditorStyles.boldLabel);
-
-                SkillFormula formula = list[i];
-
-                if (formula == null)
-                {
-                    formula = CreateInstance<SkillFormula>();
-                }
-
-                formula = PaintSkillFormula(formula);
-
-                list[i] = formula;
-                EditorGUI.indentLevel--;
-            }
-
-            return list;
-        }
-    }
-
-#endif
-    #endregion
-}
-
 
 /// <summary>
 /// The individual skill information that is specific to a character. (CurrentCD, when a player activated the skill, etc)
@@ -597,7 +443,7 @@ public class SkillInfo : ActivatableInfo
 
         if (skill.hasPassive)
         {
-            BattleManager.battleLog.LogBattleEffect($"{skill.baseInfo.name} deactivated for {character.name}.");
+            BattleManager.battleLog.LogBattleEffect($"{skill.name} deactivated for {character.name}.");
         }
         
         UpdateCD();

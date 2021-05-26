@@ -23,7 +23,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)})
+                    .BehaviorDoesHeal(new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)})
                     .BehaviorHasCooldown(CDType.Turns, 2),
 
                     new Skill
@@ -34,7 +34,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.STR,operationActions.Multiply,0.5f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,0.5f)}),
 
                     new Skill
                     (
@@ -44,7 +44,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Multiple, 3
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)}),
 
                     new Skill
                     (
@@ -54,7 +54,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.AllEnemies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.5f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}),
 
                     new Skill
                     (
@@ -64,7 +64,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.AllAllies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.AGI,operationActions.Multiply,0.5f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.AGI,operationActions.Multiply,0.5f)}),
 
                     new Skill
                     (
@@ -74,7 +74,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.5f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}),
 
                     new Skill
                     (
@@ -84,7 +84,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfTurn)
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.1f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.CHR,operationActions.Multiply,0.1f)}),
 
                     new Skill
                     (
@@ -94,7 +94,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.EndOfTurn)
-                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.CHR,operationActions.Multiply,0.1f)}),
+                    .BehaviorDoesHeal(new List<RPGFormula>(){ new RPGFormula(Stats.CHR,operationActions.Multiply,0.1f)}),
 
                     new Skill
                     (
@@ -105,7 +105,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.WhenAttacked)
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.STR,operationActions.Multiply,0.01f)}),
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,0.01f)}),
 
                     new Skill
                     (
@@ -116,7 +116,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorActivationRequirement(new List<ActivationRequirement>(){ new ActivationRequirement(0,7) })
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){ { Stats.AGI, new List<SkillFormula>() { new SkillFormula(Stats.INT, operationActions.Multiply, 0.5f) } } }),
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){ { Stats.AGI, new List<RPGFormula>() { new RPGFormula(Stats.INT, operationActions.Multiply, 0.5f) } } }),
 
                     new Skill
                     (
@@ -127,7 +127,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorActivationRequirement(new List<ActivationRequirement>(){ new ActivationRequirement(Stats.AGI, ActivationRequirement.ComparerType.MoreThan, 125) })
                     .BehaviorCostsTurn()
-                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}),
+                    .BehaviorDoesHeal(new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)}),
 
                     new Skill
                     (
@@ -137,7 +137,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){{ Stats.STR, new List<SkillFormula>() { new SkillFormula(Stats.STR,operationActions.Multiply,0.5f)} } })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){{ Stats.STR, new List<RPGFormula>() { new RPGFormula(Stats.STR,operationActions.Multiply,0.5f)} } })
                     .BehaviorPassive(ActivationTime.StartOfTurn)
                     .BehaviorLastsFor(2),
 
@@ -150,7 +150,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.StartOfTurn)
-                    .BehaviorDoesHeal(new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)})
+                    .BehaviorDoesHeal(new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)})
                     .BehaviorLastsFor(2),
 
                     new Skill
@@ -162,8 +162,8 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.StartOfTurn)
-                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){{ Stats.INT, new List<SkillFormula>() { new SkillFormula(Stats.INT, operationActions.Multiply,0.5f)} } })
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.MAXHP,operationActions.Multiply,0.1f)})
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){{ Stats.INT, new List<RPGFormula>() { new RPGFormula(Stats.INT, operationActions.Multiply,0.5f)} } })
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP,operationActions.Multiply,0.1f)})
                     .BehaviorLastsFor(3)
                 }
             ),
@@ -216,11 +216,11 @@ public class DBClasses : MonoBehaviour
                         }
                     )
                     .BehaviorModifiesStat( StatModificationTypes.Buff,
-                        new Dictionary<Stats, List<SkillFormula>>()
+                        new Dictionary<Stats, List<RPGFormula>>()
                         {
-                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.1f) } },
-                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.1f) } },
-                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.05f) } }
+                            {Stats.STR , new List<RPGFormula>(){new RPGFormula(Stats.STR, operationActions.Multiply, 0.1f) } },
+                            {Stats.MAXHP , new List<RPGFormula>(){new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.1f) } },
+                            {Stats.HPREGEN , new List<RPGFormula>(){new RPGFormula(Stats.HPREGEN, operationActions.Multiply, 0.05f) } }
                         }
                     ),
                     
@@ -240,11 +240,11 @@ public class DBClasses : MonoBehaviour
                         }
                     )
                     .BehaviorModifiesStat(StatModificationTypes.Buff,
-                        new Dictionary<Stats, List<SkillFormula>>()
+                        new Dictionary<Stats, List<RPGFormula>>()
                         {
-                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.15f) } },
-                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.15f) } },
-                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.1f) } }
+                            {Stats.STR , new List<RPGFormula>(){new RPGFormula(Stats.STR, operationActions.Multiply, 0.15f) } },
+                            {Stats.MAXHP , new List<RPGFormula>(){new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.15f) } },
+                            {Stats.HPREGEN , new List<RPGFormula>(){new RPGFormula(Stats.HPREGEN, operationActions.Multiply, 0.1f) } }
                         }
                     ),
                     
@@ -264,11 +264,11 @@ public class DBClasses : MonoBehaviour
                         }
                     )
                     .BehaviorModifiesStat(StatModificationTypes.Buff,
-                        new Dictionary<Stats, List<SkillFormula>>()
+                        new Dictionary<Stats, List<RPGFormula>>()
                         {
-                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.2f) } },
-                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.5f) } },
-                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } }
+                            {Stats.STR , new List<RPGFormula>(){new RPGFormula(Stats.STR, operationActions.Multiply, 0.2f) } },
+                            {Stats.MAXHP , new List<RPGFormula>(){new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.5f) } },
+                            {Stats.HPREGEN , new List<RPGFormula>(){new RPGFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } }
                         }
                     ),
 
@@ -288,11 +288,11 @@ public class DBClasses : MonoBehaviour
                         }
                     )
                     .BehaviorModifiesStat(StatModificationTypes.Buff,
-                        new Dictionary<Stats, List<SkillFormula>>()
+                        new Dictionary<Stats, List<RPGFormula>>()
                         {
-                            {Stats.STR , new List<SkillFormula>(){new SkillFormula(Stats.STR, operationActions.Multiply, 0.2f) } },
-                            {Stats.MAXHP , new List<SkillFormula>(){new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.2f) } },
-                            {Stats.HPREGEN , new List<SkillFormula>(){new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.2f) } }
+                            {Stats.STR , new List<RPGFormula>(){new RPGFormula(Stats.STR, operationActions.Multiply, 0.2f) } },
+                            {Stats.MAXHP , new List<RPGFormula>(){new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.2f) } },
+                            {Stats.HPREGEN , new List<RPGFormula>(){new RPGFormula(Stats.HPREGEN, operationActions.Multiply, 0.2f) } }
                         }
                     ),
                 }
@@ -317,7 +317,7 @@ public class DBClasses : MonoBehaviour
                         }
                     )
                     .BehaviorDoesDamage(
-                        DamageType.Physical, ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.25f) }
+                        DamageType.Physical, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.25f) }
                     )
                     .BehaviorPassive(ActivationTime.WhenAttacked)
                     .BehaviorCostsTurn(),
@@ -362,7 +362,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.MAXHP, operationActions.Multiply, 0.5f) } )
+                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.5f) } )
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {
@@ -381,7 +381,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, List<SkillFormula>>(){ { Stats.HPREGEN, new List<SkillFormula> { new SkillFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } } })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, List<RPGFormula>>(){ { Stats.HPREGEN, new List<RPGFormula> { new RPGFormula(Stats.HPREGEN, operationActions.Multiply, 0.25f) } } })
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {
@@ -439,7 +439,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Fire, new List<SkillFormula>(){ new SkillFormula(Stats.INT, operationActions.Multiply, 2)})
+                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Fire, new List<RPGFormula>(){ new RPGFormula(Stats.INT, operationActions.Multiply, 2)})
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {
@@ -475,7 +475,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.AllEnemies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<SkillFormula>>(){ { Stats.AGI, new List<SkillFormula> { new SkillFormula(Stats.AGI,operationActions.Multiply,-0.2f)} } })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){ { Stats.AGI, new List<RPGFormula> { new RPGFormula(Stats.AGI,operationActions.Multiply,-0.2f)} } })
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
                         {
@@ -494,9 +494,9 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorDoesDamage(DamageType.Magical, ElementType.Fire,
-                         new List<SkillFormula>()
+                         new List<RPGFormula>()
                          {
-                            new SkillFormula(Stats.STR , operationActions.Multiply , 2)
+                            new RPGFormula(Stats.STR , operationActions.Multiply , 2)
                          })
                     .BehaviorModifiesResource(
                         new Dictionary<SkillResources, int>()
@@ -518,7 +518,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)}, DamageType.Magical),
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)}, DamageType.Magical),
 
                     new Skill
                     (
@@ -529,7 +529,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.StartOfTurn)
-                    .BehaviorDoesHeal(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,0.25f)})
+                    .BehaviorDoesHeal(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,0.25f)})
                     .BehaviorHasCooldown(CDType.Other),
 
                     new Skill
@@ -541,7 +541,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.StartOfTurn)
-                    .BehaviorDoesHeal(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,0.5f)})
+                    .BehaviorDoesHeal(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)})
                     .BehaviorHasCooldown(CDType.Turns,5),
 
                     new Skill
@@ -564,7 +564,7 @@ public class DBClasses : MonoBehaviour
                     )
                     .BehaviorCostsTurn()
                     .BehaviorHasCooldown(CDType.Turns,1)
-                    .BehaviorDoesHeal(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Divide,3)}),
+                    .BehaviorDoesHeal(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Divide,3)}),
 
                 }
             ),
@@ -580,7 +580,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<SkillFormula>(){new SkillFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical),
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical),
 
                     new Skill
                     (
@@ -590,7 +590,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.AllEnemies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Ice, new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,0.75f)})
+                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Ice, new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.75f)})
                     .BehaviorHasCooldown(CDType.Turns,3),
 
                     new Skill
@@ -601,7 +601,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Normal, new List<SkillFormula>(){ new SkillFormula(Stats.INT,operationActions.Multiply,1.5f)})
+                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,1.5f)})
                     .BehaviorHasCooldown(CDType.Turns,2),
                 }
             ),
@@ -617,7 +617,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<SkillFormula>(){new SkillFormula(Stats.STR,operationActions.Multiply,0.5f), new SkillFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical),
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f), new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical),
 
                     new Skill
                     (
@@ -627,7 +627,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.AllEnemies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<SkillFormula>(){new SkillFormula(Stats.CHR,operationActions.Multiply,0.25f) })
+                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<RPGFormula>(){new RPGFormula(Stats.CHR,operationActions.Multiply,0.25f) })
                     .BehaviorHasCooldown(CDType.Turns,2),
 
                     new Skill
@@ -638,7 +638,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<SkillFormula>>(){ { Stats.STR, new List<SkillFormula>{new SkillFormula(Stats.CHR, operationActions.Multiply, 0.5f)} } })
+                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ { Stats.STR, new List<RPGFormula>{new RPGFormula(Stats.CHR, operationActions.Multiply, 0.5f)} } })
                     .BehaviorHasCooldown(CDType.Other)
                 }
             ),

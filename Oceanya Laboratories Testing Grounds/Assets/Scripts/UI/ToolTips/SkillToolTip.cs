@@ -21,8 +21,8 @@ public class SkillToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         loadedSkill = skill;
         result = new StringBuilder();
 
-        result.Append("<size=15><color=green>").Append(skill.baseInfo.name).Append("</color></size>").AppendLine().AppendLine();
-        result.Append(skill.baseInfo.description).AppendLine();
+        result.Append("<size=15><color=green>").Append(skill.name).Append("</color></size>").AppendLine().AppendLine();
+        result.Append(skill.description).AppendLine();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

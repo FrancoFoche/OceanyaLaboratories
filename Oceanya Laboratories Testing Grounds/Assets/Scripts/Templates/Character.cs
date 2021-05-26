@@ -26,7 +26,7 @@ public class Character : ScriptableObject
     public Dictionary<Stats, int>           stats                           { get; protected set; }
     public Dictionary<SkillResources, int>  skillResources                  { get; protected set; }
 
-    public List<SkillFormula>               basicAttackFormula              { get; protected set; }
+    public List<RPGFormula>               basicAttackFormula              { get; protected set; }
     public DamageType                       basicAttackType                 { get; protected set; }
 
     public Team                             team                            { get; protected set; }
@@ -59,7 +59,7 @@ public class Character : ScriptableObject
         level = 1;
         stats = new Dictionary<Stats, int>();
         skillResources = new Dictionary<SkillResources, int>();
-        basicAttackFormula = new List<SkillFormula>() { new SkillFormula(Stats.STR, operationActions.Multiply, 1) };
+        basicAttackFormula = new List<RPGFormula>() { new RPGFormula(Stats.STR, operationActions.Multiply, 1) };
         basicAttackType = DamageType.Physical;
 
         team = Team.Ally;
@@ -183,7 +183,7 @@ public class Character : ScriptableObject
             }
         }
     }
-    public void     ChangeBaseAttack        (List<SkillFormula> newBaseFormula, DamageType newDamageType)                   
+    public void     ChangeBaseAttack        (List<RPGFormula> newBaseFormula, DamageType newDamageType)                   
     {
         basicAttackFormula = newBaseFormula;
         basicAttackType = newDamageType;
@@ -271,7 +271,7 @@ public class Character : ScriptableObject
         List<string> skillnames = new List<string>();
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            skillnames.Add(character.skillList[i].skill.baseInfo.name);
+            skillnames.Add(character.skillList[i].skill.name);
         }
 
 
@@ -279,7 +279,7 @@ public class Character : ScriptableObject
         {
             SkillInfo curSkillInfo = character.skillList[i];
             Skill curSkill = curSkillInfo.skill;
-            string name = curSkill.baseInfo.name;
+            string name = curSkill.name;
 
             if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
             {
@@ -343,26 +343,26 @@ public class Character : ScriptableObject
     {
         for (int i = 0; i < skillList.Count; i++)
         {
-            if(skillList[i].skill.skillClass.baseInfo.id == skill.skillClass.baseInfo.id && skillList[i].skill.baseInfo.id == skill.baseInfo.id)
+            if(skillList[i].skill.skillClass.baseInfo.id == skill.skillClass.baseInfo.id && skillList[i].skill.ID == skill.ID)
             {
                 return skillList[i];
             }
         }
 
-        Debug.LogError($"{name} did not have the skill {skill.baseInfo.name}");
+        Debug.LogError($"{name} did not have the skill {skill.name}");
         return null;
     }
     public ItemInfo         GetItemFromInventory(Item item)
     {
         for (int i = 0; i < inventory.Count; i++)
         {
-            if (inventory[i].item.baseInfo.id == item.baseInfo.id)
+            if (inventory[i].item.ID == item.ID)
             {
                 return inventory[i];
             }
         }
 
-        Debug.LogError($"{name} did not have the item {item.baseInfo.name}");
+        Debug.LogError($"{name} did not have the item {item.name}");
         return null;
     }
 
@@ -595,7 +595,7 @@ public class Character : ScriptableObject
 
 
         Skill skillChosen = listToChooseFrom[randomSkillIndex];
-        Debug.Log($"{name}'s random skill: {skillChosen.baseInfo.name}.");
+        Debug.Log($"{name}'s random skill: {skillChosen.name}.");
 
         return skillChosen;
     }
@@ -835,11 +835,11 @@ public class Character : ScriptableObject
             {
                 if (character.basicAttackFormula == null)
                 {
-                    character.basicAttackFormula = new List<SkillFormula>();
+                    character.basicAttackFormula = new List<RPGFormula>();
                 }
 
                 character.basicAttackType = (DamageType)EditorGUILayout.EnumPopup("DMG Type", character.basicAttackType);
-                character.basicAttackFormula = SkillFormula.SkillFormulaCustomEditor.PaintSkillFormulaList(character.basicAttackFormula);
+                character.basicAttackFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(character.basicAttackFormula);
             }
             #endregion
         }

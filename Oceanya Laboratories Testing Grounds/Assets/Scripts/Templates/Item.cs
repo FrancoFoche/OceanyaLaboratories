@@ -22,7 +22,7 @@ public class Item : Activatables
 
             if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
             {
-                BattleManager.battleLog.LogBattleEffect($"The passive of {baseInfo.name} was activated for {caster.name}.");
+                BattleManager.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
 
                 if (costsTurn)
                 {
@@ -90,7 +90,7 @@ public class Item : Activatables
             {
                 if (doesDamage)
                 {
-                    int rawDMG = SkillFormula.ReadAndSumList(damageFormula, caster.stats);
+                    int rawDMG = RPGFormula.ReadAndSumList(damageFormula, caster.stats);
 
                     int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
                     tempDmg = finalDMG;
@@ -105,7 +105,7 @@ public class Item : Activatables
                 }
                 if (doesHeal)
                 {
-                    int healAmount = SkillFormula.ReadAndSumList(healFormula, caster.stats);
+                    int healAmount = RPGFormula.ReadAndSumList(healFormula, caster.stats);
 
                     target[i].GetsHealedBy(healAmount);
 
@@ -124,7 +124,7 @@ public class Item : Activatables
 
                         if (formulaStatModifiers.ContainsKey(currentStat))
                         {
-                            resultModifiers.Add(currentStat, SkillFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
+                            resultModifiers.Add(currentStat, RPGFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
                         }
                     }
 
@@ -204,7 +204,7 @@ public class Item : Activatables
             item = PaintItem(item);
 
             #region Rename
-            string newName = $"{item.baseInfo.id}-{item.baseInfo.name}";
+            string newName = $"{item.ID}-{item.name}";
             target.name = newName;
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
@@ -287,7 +287,7 @@ public class ItemInfo : ActivatableInfo
         base.SetDeactivated();
         if (item.hasPassive)
         {
-            BattleManager.battleLog.LogBattleEffect($"{item.baseInfo.name} deactivated for {character.name}.");
+            BattleManager.battleLog.LogBattleEffect($"{item.name} deactivated for {character.name}.");
         }
     }
     public void SetItem(Item item)
