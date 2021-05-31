@@ -40,7 +40,7 @@ public class AllyBattleUI : BattleUI
         if (type == typeof(PlayerCharacter))
         {
             this.type = CharacterType.PlayerCharacter;
-            classText.text = GameAssetsManager.instance.GetPC(charID).rpgClass.baseInfo.name;
+            classText.text = GameAssetsManager.instance.GetPC(charID).rpgClass.name;
         }
         else if (type == typeof(Enemy))
         {

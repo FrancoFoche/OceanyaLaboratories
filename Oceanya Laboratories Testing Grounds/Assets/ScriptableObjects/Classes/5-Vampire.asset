@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d9797c63a8fb0498ddd6866df9de4e, type: 3}
+  m_Name: 5-Vampire
+  m_EditorClassIdentifier: 
+  _name: Vampire
+  _ID: 5
+  _description: 
+  skillList:
+  - {fileID: 11400000, guid: d3a56bb8f949a9a41a9ecbfbdeb11bcb, type: 2}
+  - {fileID: 11400000, guid: b9694b78270eb464dbc75fd34fff2d8d, type: 2}
+  - {fileID: 11400000, guid: a0d18b331600ec746bc2d67832d778b2, type: 2}

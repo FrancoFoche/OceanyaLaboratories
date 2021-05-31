@@ -30,9 +30,22 @@ public class PlayerCharacter : Character
     {
         PlayerCharacter Target;
 
+        private void OnEnable()
+        {
+            Target = target as PlayerCharacter;
+        }
+        private void OnDisable()
+        {
+            #region Rename
+            string newName = $"{Target.ID}-{Target.name}";
+            target.name = newName;
+            string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
+            AssetDatabase.RenameAsset(path, newName);
+            #endregion
+        }
         public override void OnInspectorGUI()
         {
-            Target = (PlayerCharacter)target;
+            EditorUtility.SetDirty(Target);
 
             Target = PaintPlayerCharacter(Target);
         }

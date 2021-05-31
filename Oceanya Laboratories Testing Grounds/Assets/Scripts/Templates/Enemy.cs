@@ -32,9 +32,24 @@ public class Enemy : Character
     {
         Enemy Target;
 
+        private void OnEnable()
+        {
+            Target = target as Enemy;
+        }
+
+        private void OnDisable()
+        {
+            #region Rename
+            string newName = $"{Target.ID}-{Target.name}";
+            target.name = newName;
+            string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
+            AssetDatabase.RenameAsset(path, newName);
+            #endregion
+        }
+
         public override void OnInspectorGUI()
         {
-            Target = (Enemy)target;
+            EditorUtility.SetDirty(Target);
 
             Target = PaintEnemy(Target);
         }

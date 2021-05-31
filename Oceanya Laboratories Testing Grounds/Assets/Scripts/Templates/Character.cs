@@ -19,42 +19,72 @@ public enum StatModificationTypes
 }
 public class Character : ScriptableObject
 {
-    public bool                             AIcontrolled                    { get; protected set; }
-    public int                              ID                              { get; protected set; }
-    public new string                       name                            { get; protected set; }
-    public int                              level                           { get; protected set; }
-    public Dictionary<Stats, int>           stats                           { get; protected set; }
-    public Dictionary<SkillResources, int>  skillResources                  { get; protected set; }
+    [SerializeField] private bool                               _AIcontrolled;
+    [SerializeField] private int                                _ID;
+    [SerializeField] private string                             _name;
+    [SerializeField] private int                                _level;
+    [SerializeField] private Dictionary<Stats, int>             _stats;
+    [SerializeField] private Dictionary<SkillResources, int>    _skillResources;
 
-    public List<RPGFormula>               basicAttackFormula              { get; protected set; }
-    public DamageType                       basicAttackType                 { get; protected set; }
+    [SerializeField] private List<RPGFormula>                   _basicAttackFormula;
+    [SerializeField] private DamageType                         _basicAttackType;
 
-    public Team                             team                            { get; protected set; }
-    public bool                             targettable                     { get; protected set; }
+    [SerializeField] private Team                               _team;
+    [SerializeField] private bool                               _targettable;
 
-    public bool                             dead                            { get; protected set; }
-    public bool                             permadead                       { get; protected set; }
-    public bool                             defending                       { get; private set; }
+    [SerializeField] private bool                               _dead;
+    [SerializeField] private bool                               _permadead;
+    [SerializeField] private bool                               _defending;
 
-    public List<SkillInfo>                  skillList                       { get; protected set; }
-    
-    public List<ItemInfo>                   inventory                       { get; protected set; }
+    [SerializeField] private List<SkillInfo>                    _skillList;
 
-    public int                              timesPlayed                     { get; protected set; }
+    [SerializeField] private List<ItemInfo>                     _inventory;
 
-    public bool                             checkedPassives                 { get; protected set; }
+    [SerializeField] private int                                _timesPlayed;
 
-    public BattleUI                         curUI                           { get; set; }
-    public SpriteAnimator                   curSprite                       { get; set; }
+    [SerializeField] private bool                               _checkedPassives;
 
-    public Dictionary<CharActions, int>     importanceOfActions             { get; protected set; }
-    public Dictionary<Skill, int>           importanceOfSkills              { get; protected set; }
+    [SerializeField] private BattleUI                           _curUI;
+    [SerializeField] private SpriteAnimator                     _curSprite;
 
+    [SerializeField] private Dictionary<CharActions, int>       _importanceOfActions;
+    [SerializeField] private Dictionary<Skill, int>             _importanceOfSkills;
 
-    public bool                             initialized                     { get; protected set; }
+    #region Getters/Setters
+    public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
+    public int                                  ID                          { get { return _ID; }                       protected set { _ID = value; } }
+    public new string                           name                        { get { return _name; }                     protected set { _name = value; } }
+    public int                                  level                       { get { return _level; }                    protected set { _level = value; } }
+    public Dictionary<Stats, int>               stats                       { get { return _stats; }                    protected set { _stats = value; } }
+    public Dictionary<SkillResources, int>      skillResources              { get { return _skillResources; }           protected set { _skillResources = value; } }
+
+    public List<RPGFormula>                     basicAttackFormula          { get { return _basicAttackFormula; }       protected set { _basicAttackFormula = value; } }
+    public DamageType                           basicAttackType             { get { return _basicAttackType; }          protected set { _basicAttackType = value; } }
+
+    public Team                                 team                        { get { return _team; }                     protected set { _team = value; } }
+    public bool                                 targettable                 { get { return _targettable; }              protected set { _targettable = value; } }
+
+    public bool                                 dead                        { get { return _dead; }                     protected set { _dead = value; } }
+    public bool                                 permadead                   { get { return _permadead; }                protected set { _permadead = value; } }
+    public bool                                 defending                   { get { return _defending; }                protected set { _defending = value; } }
+        
+    public List<SkillInfo>                      skillList                   { get { return _skillList; }                protected set { _skillList = value; } }
+
+    public List<ItemInfo>                       inventory                   { get { return _inventory; }                protected set { _inventory = value; } }
+
+    public int                                  timesPlayed                 { get { return _timesPlayed; }              protected set { _timesPlayed = value; } }
+
+    public bool                                 checkedPassives             { get { return _checkedPassives; }          protected set { _checkedPassives = value; } }
+
+    public BattleUI                             curUI                       { get { return _curUI; }                    set { _curUI = value; } }
+    public SpriteAnimator                       curSprite                   { get { return _curSprite; }                set { _curSprite = value; } }
+
+    public Dictionary<CharActions, int>         importanceOfActions         { get { return _importanceOfActions; }      protected set { _importanceOfActions = value; } }
+    public Dictionary<Skill, int>               importanceOfSkills          { get { return _importanceOfSkills; }       protected set { _importanceOfSkills = value; } }
+    #endregion
+
     protected void InitializeVariables()
     {
-        initialized = true;
         name = "InitializerName";
         level = 1;
         stats = new Dictionary<Stats, int>();
@@ -343,7 +373,7 @@ public class Character : ScriptableObject
     {
         for (int i = 0; i < skillList.Count; i++)
         {
-            if(skillList[i].skill.skillClass.baseInfo.id == skill.skillClass.baseInfo.id && skillList[i].skill.ID == skill.ID)
+            if(skillList[i].skill.skillClass.ID == skill.skillClass.ID && skillList[i].skill.ID == skill.ID)
             {
                 return skillList[i];
             }
@@ -650,9 +680,14 @@ public class Character : ScriptableObject
         public static bool editorShowInventory             { get; protected set; }
         #endregion
 
+        private void OnEnable()
+        {
+            Target = target as Character;
+        }
+
         public override void OnInspectorGUI()
         {
-            Target = (Character)target;
+            EditorUtility.SetDirty(Target);
 
             Target = PaintCharacter(Target);
         }

@@ -37,22 +37,7 @@ public class GameAssetsManager : MonoBehaviour
             {
                 _instance = (Instantiate(Resources.Load("GameAssets") as GameObject).GetComponent<GameAssetsManager>());
 
-                if(_instance.skills == null)
-                {
-                    _instance.skills = new List<Skill>();
-                }
-
-                for (int i = 0; i < _instance.classes.Length; i++)
-                {
-                    BaseSkillClass currentClass = _instance.classes[i];
-
-                    for (int j = 0; j < currentClass.skillList.Count; j++)
-                    {
-                        Skill currentSkill = currentClass.skillList[j];
-                        currentSkill.skillClass = currentClass;
-                        _instance.skills.Add(currentSkill);
-                    }
-                }
+                _instance.RefreshSkillDatabase();
             }
 
             return _instance;
@@ -94,7 +79,7 @@ public class GameAssetsManager : MonoBehaviour
 
     #region Getter Functions
 
-    public PlayerCharacter  GetPC           (int id)        
+    public PlayerCharacter  GetPC           (int id)                                
     {
         for (int i = 0; i < playerCharacters.Length; i++)
         {
@@ -107,7 +92,7 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the Player Character with id " + id + ".");
         return null;
     }
-    public PlayerCharacter  GetPC           (string name)   
+    public PlayerCharacter  GetPC           (string name)                           
     {
         for (int i = 0; i < playerCharacters.Length; i++)
         {
@@ -120,7 +105,7 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the Player Character with name " + name + ".");
         return null;
     }
-    public Enemy            GetEnemy        (int id)        
+    public Enemy            GetEnemy        (int id)                                
     {
         for (int i = 0; i < enemies.Length; i++)
         {
@@ -133,7 +118,7 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the enemy with id " + id + ".");
         return null;
     }
-    public Enemy            GetEnemy        (string name)   
+    public Enemy            GetEnemy        (string name)                           
     {
         for (int i = 0; i < enemies.Length; i++)
         {
@@ -150,9 +135,12 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i].ID == id)
+            if(items[i] != null)
             {
-                return items[i];
+                if (items[i].ID == id)
+                {
+                    return items[i];
+                }
             }
         }
 
@@ -163,9 +151,12 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i].name == name)
+            if (items[i] != null)
             {
-                return items[i];
+                if (items[i].name == name)
+                {
+                    return items[i];
+                }
             }
         }
 
@@ -176,9 +167,12 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < classes.Length; i++)
         {
-            if (classes[i].baseInfo.id == id)
+            if (classes[i] != null)
             {
-                return classes[i];
+                if (classes[i].ID == id)
+                {
+                    return classes[i];
+                }
             }
         }
 
@@ -189,9 +183,12 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < classes.Length; i++)
         {
-            if (classes[i].baseInfo.name == name)
+            if (classes[i] != null)
             {
-                return classes[i];
+                if (classes[i].name == name)
+                {
+                    return classes[i];
+                }
             }
         }
 
@@ -202,7 +199,7 @@ public class GameAssetsManager : MonoBehaviour
     {
         for (int i = 0; i < skills.Count; i++)
         {
-            if (skills[i].ID == skillID && skills[i].skillClass.baseInfo.id == classID)
+            if (skills[i].ID == skillID && skills[i].skillClass.ID == classID)
             {
                 return skills[i];
             }
@@ -265,4 +262,30 @@ public class GameAssetsManager : MonoBehaviour
     }
     
     #endregion
+
+    public void RefreshSkillDatabase()
+    {
+        if (_instance.skills == null)
+        {
+            _instance.skills = new List<Skill>();
+        }
+
+        if (_instance.classes != null)
+        {
+            for (int i = 0; i < _instance.classes.Length; i++)
+            {
+                BaseSkillClass currentClass = _instance.classes[i];
+
+                if (currentClass != null)
+                {
+                    for (int j = 0; j < currentClass.skillList.Count; j++)
+                    {
+                        Skill currentSkill = currentClass.skillList[j];
+                        currentSkill.skillClass = currentClass;
+                        _instance.skills.Add(currentSkill);
+                    }
+                }
+            }
+        }
+    }
 }

@@ -59,11 +59,6 @@ public class BaseObjectInfo : ScriptableObject
 
             EditorGUILayout.LabelField("Description",EditorStyles.boldLabel);
             newInfo.description = EditorGUILayout.TextArea(newInfo.description, style);
-
-            if(newInfo.name != info.name || newInfo.id != info.id || newInfo.description != info.description)
-            {
-                Debug.Log($"Skill Info change. Old: Name = {info.name}; ID = {info.id}; Description = {info.description}; NEW: {newInfo.name}, {newInfo.id}, {newInfo.description}");
-            }
             info = newInfo;
             return info;
         }

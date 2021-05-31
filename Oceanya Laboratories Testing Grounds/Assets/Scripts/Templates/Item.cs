@@ -196,19 +196,29 @@ public class Item : Activatables
     [CustomEditor(typeof(Item))]
     public class ItemCustomEditor : Editor
     {
-        public override void OnInspectorGUI()
+        Item Target;
+        private void OnEnable()
         {
-            Item item = (Item)target;
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-            item = PaintItem(item);
-
+            Target = target as Item;
+        }
+        private void OnDisable()
+        {
             #region Rename
-            string newName = $"{item.ID}-{item.name}";
+            string newName = $"{Target.ID}-{Target.name}";
             target.name = newName;
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
             #endregion
+        }
+        public override void OnInspectorGUI()
+        {
+            EditorUtility.SetDirty(Target);
+            Item item = Target;
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            item = PaintItem(item);
+
+            Target = item;
         }
 
         public Item PaintItem(Item item)

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>
 /// Storage of all player characters
@@ -19,7 +22,7 @@ public class DBPlayerCharacter : MonoBehaviour
         pCharacters = new List<PlayerCharacter>()
         {
 
-            new PlayerCharacter(0 , "TestDummy" , 1, DBClasses.GetClass(0),
+            new PlayerCharacter(0 , "TestDummy" , 1, GameAssetsManager.instance.GetClass(0),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 100 },
@@ -36,11 +39,10 @@ public class DBPlayerCharacter : MonoBehaviour
                 GameAssetsManager.instance.GetClass(0).skillList,
                 new List<Item>
                 {
-                    GameAssetsManager.instance.GetItem(1)
                 }
             ),
 
-            new PlayerCharacter(13 , "Vinnie" , 1,  DBClasses.GetClass(ClassNames.Vampire.ToString()) ,
+            new PlayerCharacter(13 , "Vinnie" , 1,  GameAssetsManager.instance.GetClass(ClassNames.Vampire.ToString()) ,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 47 },
@@ -64,11 +66,10 @@ public class DBPlayerCharacter : MonoBehaviour
                 },
                 new List<Item>
                 {
-                    GameAssetsManager.instance.GetItem(1),
-                    GameAssetsManager.instance.GetItem(1)
+
                 }
             ),
-            new PlayerCharacter(5 , "Da Docta" , 9,  DBClasses.GetClass(ClassNames.Doctor.ToString()),
+            new PlayerCharacter(5 , "Da Docta" , 9,  GameAssetsManager.instance.GetClass(ClassNames.Doctor.ToString()),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 83    },
@@ -92,7 +93,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 new List<Item>()
             ),
 
-            new PlayerCharacter(9 , "Archive" , 5,  DBClasses.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
+            new PlayerCharacter(9 , "Archive" , 5,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 50    },
@@ -120,23 +121,188 @@ public class DBPlayerCharacter : MonoBehaviour
         };
     }
 
-    /// <summary>
-    /// Iterates through the database to get a player character with the id you gave it
-    /// </summary>
-    /// <param name="id">ID of the character you want</param>
-    /// <returns>PlayerCharacter</returns>
-    public static PlayerCharacter GetPC(int id)
+    #region CustomEditor
+#if UNITY_EDITOR
+
+    [CustomEditor(typeof(DBPlayerCharacter))]
+    public class DBPlayerCharacterEditor : Editor
     {
-        return pCharacters.Find(playercharacter => playercharacter.ID == id);
+        DBPlayerCharacter Target;
+        private void OnEnable()
+        {
+            Target = target as DBPlayerCharacter;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            if (GUILayout.Button("Create Enemy Assets"))
+            {
+                DBEnemies.BuildDatabase();
+                for (int i = 0; i < DBEnemies.enemies.Count; i++)
+                {
+                    Enemy current = DBEnemies.enemies[i];
+                    string folder = "Assets/ScriptableObjects/Characters/Enemies";
+                    string fileName = $"{current.ID}-{current.name}";
+                    string path = folder + "/" + fileName + ".asset";
+                    AssetDatabase.CreateAsset(current, path);
+                }
+            }
+
+            if (GUILayout.Button("Create Player Character Assets"))
+            {
+                BuildDatabase();
+                for (int i = 0; i < pCharacters.Count; i++)
+                {
+                    PlayerCharacter current = pCharacters[i];
+                    string folder = "Assets/ScriptableObjects/Characters/PlayerCharacters";
+                    string fileName = $"{current.ID}-{current.name}";
+                    string path = folder + "/" + fileName + ".asset";
+                    AssetDatabase.CreateAsset(current, path);
+                }
+            }
+
+            if (GUILayout.Button("Create Skill and Class Assets"))
+            {
+                DBClasses.BuildDatabase();
+                GameAssetsManager.instance.classes = new BaseSkillClass[DBClasses.classes.Count];
+                for (int i = 0; i < DBClasses.classes.Count; i++)
+                {
+                    BaseSkillClass currentClass = DBClasses.classes[i];
+                    string classFolder = "Assets/ScriptableObjects/Classes/";
+                    string classfileName = $"{currentClass.ID}-{currentClass.name}";
+                    string classpath = classFolder + classfileName + ".asset";
+
+                    string subfolder = "Assets/ScriptableObjects/Skills/" + classfileName;
+
+                    if (!AssetDatabase.IsValidFolder(subfolder))
+                    {
+                        AssetDatabase.CreateFolder("Assets/ScriptableObjects/Skills", classfileName);
+                    }
+
+                    for (int j = 0; j < currentClass.skillList.Count; j++)
+                    {
+                        Skill curSkill = currentClass.skillList[j];
+                        curSkill.skillClass = currentClass;
+                        string skillfileName = $"{curSkill.ID}-{curSkill.name}";
+                        string subpath = subfolder + "/" + skillfileName + ".asset";
+
+                        #region Activation Requirements
+                        if (curSkill.activationRequirements != null)
+                        {
+                            string requirementFolder = "Assets/ScriptableObjects/Rules/ActivationRequirement/";
+                            for (int k = 0; k < curSkill.activationRequirements.Count; k++)
+                            {
+                                ActivationRequirement curRequirement = curSkill.activationRequirements[k];
+                                string fileName3 = curRequirement.type != ActivationRequirement.RequirementType.SkillIsActive ? ActivationRequirement.ActivationRequirementEditor.GetActivationRequirementFileName(curRequirement) : $"SkillIsActive {k}";
+                                string requirementPath = requirementFolder + fileName3 + ".asset";
+
+                                AssetDatabase.CreateAsset(curRequirement, requirementPath);
+
+                                curSkill.activationRequirements[k] = curRequirement;
+                            }
+                        }
+                        #endregion
+
+                        #region SkillFormulas
+                        string formulaFolder = "Assets/ScriptableObjects/Rules/Formulas/";
+                        if (curSkill.damageFormula != null)
+                        {
+                            for (int k = 0; k < curSkill.damageFormula.Count; k++)
+                            {
+                                RPGFormula curFormula = curSkill.damageFormula[k];
+                                string fileName3 = RPGFormula.RPGFormulaCustomEditor.GetRPGFormulaFileName(curFormula);
+                                string formulaPath = formulaFolder + fileName3 + ".asset";
+
+                                try
+                                {
+                                    AssetDatabase.CreateAsset(curFormula, formulaPath);
+                                    curSkill.damageFormula[k] = curFormula;
+                                }
+                                catch
+                                {
+                                    curSkill.damageFormula[k] = AssetDatabase.LoadMainAssetAtPath(formulaPath) as RPGFormula;
+                                }
+                            }
+                        }
+                        if (curSkill.healFormula != null)
+                        {
+                            for (int k = 0; k < curSkill.healFormula.Count; k++)
+                            {
+                                RPGFormula curFormula = curSkill.healFormula[k];
+                                string fileName3 = RPGFormula.RPGFormulaCustomEditor.GetRPGFormulaFileName(curFormula);
+                                string formulaPath = formulaFolder + fileName3 + ".asset";
+                                try
+                                {
+                                    AssetDatabase.CreateAsset(curFormula, formulaPath);
+                                    curSkill.healFormula[k] = curFormula;
+                                }
+                                catch
+                                {
+                                    curSkill.healFormula[k] = AssetDatabase.LoadMainAssetAtPath(formulaPath) as RPGFormula;
+                                }
+                            }
+                        }
+                        if (curSkill.formulaStatModifiers != null)
+                        {
+                            RuleManager.BuildHelpers();
+                            for (int k = 0; k < RuleManager.StatHelper.Length; k++)
+                            {
+                                Stats curStat = RuleManager.StatHelper[i];
+
+                                if (curSkill.formulaStatModifiers.ContainsKey(curStat))
+                                {
+                                    for (int m = 0; m < curSkill.formulaStatModifiers[curStat].Count; m++)
+                                    {
+                                        RPGFormula curFormula = curSkill.formulaStatModifiers[curStat][m];
+                                        string fileName3 = RPGFormula.RPGFormulaCustomEditor.GetRPGFormulaFileName(curFormula);
+                                        string formulaPath = formulaFolder + fileName3 + ".asset";
+                                        try 
+                                        { 
+                                            AssetDatabase.CreateAsset(curFormula, formulaPath);
+                                            curSkill.formulaStatModifiers[curStat][m] = curFormula;
+                                        }
+                                        catch
+                                        {
+                                            curSkill.formulaStatModifiers[curStat][m] = AssetDatabase.LoadMainAssetAtPath(formulaPath) as RPGFormula;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (curSkill.newBasicAttackFormula != null)
+                        {
+                            for (int k = 0; k < curSkill.newBasicAttackFormula.Count; k++)
+                            {
+                                RPGFormula curFormula = curSkill.newBasicAttackFormula[k];
+                                string fileName3 = RPGFormula.RPGFormulaCustomEditor.GetRPGFormulaFileName(curFormula);
+                                string formulaPath = formulaFolder + fileName3 + ".asset";
+
+
+                                try
+                                {
+                                    AssetDatabase.CreateAsset(curFormula, formulaPath);
+                                    curSkill.newBasicAttackFormula[k] = curFormula;
+                                }
+                                catch
+                                {
+                                    curSkill.newBasicAttackFormula[k] = AssetDatabase.LoadMainAssetAtPath(formulaPath) as RPGFormula;
+                                }
+                            }
+                        }
+                        #endregion
+
+                        AssetDatabase.CreateAsset(curSkill, subpath);
+
+                        currentClass.skillList[j] = curSkill;
+                    }
+                    GameAssetsManager.instance.classes[i] = currentClass;
+                    AssetDatabase.CreateAsset(currentClass, classpath);
+                }
+            }
+        }
+
     }
 
-    /// <summary>
-    /// Iterates through the database to get a player character with the name you gave it
-    /// </summary>
-    /// <param name="name">Name of the character you want</param>
-    /// <returns>PlayerCharacter</returns>
-    public static PlayerCharacter GetPC(string name)
-    {
-        return pCharacters.Find(playercharacter => playercharacter.name == name);
-    }
+#endif
+    #endregion
 }

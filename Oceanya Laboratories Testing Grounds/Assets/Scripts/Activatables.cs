@@ -8,63 +8,123 @@ using UnityEditor;
 
 public abstract class Activatables : ScriptableObject
 {
-    public new string                               name                                { get; protected set; }
-    public int                                      ID                                  { get; protected set; }
-    public string                                   description                         { get; protected set; }
-    public ActivatableType                          activatableType                     { get; protected set; }
+    [SerializeField] private string                                 _name;
+    [SerializeField] private int                                    _ID;
+    [SerializeField] private string                                 _description;
+    [SerializeField] private ActivatableType                        _activatableType;
 
-    public List<Behaviors>                          behaviors                           { get; protected set; }
+    [SerializeField] private List<Behaviors>                        _behaviors;
 
-    public string                                   activationText                      { get; protected set; }
+    [SerializeField] private string                                 _activationText;
 
-    public bool                                     hasActivationRequirement            { get; protected set; }
-    public List<ActivationRequirement>              activationRequirements              { get; protected set; }
+    [SerializeField] private bool                                   _hasActivationRequirement;
+    [SerializeField] private List<ActivationRequirement>            _activationRequirements;
 
-    public bool                                     hasPassive                          { get; protected set; }
-    public ActivationTime                           passiveActivationType               { get; protected set; }
+    [SerializeField] private bool                                   _hasPassive;
+    [SerializeField] private ActivationTime                         _passiveActivationType;
 
-    public bool                                     lasts                               { get; protected set; }
-    public int                                      lastsFor                            { get; protected set; }
+    [SerializeField] private bool                                   _lasts;
+    [SerializeField] private int                                    _lastsFor;
 
-    public TargetType                               targetType                          { get; protected set; } //If the skill targets anyone, what is its target type?
-    public int                                      maxTargets                          { get; protected set; }
+    [SerializeField] private TargetType                             _targetType;
+    [SerializeField] private int                                    _maxTargets;
 
-    public CDType                                   cdType                              { get; protected set; }
-    public int                                      cooldown                            { get; protected set; }
+    [SerializeField] private CDType                                 _cdType;
+    [SerializeField] private int                                    _cooldown;
 
-    public bool                                     doesDamage                          { get; protected set; } //If the skill does damage
-    public DamageType                               damageType                          { get; protected set; } //What type of damage does it do
-    public ElementType                              damageElement                       { get; protected set; } //What elemental type is the damage skill
-    public List<RPGFormula>                       damageFormula                       { get; protected set; } //list of formulas to sum to get the damage number
+    [SerializeField] private bool                                   _doesDamage;
+    [SerializeField] private DamageType                             _damageType;
+    [SerializeField] private ElementType                            _damageElement;
+    [SerializeField] private List<RPGFormula>                       _damageFormula;
 
-    public bool                                     doesHeal                            { get; protected set; } //if the skill heals
-    public List<RPGFormula>                       healFormula                         { get; protected set; } //list of formulas to sum to get the heal number
+    [SerializeField] private bool                                   _doesHeal;
+    [SerializeField] private List<RPGFormula>                       _healFormula;
 
-    public bool                                     flatModifiesStat                    { get; protected set; } //does the skill buff any stat by a flat number
-    public Dictionary<Stats, int>                   flatStatModifiers                   { get; protected set; }
-    public bool                                     formulaModifiesStat                 { get; protected set; } //does the skill buff any stat by a formula
-    public Dictionary<Stats, List<RPGFormula>>    formulaStatModifiers                { get; protected set; }
-    public StatModificationTypes                    modificationType                    { get; protected set; }
+    [SerializeField] private bool                                   _flatModifiesStat;
+    [SerializeField] private Dictionary<Stats, int>                 _flatStatModifiers;
+    [SerializeField] private bool                                   _formulaModifiesStat;
+    [SerializeField] private Dictionary<Stats, List<RPGFormula>>    _formulaStatModifiers;
+    [SerializeField] private StatModificationTypes                  _modificationType;
 
-    public bool                                     modifiesResource                    { get; protected set; } //does the skill modify a resource? (Mana, Bloodstacks, HP, etc.)
-    public Dictionary<SkillResources, int>          resourceModifiers                   { get; protected set; } //what does it modify and by how much
+    [SerializeField] private bool                                   _modifiesResource;
+    [SerializeField] private Dictionary<SkillResources, int>        _resourceModifiers;
 
-    public bool                                     unlocksResource                     { get; protected set; } //does it unlock a resource
-    public List<SkillResources>                     unlockedResources                   { get; protected set; } //what resources does it unlock
+    [SerializeField] private bool                                   _unlocksResource;
+    [SerializeField] private List<SkillResources>                   _unlockedResources;
 
-    public bool                                     changesBasicAttack                  { get; protected set; }
-    public List<RPGFormula>                       newBasicAttackFormula               { get; protected set; }
-    public DamageType                               newBasicAttackDamageType            { get; protected set; }
+    [SerializeField] private bool                                   _changesBasicAttack;
+    [SerializeField] private List<RPGFormula>                       _newBasicAttackFormula;
+    [SerializeField] private DamageType                             _newBasicAttackDamageType;
 
-    public bool                                     revives                             { get; protected set; }
+    [SerializeField] private bool                                   _revives;
 
-    public bool                                     costsTurn                           { get; protected set; } //does the skill end your turn
+    [SerializeField] private bool                                   _costsTurn;
 
-    public bool                                     appliesStatusEffects                { get; protected set; } //does the skill apply a status effect?
+    [SerializeField] private bool                                   _appliesStatusEffects;
 
-    public bool                                     doesSummon                          { get; protected set; } //does the skill summon anything
+    [SerializeField] private bool                                   _doesSummon;
 
-    public bool                                     doesShield                          { get; protected set; } //does the skill shield anything
+    [SerializeField] private bool                                   _doesShield;
+
+    #region Getters/Setters
+    public new string                               name                                { get { return _name; }                         protected set { _name = value; } }
+    public int                                      ID                                  { get { return _ID; }                           protected set { _ID = value; } }
+    public string                                   description                         { get { return _description; }                  protected set { _description = value; } }
+    public ActivatableType                          activatableType                     { get { return _activatableType; }              protected set { _activatableType = value; } }
+
+    public List<Behaviors>                          behaviors                           { get { return _behaviors; }                    protected set { _behaviors = value; } }
+
+    public string                                   activationText                      { get { return _activationText; }               protected set { _activationText = value; } }
+
+    public bool                                     hasActivationRequirement            { get { return _hasActivationRequirement; }     protected set { _hasActivationRequirement = value; } }
+    public List<ActivationRequirement>              activationRequirements              { get { return _activationRequirements; }       protected set { _activationRequirements = value; } }
+
+    public bool                                     hasPassive                          { get { return _hasPassive; }                   protected set { _hasPassive = value; } }
+    public ActivationTime                           passiveActivationType               { get { return _passiveActivationType; }        protected set { _passiveActivationType = value; } }
+
+    public bool                                     lasts                               { get { return _lasts; }                        protected set { _lasts = value; } }
+    public int                                      lastsFor                            { get { return _lastsFor; }                     protected set { _lastsFor = value; } }
+
+    public TargetType                               targetType                          { get { return _targetType; }                   protected set { _targetType = value; } }
+    public int                                      maxTargets                          { get { return _maxTargets; }                   protected set { _maxTargets = value; } }
+
+    public CDType                                   cdType                              { get { return _cdType; }                       protected set { _cdType = value; } }
+    public int                                      cooldown                            { get { return _cooldown; }                     protected set { _cooldown = value; } }
+
+    public bool                                     doesDamage                          { get { return _doesDamage; }                   protected set { _doesDamage = value; } }
+    public DamageType                               damageType                          { get { return _damageType; }                   protected set { _damageType = value; } }
+    public ElementType                              damageElement                       { get { return _damageElement; }                protected set { _damageElement = value; } }
+    public List<RPGFormula>                         damageFormula                       { get { return _damageFormula; }                protected set { _damageFormula = value; } }
+
+    public bool                                     doesHeal                            { get { return _doesHeal; }                     protected set { _doesHeal = value; } }
+    public List<RPGFormula>                         healFormula                         { get { return _healFormula; }                  protected set { _healFormula = value; } }
+
+    public bool                                     flatModifiesStat                    { get { return _flatModifiesStat; }             protected set { _flatModifiesStat = value; } }
+    public Dictionary<Stats, int>                   flatStatModifiers                   { get { return _flatStatModifiers; }            protected set { _flatStatModifiers = value; } }
+    public bool                                     formulaModifiesStat                 { get { return _formulaModifiesStat; }          protected set { _formulaModifiesStat = value; } }
+    public Dictionary<Stats, List<RPGFormula>>      formulaStatModifiers                { get { return _formulaStatModifiers; }         protected set { _formulaStatModifiers = value; } }
+    public StatModificationTypes                    modificationType                    { get { return _modificationType; }             protected set { _modificationType = value; } }
+
+    public bool                                     modifiesResource                    { get { return _modifiesResource; }             protected set { _modifiesResource = value; } }
+    public Dictionary<SkillResources, int>          resourceModifiers                   { get { return _resourceModifiers; }            protected set { _resourceModifiers = value; } }
+
+    public bool                                     unlocksResource                     { get { return _unlocksResource; }              protected set { _unlocksResource = value; } }
+    public List<SkillResources>                     unlockedResources                   { get { return _unlockedResources; }            protected set { _unlockedResources = value; } }
+
+    public bool                                     changesBasicAttack                  { get { return _changesBasicAttack; }           protected set { _changesBasicAttack = value; } }
+    public List<RPGFormula>                         newBasicAttackFormula               { get { return _newBasicAttackFormula; }        protected set { _newBasicAttackFormula = value; } }
+    public DamageType                               newBasicAttackDamageType            { get { return _newBasicAttackDamageType; }     protected set { _newBasicAttackDamageType = value; } }
+
+    public bool                                     revives                             { get { return _revives; }                      protected set { _revives = value; } }
+
+    public bool                                     costsTurn                           { get { return _costsTurn; }                    protected set { _costsTurn = value; } }
+
+    public bool                                     appliesStatusEffects                { get { return _appliesStatusEffects; }         protected set { _appliesStatusEffects = value; } }
+
+    public bool                                     doesSummon                          { get { return _doesSummon; }                   protected set { _doesSummon = value; } }
+
+    public bool                                     doesShield                          { get { return _doesShield; }                   protected set { _doesShield = value; } }
+    #endregion
 
     public enum Behaviors
     {
@@ -115,13 +175,18 @@ public abstract class Activatables : ScriptableObject
     public class ActivatablesCustomEditor : Editor
     {
         static Activatables Target;
-        static Activatables oldTarget;
         public static Dictionary<Behaviors, bool> behaviorShow;
         public static bool editorShowBehaviors;
+
+        private void OnEnable()
+        {
+            Target = target as Activatables;
+        }
+
         public override void OnInspectorGUI()
         {
-            Activatables newTarget = (Activatables)target;
-
+            EditorUtility.SetDirty(Target);
+            Activatables newTarget = Target;
 
             PaintBaseObjectInfo(newTarget);
             #region Rename
@@ -213,7 +278,7 @@ public abstract class Activatables : ScriptableObject
             }
 
             EditorGUILayout.LabelField(new GUIContent("Activation Text", tooltipText + variables), EditorStyles.boldLabel);
-            newTarget.activationText = EditorGUILayout.TextField(newTarget.activationText, style);
+            newTarget.activationText = EditorGUILayout.TextArea(newTarget.activationText, style);
 
             activatable = newTarget;
         }
@@ -408,6 +473,11 @@ public abstract class Activatables : ScriptableObject
                             Target.flatStatModifiers = new Dictionary<Stats, int>();
                         }
 
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Mod Type", EditorStyles.boldLabel);
+                        Target.modificationType = (StatModificationTypes)EditorGUILayout.EnumPopup(Target.modificationType);
+                        EditorGUILayout.EndHorizontal();
+
                         RuleManager.BuildHelpers();
                         for (int i = 0; i < RuleManager.StatHelper.Length; i++)
                         {
@@ -434,6 +504,11 @@ public abstract class Activatables : ScriptableObject
                         {
                             Target.formulaStatModifiers = new Dictionary<Stats, List<RPGFormula>>();
                         }
+
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Mod Type", EditorStyles.boldLabel);
+                        Target.modificationType = (StatModificationTypes)EditorGUILayout.EnumPopup(Target.modificationType);
+                        EditorGUILayout.EndHorizontal();
 
                         RuleManager.BuildHelpers();
                         for (int i = 0; i < RuleManager.StatHelper.Length; i++)

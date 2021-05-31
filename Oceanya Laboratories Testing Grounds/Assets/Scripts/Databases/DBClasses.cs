@@ -644,14 +644,4 @@ public class DBClasses : MonoBehaviour
             ),
         };
     }
-
-    public static BaseSkillClass GetClass(int id)
-    {
-        return classes.Find(resultClass => resultClass.baseInfo.id == id);
-    }
-
-    public static BaseSkillClass GetClass(string name)
-    {
-        return classes.Find(resultClass => resultClass.baseInfo.name == name);
-    }
 }

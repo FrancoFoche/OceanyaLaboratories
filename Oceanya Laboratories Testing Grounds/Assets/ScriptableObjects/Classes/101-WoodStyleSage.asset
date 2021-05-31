@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d9797c63a8fb0498ddd6866df9de4e, type: 3}
+  m_Name: 101-WoodStyleSage
+  m_EditorClassIdentifier: 
+  _name: WoodStyleSage
+  _ID: 101
+  _description: Your body knows balance! You're as beautiful as ever! You now have
+    access to Wood Sage Arts! Your skills will be heavily based on defense! I guess
+    you got a skill TREE. Get it? Cuz wood. and trees? whatever just have your stats
+    .+20%STR +50%HP +25%HP Regeneration
+  skillList:
+  - {fileID: 11400000, guid: eb06908aee7f7d34ebeea18f030c6df3, type: 2}
+  - {fileID: 11400000, guid: b39d0e3d6d043d6439bfbdb8aeda170e, type: 2}
+  - {fileID: 11400000, guid: 76715094f21b16c499321fc36ddb7aa0, type: 2}
+  - {fileID: 11400000, guid: ff97f89c614afb0409bdee4e400cf49b, type: 2}
+  - {fileID: 11400000, guid: 9cdabf16c31e2c74491114d620c157a1, type: 2}
+  - {fileID: 11400000, guid: cfe2db1ac2c5baa41a42441df3719a51, type: 2}

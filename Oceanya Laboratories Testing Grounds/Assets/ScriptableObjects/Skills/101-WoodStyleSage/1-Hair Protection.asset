@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2bd24861d65694ca6c43f33c2f3a18, type: 3}
+  m_Name: 1-Hair Protection
+  m_EditorClassIdentifier: 
+  _name: Hair Protection
+  _ID: 1
+  _description: 'Use your Sage Chakra to turn your hair into a protective layer of
+    spikes! Anyone who attacks you will receive 25% of your max HP as Physical Damage
+    (Effect is also applied to Wood Clones) (Sage Mode Turn cost: 2)'
+  _activatableType: 1
+  _behaviors: 06000000010000000800000009000000
+  _activationText: _caster_'s hair turns into spikes and wraps around them, hair protection,
+    go!
+  _hasActivationRequirement: 0
+  _activationRequirements: []
+  _hasPassive: 0
+  _passiveActivationType: 3
+  _lasts: 0
+  _lastsFor: 0
+  _targetType: 5
+  _maxTargets: 1
+  _cdType: 0
+  _cooldown: 0
+  _doesDamage: 0
+  _damageType: 2
+  _damageElement: 0
+  _damageFormula:
+  - {fileID: 11400000, guid: 5691247da53b4774cbb2fcc786ecaa8f, type: 2}
+  _doesHeal: 0
+  _healFormula: []
+  _flatModifiesStat: 0
+  _formulaModifiesStat: 0
+  _modificationType: 0
+  _modifiesResource: 0
+  _unlocksResource: 0
+  _unlockedResources: 
+  _changesBasicAttack: 0
+  _newBasicAttackFormula: []
+  _newBasicAttackDamageType: 0
+  _revives: 0
+  _costsTurn: 0
+  _appliesStatusEffects: 0
+  _doesSummon: 0
+  _doesShield: 0
+  skillClass: {fileID: 11400000, guid: 829ff6ed1a5bcc848adac1f7ec757f71, type: 2}

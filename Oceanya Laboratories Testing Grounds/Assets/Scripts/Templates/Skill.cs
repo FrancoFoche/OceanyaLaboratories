@@ -16,7 +16,7 @@ public class Skill: Activatables
     /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
     /// </summary>
     public bool                                     done                                { get; private set; }
-    public BaseSkillClass                           skillClass                          { get; set; }         //RPG Class it's from
+    public BaseSkillClass                           skillClass;         //RPG Class it's from
 
     #region Constructors
     public Skill(BaseObjectInfo baseInfo, string activationText, ActivatableType skillType, TargetType targetType, int maxTargets = 1)
@@ -31,6 +31,7 @@ public class Skill: Activatables
         //Default and initializer values go here
         done = false;
         cooldown = 0;
+        behaviors = new List<Behaviors>();
     }
     public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<RPGFormula> damageFormula)
     {
@@ -333,45 +334,47 @@ public class Skill: Activatables
     {
         public static Dictionary<Behaviors, bool> behaviorShow;
         public static bool editorShowBehaviors;
-        public override void OnInspectorGUI()
-        {
-            Skill newTarget = (Skill)target;
 
-            ActivatablesCustomEditor.PaintBaseObjectInfo(newTarget);
+        private Skill scriptableObj;
+        private void OnEnable()
+        {
+            scriptableObj = target as Skill;
+        }
+        private void OnDisable()
+        {
             #region Rename
-            string newName = $"{newTarget.ID}-{newTarget.name}";
+            string newName = $"{scriptableObj.ID}-{scriptableObj.name}";
             target.name = newName;
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
             #endregion
+        }
+        public override void OnInspectorGUI()
+        {
+            EditorUtility.SetDirty(scriptableObj);
+
+            ActivatablesCustomEditor.PaintBaseObjectInfo(scriptableObj);
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-            ActivatablesCustomEditor.PaintActivatableType(newTarget);
+            #region RPGClass
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("RPG Class", EditorStyles.boldLabel);
+            scriptableObj.skillClass = BaseSkillClass.BaseSkillClassCustomEditor.PaintSkillClassObjectSlot(scriptableObj.skillClass);
+            EditorGUILayout.EndHorizontal();
+            #endregion
 
-            ActivatablesCustomEditor.PaintTargets(newTarget);
+            ActivatablesCustomEditor.PaintActivatableType(scriptableObj);
+
+            ActivatablesCustomEditor.PaintTargets(scriptableObj);
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-            ActivatablesCustomEditor.PaintActivationText(newTarget);
+            ActivatablesCustomEditor.PaintActivationText(scriptableObj);
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-            ActivatablesCustomEditor.PaintBehaviors(newTarget);
-
-            if (GUILayout.Button("Set Dirty"))
-            {
-                Debug.Log("Skill set as dirty");
-                EditorUtility.SetDirty(newTarget);
-                //Already tried this too.
-                //EditorUtility.SetDirty(target);
-            }
-
-            if (GUILayout.Button("Save Assets"))
-            {
-                Debug.Log("Saved Assets.");
-                AssetDatabase.SaveAssets();
-            }
+            ActivatablesCustomEditor.PaintBehaviors(scriptableObj);
         }
 
         public static Skill PaintSkillObjectSlot(Skill skill)

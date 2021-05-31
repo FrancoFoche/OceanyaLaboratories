@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d9797c63a8fb0498ddd6866df9de4e, type: 3}
+  m_Name: 0-Testing Class
+  m_EditorClassIdentifier: 
+  _name: Testing Class
+  _ID: 0
+  _description: This is the class that has every test skill
+  skillList:
+  - {fileID: 11400000, guid: af9ab2ea67eefcc4496ded294244c266, type: 2}
+  - {fileID: 11400000, guid: c2b0de8820aa69d46bab51cab3215e19, type: 2}
+  - {fileID: 11400000, guid: 6fc8f2244f735ce47bb1be0451209029, type: 2}
+  - {fileID: 11400000, guid: fd18f9abfe0916b409788a0ab7c5954f, type: 2}
+  - {fileID: 11400000, guid: 80c75905ae021094f8d1fe1d58177211, type: 2}
+  - {fileID: 11400000, guid: eb807133144d83345be9191945cfe5df, type: 2}
+  - {fileID: 11400000, guid: 95500ea626f77924e9876846b4589a19, type: 2}
+  - {fileID: 11400000, guid: a185ce382473b3149bee01289f2716ff, type: 2}
+  - {fileID: 11400000, guid: ad74661785c4cf0469e18c5fe2a5871a, type: 2}
+  - {fileID: 11400000, guid: 3ea3be01d3f98f54bb76f3ed320ea77d, type: 2}
+  - {fileID: 11400000, guid: 7f4ba1e6c40cc8d4596aa2f0a4912b88, type: 2}
+  - {fileID: 11400000, guid: 8c580c29d06513e44944d2193e5ed479, type: 2}
+  - {fileID: 11400000, guid: 0365d70d0e6d0b742b0995788f8cbbce, type: 2}
+  - {fileID: 11400000, guid: ce8570e8d24f18140b267ad9d9c918e7, type: 2}

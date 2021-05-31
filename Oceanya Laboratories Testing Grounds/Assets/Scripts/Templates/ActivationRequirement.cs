@@ -9,16 +9,29 @@ using UnityEditor;
 [CreateAssetMenu(fileName = "NewActivationRequirement", menuName = "Rules/Activation Requirement")]
 public class ActivationRequirement : ScriptableObject
 {
-    public RequirementType type { get; set; }
+    [SerializeField] private RequirementType _type;
 
-    public SkillResources resource { get; private set; }
-    public Stats stat { get; private set; }
+    [SerializeField] private SkillResources _resource;
+    [SerializeField] private Stats _stat;
     //add a status one here whenever it's done
-    public int skillclassID { get; private set; }
-    public int skillID { get; private set; }
-    public Skill skill { get; private set; }
-    public ComparerType comparer { get; private set; }
-    public int number { get; private set; }
+    [SerializeField] private int _skillclassID;
+    [SerializeField] private int _skillID;
+    [SerializeField] private Skill _skill;
+    [SerializeField] private ComparerType _comparer;
+    [SerializeField] private int _number;
+
+    #region Getter/Setters
+    public RequirementType      type            { get { return _type; }             private set { _type = value; } }
+
+    public SkillResources       resource        { get { return _resource; }         private set { _resource = value; } }
+    public Stats                stat            { get { return _stat; }             private set { _stat = value; } }
+    
+    public int                  skillclassID    { get { return _skillclassID; }     private set { _skillclassID = value; } }
+    public int                  skillID         { get { return _skillID; }          private set { _skillID = value; } }
+    public Skill                skill           { get { return _skill; }            private set { _skill = value; } }
+    public ComparerType         comparer        { get { return _comparer; }         private set { _comparer = value; } }
+    public int                  number          { get { return _number; }           private set { _number = value; } }
+    #endregion
 
     #region Constructors
     /// <summary>
@@ -150,16 +163,29 @@ public class ActivationRequirement : ScriptableObject
     [CustomEditor(typeof(ActivationRequirement))]
     public class ActivationRequirementEditor : Editor
     {
-        public override void OnInspectorGUI()
+        ActivationRequirement Target;
+        private void OnEnable()
         {
-            ActivationRequirement editor = (ActivationRequirement)target;
+            Target = target as ActivationRequirement;
+        }
 
-            editor = PaintActivationRequirement(editor);
+        private void OnDisable()
+        {
             #region Rename
-            string newName = GetActivationRequirementFileName(editor);
+            string newName = GetActivationRequirementFileName(Target);
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
             #endregion
+        }
+
+        public override void OnInspectorGUI()
+        {
+            EditorUtility.SetDirty(Target);
+            ActivationRequirement editor = Target;
+
+            editor = PaintActivationRequirement(editor);
+
+            Target = editor;
         }
 
         public static string GetActivationRequirementFileName(ActivationRequirement targetActRequirement)

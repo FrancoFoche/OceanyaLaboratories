@@ -9,39 +9,67 @@ using UnityEditor;
 [CreateAssetMenu(fileName = "NewClass", menuName = "RPGClass")]
 public class BaseSkillClass: ScriptableObject
 {
-    public BaseObjectInfo baseInfo;
+    [SerializeField] private string _name;
+    [SerializeField] private int _ID;
+    [SerializeField] private string _description;
+
     public List<Skill> skillList;
     public Dictionary<string, int> statBoosts = new Dictionary<string, int>();
 
+    public new string   name                { get { return _name; }         protected set { _name = value; } }
+    public int          ID                  { get { return _ID; }           protected set { _ID = value; } }
+    public string       description         { get { return _description; }  protected set { _description = value; } }
+
     public BaseSkillClass(BaseObjectInfo baseInfo, List<Skill> skillList)
     {
-        this.baseInfo = baseInfo;
+        name = baseInfo.name;
+        ID = baseInfo.id;
+        description = baseInfo.description;
         this.skillList = skillList;
     }
 
     #region CustomEditor
 #if UNITY_EDITOR
     [CustomEditor(typeof(BaseSkillClass))]
-    public class BaseObjectInfoCustomEditor : Editor
+    public class BaseSkillClassCustomEditor : Editor
     {
-        static BaseSkillClass rpgClass;
-
+        static BaseSkillClass Target;
+        private void OnEnable()
+        {
+            Target = target as BaseSkillClass;
+        }
+        private void OnDisable()
+        {
+            #region Rename
+            string newName = $"{Target.ID}-{Target.name}";
+            target.name = newName;
+            string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
+            AssetDatabase.RenameAsset(path, newName);
+            #endregion
+        }
         public override void OnInspectorGUI()
         {
-            rpgClass = (BaseSkillClass)target;
+            EditorUtility.SetDirty(Target);
 
             #region BaseInfo
             EditorGUILayout.LabelField("Base Info", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
 
-            BaseObjectInfo info = rpgClass.baseInfo;
-            if(info == null)
-            {
-                info = CreateInstance<BaseObjectInfo>();
-            }
+            GUIStyle style = GUI.skin.textArea;
+            style.wordWrap = true;
 
-            BaseObjectInfo.BaseObjectInfoCustomEditor.PaintBaseObjectInfo(info);
-            rpgClass.baseInfo = info;
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Name", EditorStyles.boldLabel);
+            Target.name = EditorGUILayout.TextField(Target.name);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("ID", EditorStyles.boldLabel);
+            Target.ID = EditorGUILayout.IntField(Target.ID);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField("Description", EditorStyles.boldLabel);
+            Target.description = EditorGUILayout.TextArea(Target.description, style);
             EditorGUI.indentLevel--;
             #endregion
 
@@ -52,13 +80,13 @@ public class BaseSkillClass: ScriptableObject
             EditorGUI.indentLevel++;
 
 
-            List<Skill> skills = rpgClass.skillList;
+            List<Skill> skills = Target.skillList;
             if(skills == null)
             {
                 skills = new List<Skill>();
             }
             skills = Skill.SkillCustomEditor.PaintSkillObjectList(skills);
-            rpgClass.skillList = skills;
+            Target.skillList = skills;
             EditorGUI.indentLevel--;
             #endregion
         }

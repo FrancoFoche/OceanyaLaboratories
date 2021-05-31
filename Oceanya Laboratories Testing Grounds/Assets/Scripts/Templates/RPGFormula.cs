@@ -9,9 +9,13 @@ using UnityEditor;
 [CreateAssetMenu(fileName = "NewRPGFormula", menuName = "Rules/Formula")]
 public class RPGFormula : ScriptableObject
 {
-    public Stats StatToUse { get; private set; }
-    public operationActions OperationModifier { get; private set; }
-    public float NumberModifier { get; private set; }
+    [SerializeField] private Stats _StatToUse;
+    [SerializeField] private operationActions _OperationModifier;
+    [SerializeField] private float _NumberModifier;
+
+    public Stats            StatToUse           { get { return _StatToUse; }            private set { _StatToUse = value; } }
+    public operationActions OperationModifier   { get { return _OperationModifier; }    private set { _OperationModifier = value; } }
+    public float            NumberModifier      { get { return _NumberModifier; }       private set { _NumberModifier = value; } }
 
     public RPGFormula(Stats StatToUse, operationActions OperationModifier, float NumberModifier)
     {
@@ -108,16 +112,27 @@ public class RPGFormula : ScriptableObject
     [CustomEditor(typeof(RPGFormula))]
     public class RPGFormulaCustomEditor : Editor
     {
-        public override void OnInspectorGUI()
+        RPGFormula Target;
+        private void OnEnable()
         {
-            RPGFormula editor = (RPGFormula)target;
-
-            PaintSkillFormula(editor);
+            Target = target as RPGFormula;
+        }
+        private void OnDisable()
+        {
             #region Rename
-            string newName = GetRPGFormulaFileName(editor);
+            string newName = GetRPGFormulaFileName(Target);
             string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
             AssetDatabase.RenameAsset(path, newName);
             #endregion
+        }
+        public override void OnInspectorGUI()
+        {
+            EditorUtility.SetDirty(Target);
+            RPGFormula editor = Target;
+
+            PaintSkillFormula(editor);
+
+            Target = editor;
         }
 
         public static string GetRPGFormulaFileName(RPGFormula targetActRequirement)
