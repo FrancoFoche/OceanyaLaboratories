@@ -190,7 +190,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Avion
+  m_Text: 'Fran #1'
 --- !u!222 &36488572
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3681,7 +3681,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Franco Foche
+  m_Text: Francisco Roldan
 --- !u!222 &1555122687
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3918,7 +3918,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: He's high as fuck
+  m_Text: Respondedor de mails profesional
 --- !u!222 &1653747898
 CanvasRenderer:
   m_ObjectHideFlags: 0

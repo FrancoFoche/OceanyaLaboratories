@@ -9,15 +9,12 @@ public class DataBaseOrder : MonoBehaviour
 {
     private void Awake()
     {
-        if (!BattleManager.instance.scriptableObjectMode)
-        {
-            Debug.Log("Building Databases");
-            RuleManager.BuildHelpers();
-            DBClasses.BuildDatabase();
-            DBSkills.BuildDatabase();
-            DBItems.BuildDatabase();
-            DBPlayerCharacter.BuildDatabase();
-            DBEnemies.BuildDatabase();
-        }
+        Debug.Log("Building Databases");
+        RuleManager.BuildHelpers();
+        DBClasses.BuildDatabase();
+        DBSkills.BuildDatabase();
+        DBItems.BuildDatabase();
+        DBPlayerCharacter.BuildDatabase();
+        DBEnemies.BuildDatabase();
     }
 }

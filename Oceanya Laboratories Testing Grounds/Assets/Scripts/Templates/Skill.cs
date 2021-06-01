@@ -2,14 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 /// <summary>
 /// Template for any skill that is created
 /// </summary>
-[CreateAssetMenu(fileName = "NewSkill", menuName = "Skill")]
 public class Skill: Activatables
 {
     /// <summary>
@@ -158,7 +153,7 @@ public class Skill: Activatables
 
             if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
             {
-                BattleManager.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
+                BattleManager.i.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
 
                 if (costsTurn)
                 {
@@ -167,47 +162,54 @@ public class Skill: Activatables
             }
             else
             {
-                switch (targetType)
+                if (targetType == TargetType.Single || targetType == TargetType.Multiple)
                 {
-                    case TargetType.Self:
-                        Action(caster, new List<Character>() { caster });
-                        break;
+                    UICharacterActions.instance.maxTargets = maxTargets;
+                    UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
+                }
+                else
+                {
+                    List<Character> targets = new List<Character>();
+                    switch (targetType)
+                    {
+                        case TargetType.Self:
+                            targets = new List<Character>() { caster };
+                            break;
 
-                    case TargetType.Single:
-                    case TargetType.Multiple:
-                        UICharacterActions.instance.maxTargets = maxTargets;
-                        UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
-                        break;
+                        case TargetType.AllAllies:
+                            if (caster.team == Team.Ally)
+                            {
+                                targets = TeamOrderManager.allySide;
+                            }
+                            else
+                            {
+                                targets = TeamOrderManager.enemySide;
+                            }
+                            break;
+                        case TargetType.AllEnemies:
+                            if (caster.team == Team.Ally)
+                            {
+                                targets = TeamOrderManager.enemySide;
+                            }
+                            else
+                            {
+                                targets = TeamOrderManager.allySide;
+                            }
+                            break;
+                        case TargetType.Bounce:
+                            targets = new List<Character>() { BattleManager.caster };
+                            break;
+                    }
 
-                    case TargetType.AllAllies:
-                        if (caster.team == Team.Ally)
-                        {
-                            Action(caster, TeamOrderManager.allySide);
-                        }
-                        else
-                        {
-                            Action(caster, TeamOrderManager.enemySide);
-                        }
-                        break;
-                    case TargetType.AllEnemies:
-                        if (caster.team == Team.Ally)
-                        {
-                            Action(caster, TeamOrderManager.enemySide);
-                        }
-                        else
-                        {
-                            Action(caster, TeamOrderManager.allySide);
-                        }
-                        break;
-                    case TargetType.Bounce:
-                        Action(caster, new List<Character>() { BattleManager.caster });
-                        break;
+                    BattleManager.i.SetTargets(targets);
+
+                    Action(caster, targets);
                 }
             }
         }
         else
         {
-            BattleManager.battleLog.LogBattleEffect($"But {caster.name} did not meet the requirements to activate the skill!");
+            BattleManager.i.battleLog.LogBattleEffect($"But {caster.name} did not meet the requirements to activate the skill!");
         }
     }
 
@@ -300,14 +302,14 @@ public class Skill: Activatables
             }
             else
             {
-                BattleManager.battleLog.LogBattleEffect("Target wasn't targettable, smh");
+                BattleManager.i.battleLog.LogBattleEffect("Target wasn't targettable, smh");
             }
 
-            BattleManager.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
+            BattleManager.i.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
 
             if (wasDefending && doesDamage)
             {
-                BattleManager.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(tempDmg / 2)} DMG.");
+                BattleManager.i.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(tempDmg / 2)} DMG.");
             }
 
         }
@@ -326,96 +328,6 @@ public class Skill: Activatables
             }
         }
     }
-
-    #region CustomEditor
-#if UNITY_EDITOR
-    [CustomEditor(typeof(Skill))]
-    public class SkillCustomEditor : Editor
-    {
-        public static Dictionary<Behaviors, bool> behaviorShow;
-        public static bool editorShowBehaviors;
-
-        private Skill scriptableObj;
-        private void OnEnable()
-        {
-            scriptableObj = target as Skill;
-        }
-        private void OnDisable()
-        {
-            #region Rename
-            string newName = $"{scriptableObj.ID}-{scriptableObj.name}";
-            target.name = newName;
-            string path = AssetDatabase.GetAssetPath(target.GetInstanceID());
-            AssetDatabase.RenameAsset(path, newName);
-            #endregion
-        }
-        public override void OnInspectorGUI()
-        {
-            EditorUtility.SetDirty(scriptableObj);
-
-            ActivatablesCustomEditor.PaintBaseObjectInfo(scriptableObj);
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            #region RPGClass
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("RPG Class", EditorStyles.boldLabel);
-            scriptableObj.skillClass = BaseSkillClass.BaseSkillClassCustomEditor.PaintSkillClassObjectSlot(scriptableObj.skillClass);
-            EditorGUILayout.EndHorizontal();
-            #endregion
-
-            ActivatablesCustomEditor.PaintActivatableType(scriptableObj);
-
-            ActivatablesCustomEditor.PaintTargets(scriptableObj);
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            ActivatablesCustomEditor.PaintActivationText(scriptableObj);
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            ActivatablesCustomEditor.PaintBehaviors(scriptableObj);
-        }
-
-        public static Skill PaintSkillObjectSlot(Skill skill)
-        {
-            skill = (Skill)EditorGUILayout.ObjectField(skill, typeof(Skill), false);
-
-            return skill;
-        }
-
-        public static List<Skill> PaintSkillObjectList(List<Skill> skillList)
-        {
-            int size = Mathf.Max(0, EditorGUILayout.IntField("Skill Count", skillList.Count));
-
-            while (size > skillList.Count)
-            {
-                skillList.Add(null);
-            }
-
-            while (size < skillList.Count)
-            {
-                skillList.RemoveAt(skillList.Count - 1);
-            }
-
-            EditorGUI.indentLevel++;
-            for (int i = 0; i < skillList.Count; i++)
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("Skill " + (i + 1), GUILayout.MaxWidth(100));
-
-                Skill skill = skillList[i];
-                skill = PaintSkillObjectSlot(skill);
-                skillList[i] = skill;
-                EditorGUILayout.EndHorizontal();
-            }
-            EditorGUI.indentLevel--;
-
-            return skillList;
-        }
-    }
-#endif
-    #endregion
 }
 
 
@@ -454,7 +366,7 @@ public class SkillInfo : ActivatableInfo
 
         if (skill.hasPassive)
         {
-            BattleManager.battleLog.LogBattleEffect($"{skill.name} deactivated for {character.name}.");
+            BattleManager.i.battleLog.LogBattleEffect($"{skill.name} deactivated for {character.name}.");
         }
         
         UpdateCD();
@@ -502,88 +414,4 @@ public class SkillInfo : ActivatableInfo
     {
         activatable = ActivatableInfo.CheckActivatable(skill);
     }
-
-    #region CustomEditor
-#if UNITY_EDITOR
-
-    [CustomEditor(typeof(SkillInfo))]
-    public class SkillInfoEditor : Editor
-    {
-        public static SkillInfo PaintSkillInfo(SkillInfo targetSkillinfo)
-        {
-            SkillInfo skillInfo = targetSkillinfo;
-
-            EditorGUILayout.BeginHorizontal();
-            skillInfo.skill = Skill.SkillCustomEditor.PaintSkillObjectSlot(skillInfo.skill);
-            if (skillInfo.skill != null)
-            {
-                skillInfo.showInfo = EditorGUILayout.Foldout(skillInfo.showInfo, "ExtraInfo", true);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            if (skillInfo.showInfo && skillInfo.skill != null)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.LabelField("Editor Modifyable", EditorStyles.boldLabel);
-                skillInfo.equipped = EditorGUILayout.Toggle("Equipped", skillInfo.equipped);
-                skillInfo.activatable = EditorGUILayout.Toggle("Activatable", skillInfo.activatable);
-                skillInfo.currentCooldown = EditorGUILayout.IntField("Current CD", skillInfo.currentCooldown);
-
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Editor NonModifyable", EditorStyles.boldLabel);
-                EditorGUILayout.Toggle("Currently Active", skillInfo.currentlyActive);
-                EditorGUILayout.Toggle("Was Activated", skillInfo.wasActivated);
-                EditorGUILayout.IntField("Times Activated", skillInfo.timesActivated);
-                EditorGUILayout.IntField("Activated At", skillInfo.activatedAt);
-                EditorGUILayout.IntField("CD Started At", skillInfo.cdStartedAt);
-                EditorGUILayout.EnumPopup("CD State", skillInfo.cooldownState);
-                
-                EditorGUI.indentLevel--;
-            }
-
-            EditorGUI.indentLevel++;
-            EditorGUILayout.Space();
-
-            EditorGUI.indentLevel--;
-
-            return skillInfo;
-        }
-
-        public static List<SkillInfo> PaintSkillInfoList(Character character, List<SkillInfo> skillList)
-        {
-            int size = Mathf.Max(0, EditorGUILayout.IntField("Skill Count", skillList.Count));
-
-            while (size > skillList.Count)
-            {
-                skillList.Add(null);
-            }
-
-            while (size < skillList.Count)
-            {
-                skillList.RemoveAt(skillList.Count - 1);
-            }
-
-            EditorGUI.indentLevel++;
-            for (int i = 0; i < skillList.Count; i++)
-            {
-                SkillInfo skillInfo = skillList[i];
-
-                if(skillInfo == null)
-                {
-                    skillInfo = CreateInstance<SkillInfo>();
-                    skillInfo.character = character;
-                }
-
-                skillInfo = PaintSkillInfo(skillInfo);
-                skillList[i] = skillInfo;
-            }
-            EditorGUI.indentLevel--;
-
-            return skillList;
-        }
-    }
-
-#endif
-    #endregion
 }

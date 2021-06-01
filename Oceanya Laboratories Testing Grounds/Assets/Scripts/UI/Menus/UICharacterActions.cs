@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class UICharacterActions : ButtonList
 {
@@ -101,7 +102,7 @@ public class UICharacterActions : ButtonList
                             {
                                 int basicAttackRaw = RPGFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
                                 int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
-                                BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
+                                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
                                 target[i].GetsDamagedBy(resultDMG);
 
                                 if (!target[i].checkedPassives)
@@ -113,19 +114,19 @@ public class UICharacterActions : ButtonList
                                 if (target[i].stats[Stats.CURHP] <= 0)
                                 {
                                     target[i].SetDead(true);
-                                    BattleManager.battleLog.LogBattleEffect($"{target[i].name} is now dead as fuck!");
+                                    BattleManager.i.battleLog.LogBattleEffect($"{target[i].name} is now dead as fuck!");
                                 }
                             }
                             else
                             {
-                                BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name}... but {target[i].name} was untargettable. Attack misses.");
+                                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name}... but {target[i].name} was untargettable. Attack misses.");
                             }
 
                         }
                         else
                         {
 
-                            BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks the dead body of {target[i].name}... How rude.");
+                            BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks the dead body of {target[i].name}... How rude.");
                         }
                     }
 
@@ -157,16 +158,16 @@ public class UICharacterActions : ButtonList
                 {
                     if (target[0].dead)
                     {
-                        BattleManager.battleLog.LogBattleEffect($"{caster.name} tries to swap places with the dead body of {target[0].name}... but it doesn't work (choose another target)");
+                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} tries to swap places with the dead body of {target[0].name}... but it doesn't work (choose another target)");
                         ActionRequiresTarget(CharActions.Rearrange);
                     }
                     else
                     {
                         TeamOrderManager.spdSystem.Swap(caster, target[0]);
-                        BattleManager.battleLog.LogBattleEffect($"{caster.name} swaps places with {target[0].name} to delay their turn!");
+                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} swaps places with {target[0].name} to delay their turn!");
                         TeamOrderManager.SetTurnState(TurnState.Start);
                         TeamOrderManager.SetCurrentTurn(target[0]);
-                        BattleManager.battleLog.LogBattleEffect($"{target[0].name}'s turn is skipped due to being swapped!");
+                        BattleManager.i.battleLog.LogBattleEffect($"{target[0].name}'s turn is skipped due to being swapped!");
                         TeamOrderManager.Continue();
                     }
                 }
@@ -174,15 +175,15 @@ public class UICharacterActions : ButtonList
 
             case CharActions.Prepare:
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} prepares for an attack!");
-                    BattleManager.battleLog.LogBattleEffect($"Yet for time reasons, the programmer couldn't make it work yet...");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} prepares for an attack!");
+                    BattleManager.i.battleLog.LogBattleEffect($"Yet for time reasons, the programmer couldn't make it work yet...");
                     TeamOrderManager.EndTurn();
                 }
                 break;
 
             case CharActions.Skip:
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} skips their turn...");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} skips their turn...");
                     TeamOrderManager.EndTurn();
                 }
                 break;
@@ -191,7 +192,7 @@ public class UICharacterActions : ButtonList
                 break;
         }
 
-        BattleManager.instance.ResetCheckedPassives();
+        BattleManager.i.ResetCheckedPassives();
     }
 
     /// <summary>
@@ -207,7 +208,7 @@ public class UICharacterActions : ButtonList
         {
             case CharActions.Attack:
                 maxTargets = 1;
-                BattleManager.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
+                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
                 ActionRequiresTarget(CharActions.Attack);
                 break;
 
@@ -218,14 +219,14 @@ public class UICharacterActions : ButtonList
             case CharActions.Skill:
                 if (caster.skillList.Count == 0)
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} has no skills to activate...");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} has no skills to activate...");
                 }
                 else
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
 
 
-                    if(!TeamOrderManager.AIturn || BattleManager.instance.debugMode) 
+                    if(!TeamOrderManager.AIturn || BattleManager.i.debugMode) 
                     {
                         UISkillContext.instance.Show();
                         UIItemContext.instance.Hide();
@@ -236,18 +237,18 @@ public class UICharacterActions : ButtonList
             case CharActions.Item:
                 if (caster.inventory.Count == 0)
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} has no items to use...");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} has no items to use...");
                 }
                 else
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{caster.name} uses an item!");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses an item!");
                     UISkillContext.instance.Hide();
                     UIItemContext.instance.Show();
                 }
                 break;
 
             case CharActions.Rearrange:
-                BattleManager.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone! (Choose a target)");
+                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone! (Choose a target)");
                 maxTargets = 1;
                 ActionRequiresTarget(CharActions.Rearrange);
                 break;
@@ -271,11 +272,18 @@ public class UICharacterActions : ButtonList
     public void ActionDoesNotRequireTarget(CharActions action)
     {
         this.action = action;
-        ConfirmAction(BattleManager.caster, BattleManager.target);
+        TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
     }
 
-    public void ConfirmAction(Character caster, List<Character> targets)
+    public void InstantConfirmAction(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction)
     {
-        confirmationPopup.Show(caster, targets);
+        confirmationPopup.SetCharacters(caster, targets);
+        confirmationPopup.SetConfirmAction(confirmAction);
+        confirmationPopup.Confirm();
+    }
+
+    public void DelayConfirmAction(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction)
+    {
+        confirmationPopup.Show(caster, targets, confirmAction);
     }
 }

@@ -22,6 +22,7 @@ public class BattleUI : MonoBehaviour
 
     public CharacterStatToolTip toolTip;
     public EffectAnimator effectAnimator;
+    public Image targettingModeImage;
 
     private void Update()
     {
@@ -54,5 +55,10 @@ public class BattleUI : MonoBehaviour
     public virtual void UpdateUI()
     {
         
+    }
+
+    public void TargettingMode(bool state)
+    {
+        targettingModeImage.gameObject.SetActive(state);
     }
 }

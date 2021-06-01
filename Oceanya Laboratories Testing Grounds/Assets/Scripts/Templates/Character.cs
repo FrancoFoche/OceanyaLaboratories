@@ -17,7 +17,7 @@ public enum StatModificationTypes
     Buff,
     Debuff
 }
-public class Character : ScriptableObject, ISerializationCallbackReceiver
+public class Character
 {
     [SerializeField] private bool                               _AIcontrolled;
     [SerializeField] private int                                _ID;
@@ -53,7 +53,7 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
     #region Getters/Setters
     public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
     public int                                  ID                          { get { return _ID; }                       protected set { _ID = value; } }
-    public new string                           name                        { get { return _name; }                     protected set { _name = value; } }
+    public string                               name                        { get { return _name; }                     protected set { _name = value; } }
     public int                                  level                       { get { return _level; }                    protected set { _level = value; } }
     public Dictionary<Stats, int>               stats                       { get { return _stats; }                    protected set { _stats = value; } }
     public Dictionary<SkillResources, int>      skillResources              { get { return _skillResources; }           protected set { _skillResources = value; } }
@@ -81,106 +81,6 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
 
     public Dictionary<CharActions, int>         importanceOfActions         { get { return _importanceOfActions; }      protected set { _importanceOfActions = value; } }
     public Dictionary<Skill, int>               importanceOfSkills          { get { return _importanceOfSkills; }       protected set { _importanceOfSkills = value; } }
-    #endregion
-
-    #region Dictionary Serialization
-    [SerializeField] private List<Stats> _statsKeys = new List<Stats>();
-    [SerializeField] private List<int> _statsValues = new List<int>();
-
-    [SerializeField] private List<SkillResources> _skillResourcesKeys = new List<SkillResources>();
-    [SerializeField] private List<int> _skillResourcesValues = new List<int>();
-
-    [SerializeField] private List<CharActions> _importanceOfActionsKeys = new List<CharActions>();
-    [SerializeField] private List<int> _importanceOfActionsValues = new List<int>();
-
-    [SerializeField] private List<Skill> _importanceOfSkillsKeys = new List<Skill>();
-    [SerializeField] private List<int> _importanceOfSkillsValues = new List<int>();
-
-    public void OnBeforeSerialize()
-    {
-        #region Stats Dictionary
-        _statsKeys.Clear();
-        _statsValues.Clear();
-
-        foreach (var kvp in stats)
-        {
-            _statsKeys.Add(kvp.Key);
-            _statsValues.Add(kvp.Value);
-        }
-        #endregion
-
-        #region Skill Resources Dictionary
-        _skillResourcesKeys.Clear();
-        _skillResourcesValues.Clear();
-
-        foreach (var kvp in skillResources)
-        {
-            _skillResourcesKeys.Add(kvp.Key);
-            _skillResourcesValues.Add(kvp.Value);
-        }
-        #endregion
-
-        #region Importance of Actions Dictionary
-        _importanceOfActionsKeys.Clear();
-        _importanceOfActionsValues.Clear();
-
-        foreach (var kvp in importanceOfActions)
-        {
-            _importanceOfActionsKeys.Add(kvp.Key);
-            _importanceOfActionsValues.Add(kvp.Value);
-        }
-        #endregion
-
-        #region Importance of Skills Dictionary
-        _importanceOfSkillsKeys.Clear();
-        _importanceOfSkillsValues.Clear();
-
-        foreach (var kvp in importanceOfSkills)
-        {
-            _importanceOfSkillsKeys.Add(kvp.Key);
-            _importanceOfSkillsValues.Add(kvp.Value);
-        }
-        #endregion
-    }
-
-    public void OnAfterDeserialize()
-    {
-        #region Stats Dictionary
-        stats = new Dictionary<Stats, int>();
-
-        for (int i = 0; i != Mathf.Min(_statsKeys.Count, _statsValues.Count); i++)
-        {
-            stats.Add(_statsKeys[i], _statsValues[i]);
-        }
-        #endregion
-
-        #region Skill Resources Dictionary
-        skillResources = new Dictionary<SkillResources, int>();
-
-        for (int i = 0; i != Mathf.Min(_skillResourcesKeys.Count, _skillResourcesValues.Count); i++)
-        {
-            skillResources.Add(_skillResourcesKeys[i], _skillResourcesValues[i]);
-        }
-        #endregion
-
-        #region Importance of Actions Dictionary
-        importanceOfActions = new Dictionary<CharActions, int>();
-
-        for (int i = 0; i != Mathf.Min(_importanceOfActionsKeys.Count, _importanceOfActionsValues.Count); i++)
-        {
-            importanceOfActions.Add(_importanceOfActionsKeys[i], _importanceOfActionsValues[i]);
-        }
-        #endregion
-
-        #region Importance of Skills Dictionary
-        importanceOfSkills = new Dictionary<Skill, int>();
-
-        for (int i = 0; i != Mathf.Min(_importanceOfSkillsKeys.Count, _importanceOfSkillsValues.Count); i++)
-        {
-            importanceOfSkills.Add(_importanceOfSkillsKeys[i], _importanceOfSkillsValues[i]);
-        }
-        #endregion
-    }
     #endregion
 
     protected void InitializeVariables()
@@ -227,7 +127,7 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
         if (defending)
         {
             dmg = Mathf.FloorToInt(DamageTaken / 2);
-            BattleManager.battleLog.LogBattleEffect($"But {name} was defending! Meaning they actually just took {dmg} DMG.");
+            BattleManager.i.battleLog.LogBattleEffect($"But {name} was defending! Meaning they actually just took {dmg} DMG.");
             SetDefending(false);
         }
 
@@ -328,7 +228,7 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
         }
         else
         {
-            BattleManager.battleLog.LogBattleEffect($"But {name} was not dead...");
+            BattleManager.i.battleLog.LogBattleEffect($"But {name} was not dead...");
         }
     }
     #endregion
@@ -476,23 +376,12 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
     /// </summary>
     public SkillInfo        ConvertSkillToSkillInfo(Skill skill)
     {
-        SkillInfo newInfo;
-
-        if (BattleManager.instance.scriptableObjectMode) 
-        {
-            newInfo = CreateInstance<SkillInfo>();
-            newInfo.SetSkill(skill);
-        }
-        else
-        {
-            newInfo = new SkillInfo(this, skill);
-        }
-        
+        SkillInfo newInfo = new SkillInfo(this, skill);
         return newInfo;
     }
     public ItemInfo         ConvertItemToItemInfo(Item item)
     {
-        ItemInfo newInfo = CreateInstance<ItemInfo>();
+        ItemInfo newInfo = new ItemInfo(this, item);
         newInfo.SetItem(item);
         return newInfo;
     }
@@ -540,12 +429,12 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
     {
         if (mode)
         {
-            BattleManager.battleLog.LogBattleEffect($"{name} defends!");
+            BattleManager.i.battleLog.LogBattleEffect($"{name} defends!");
             defending = true;
         }
         else
         {
-            BattleManager.battleLog.LogBattleEffect($"{name} stops defending.");
+            BattleManager.i.battleLog.LogBattleEffect($"{name} stops defending.");
             defending = false;
         }
     }
@@ -556,6 +445,10 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
     public void SetDead                 (bool state)                                
     {
         dead = state;
+    }
+    public void SetAIControlled         (bool state)                                
+    {
+        AIcontrolled = state;
     }
     /// <summary>
     /// Set the probability of an action being chosen when it is controlled by AI
@@ -583,9 +476,9 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
     {
         Debug.Log("AI Turn Start.");
 
-        BattleManager.instance.CheckTotalTeamKill();
+        BattleManager.i.CheckTotalTeamKill();
 
-        if (!(BattleManager.instance.enemyTeamDeath || BattleManager.instance.allyTeamDeath))
+        if (!(BattleManager.i.enemyTeamDeath || BattleManager.i.allyTeamDeath))
         {
             //Update the importance of your actions (for now its just a default of attack = 1; skill = 3; defense = 1;)
             DynamicSetActionImportance();
@@ -688,7 +581,7 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
                 }
                 else
                 {
-                    BattleManager.battleLog.LogBattleEffect($"{name} could not choose any skills to activate, redoing turn.");
+                    BattleManager.i.battleLog.LogBattleEffect($"{name} could not choose any skills to activate, redoing turn.");
                     choseSkillAlready = true;
                     AITurn();
                     return;
@@ -698,8 +591,6 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
             {
                 UICharacterActions.instance.ButtonAction(actionChosen);
             }
-
-            
 
             if (TeamOrderManager.turnState == TurnState.WaitingForTarget && BattleManager.caster == this)
             {
@@ -724,7 +615,7 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
                 }
                 #endregion
 
-                BattleManager.instance.SetTargets(targets);
+                BattleManager.i.SetTargets(targets);
             }
 
             choseSkillAlready = false;
@@ -793,269 +684,5 @@ public class Character : ScriptableObject, ISerializationCallbackReceiver
 
         importanceOfSkills = normalImportance;
     }
-    #endregion
-
-    #region CustomEditor
-#if UNITY_EDITOR
-    [CustomEditor(typeof(Character))]
-    public class CharacterCustomEditor : Editor
-    {
-        Character Target;
-
-        #region EditorHelpers
-        public static bool editorShowBasicAttack           { get; protected set; }
-        public static bool editorShowStats                 { get; protected set; }
-        public static bool editorShowResources             { get; protected set; }
-        public static bool editorShowSkillList             { get; protected set; }
-        public static bool editorShowInventory             { get; protected set; }
-        #endregion
-
-        private void OnEnable()
-        {
-            Target = target as Character;
-        }
-
-        public override void OnInspectorGUI()
-        {
-            EditorUtility.SetDirty(Target);
-
-            Target = PaintCharacter(Target);
-        }
-
-        static int resourceOptionIndex;
-        static int alreadyPickedIndex;
-        public Character PaintCharacter(Character target)
-        {
-            Character character = target;
-            PaintBasicCharacterInfo(character);
-
-            PaintBasicAttack(character);
-
-            RuleManager.BuildHelpers();
-
-            PaintStats(character);
-
-            PaintSkillResources(character);
-
-            PaintInventory(character);
-
-            PaintCharacterSkillList(character);
-
-            return character;
-        }
-
-        public static void PaintCharacterSkillList(Character character)
-        {
-            #region Skill List
-            editorShowSkillList = EditorGUILayout.Foldout(editorShowSkillList, "Skill List");
-
-            if (editorShowSkillList)
-            {
-                if (character.skillList == null)
-                {
-                    character.skillList = new List<SkillInfo>();
-                }
-
-                character.skillList = SkillInfo.SkillInfoEditor.PaintSkillInfoList(character, character.skillList);
-            }
-
-
-            #endregion
-        }
-        public static void PaintSkillResources(Character character)
-        {
-            #region SkillResources
-            editorShowResources = EditorGUILayout.Foldout(editorShowResources, "Resources");
-
-            if (editorShowResources)
-            {
-                #region Initialize Skill Resources
-                if (character.skillResources == null)
-                {
-                    character.skillResources = new Dictionary<SkillResources, int>();
-                }
-                #endregion
-
-                List<SkillResources> resourceOptions = new List<SkillResources>();
-                List<SkillResources> alreadyPicked = new List<SkillResources>();
-
-                #region Check for which resources are available to add and which are already picked
-                for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
-                {
-                    SkillResources curResource = RuleManager.SkillResourceHelper[i];
-
-                    if (curResource != SkillResources.none)
-                    {
-                        if (!character.skillResources.ContainsKey(curResource))
-                        {
-                            resourceOptions.Add(curResource);
-                        }
-                        else
-                        {
-                            if (!alreadyPicked.Contains(curResource))
-                            {
-                                alreadyPicked.Add(curResource);
-                            }
-                        }
-                    }
-                }
-                #endregion
-
-                string[] stringResourceOptions = new string[resourceOptions.Count];
-                string[] stringAlreadyPicked = new string[alreadyPicked.Count];
-
-                #region Transform the lists into string arrays so you can use them as popups
-                for (int i = 0; i < stringResourceOptions.Length; i++)
-                {
-                    stringResourceOptions[i] = resourceOptions[i].ToString();
-                }
-                for (int i = 0; i < stringAlreadyPicked.Length; i++)
-                {
-                    stringAlreadyPicked[i] = alreadyPicked[i].ToString();
-                }
-                #endregion
-
-                #region If you don't already have every skill resource, make an Add Resource section
-                if (alreadyPicked.Count != RuleManager.SkillResourceHelper.Length - 1)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("Add", EditorStyles.boldLabel, GUILayout.MaxWidth(55f));
-                    resourceOptionIndex = EditorGUILayout.Popup(resourceOptionIndex, stringResourceOptions);
-                    SkillResources curResource = resourceOptions[resourceOptionIndex];
-                    if (GUILayout.Button("Add " + curResource.ToString()))
-                    {
-                        character.skillResources.Add(curResource, 0);
-                        alreadyPicked.Add(curResource);
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-                #endregion
-
-                #region If you have some skill resources, make a remove resource section
-                if (character.skillResources.Count != 0)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("Remove", EditorStyles.boldLabel, GUILayout.MaxWidth(55f));
-                    alreadyPickedIndex = EditorGUILayout.Popup(alreadyPickedIndex, stringAlreadyPicked);
-                    if (GUILayout.Button("Remove " + alreadyPicked[alreadyPickedIndex].ToString()))
-                    {
-                        character.skillResources.Remove(alreadyPicked[alreadyPickedIndex]);
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-                #endregion
-
-                #region For every skill resource you have, add a line to set the resource
-                for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
-                {
-                    SkillResources curResource = RuleManager.SkillResourceHelper[i];
-
-                    if (character.skillResources.ContainsKey(curResource))
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField(curResource.ToString(), GUILayout.MaxWidth(100f));
-                        character.skillResources[curResource] = EditorGUILayout.IntField(character.skillResources[curResource]);
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-                #endregion
-
-            }
-
-            #endregion
-        }
-        public static Dictionary<Stats, int> PaintStats(Character character)
-        {
-            #region Stats
-            editorShowStats = EditorGUILayout.Foldout(editorShowStats, "Stats");
-
-            if (editorShowStats)
-            {
-                if (character.stats == null)
-                {
-                    character.stats = new Dictionary<Stats, int>();
-                }
-
-                for (int i = 0; i < RuleManager.StatHelper.Length; i++)
-                {
-                    Stats curStat = RuleManager.StatHelper[i];
-
-                    if (!character.stats.ContainsKey(curStat))
-                    {
-                        character.stats.Add(curStat, 0);
-                    }
-
-                    character.stats[curStat] = EditorGUILayout.IntField(curStat.ToString(), character.stats[curStat]);
-
-                }
-            }
-
-            return character.stats;
-
-            #endregion
-        }
-        public static void PaintBasicAttack(Character character)
-        {
-            #region BasicAttack
-            editorShowBasicAttack = EditorGUILayout.Foldout(editorShowBasicAttack, "Basic Attack Settings");
-            if (editorShowBasicAttack)
-            {
-                if (character.basicAttackFormula == null)
-                {
-                    character.basicAttackFormula = new List<RPGFormula>();
-                }
-
-                character.basicAttackType = (DamageType)EditorGUILayout.EnumPopup("DMG Type", character.basicAttackType);
-                character.basicAttackFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(character.basicAttackFormula);
-            }
-            #endregion
-        }
-        public static void PaintBasicCharacterInfo(Character character)
-        {
-            #region Basic Info
-            #region AI Controlled
-            character.AIcontrolled = EditorGUILayout.Toggle("AI Controlled", character.AIcontrolled);
-            #endregion
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            #region ID
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("ID", EditorStyles.boldLabel);
-            character.ID = EditorGUILayout.IntField(character.ID);
-            EditorGUILayout.EndHorizontal();
-            #endregion
-
-            #region Name
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Name", EditorStyles.boldLabel);
-            character.name = EditorGUILayout.TextField(character.name);
-            EditorGUILayout.EndHorizontal();
-            #endregion
-
-            #region Level
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Level", EditorStyles.boldLabel);
-            character.level = EditorGUILayout.IntField(character.level);
-            EditorGUILayout.EndHorizontal();
-            #endregion
-            #endregion
-        }
-        public static void PaintInventory(Character character)
-        {
-            editorShowInventory = EditorGUILayout.Foldout(editorShowInventory, "Inventory");
-
-            if (editorShowInventory)
-            {
-                if (character.inventory == null)
-                {
-                    character.inventory = new List<ItemInfo>();
-                }
-
-                character.inventory = ItemInfo.ItemInfoCustomEditor.PaintItemInfoList(character, character.inventory);
-            }
-        }
-    }
-#endif
     #endregion
 }

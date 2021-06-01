@@ -14,6 +14,8 @@ public class BattleUIList : ToggleList
     public GameObject enemyUI;
     public Transform enemyParent;
 
+    private List<BattleUI> generalList = new List<BattleUI>();
+
     /// <summary>
     /// Creates and adds a player character to the ally battle UIs.
     /// </summary>
@@ -28,6 +30,7 @@ public class BattleUIList : ToggleList
         character.curUI = newCharUI;
 
         toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
+        generalList.Add(newCharUI);
 
         System.Type type = character.GetType();
         if (type == typeof(PlayerCharacter))
@@ -54,6 +57,7 @@ public class BattleUIList : ToggleList
         character.curUI = newCharUI;
 
         toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
+        generalList.Add(newCharUI);
 
         System.Type type = character.GetType();
         if (type == typeof(PlayerCharacter))
@@ -103,11 +107,19 @@ public class BattleUIList : ToggleList
         return targetsOn;
     }
 
-    public void             UpdateSelected()                        
+    public void             UpdateSelected  ()                      
     {
         if(curObjectsSelected.Count > 0)
         {
             curCharacterSelected = curObjectsSelected[0].GetComponent<BattleUI>().loadedChar;
+        }
+    }
+
+    public void             SetTargettingMode(bool state)           
+    {
+        for (int i = 0; i < generalList.Count; i++)
+        {
+            generalList[i].TargettingMode(state);
         }
     }
 }

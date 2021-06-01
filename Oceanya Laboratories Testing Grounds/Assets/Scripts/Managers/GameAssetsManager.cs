@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Audio;
 public enum Sounds
 {
     AttackSlash,
@@ -36,8 +36,6 @@ public class GameAssetsManager : MonoBehaviour
             if(_instance == null)
             {
                 _instance = (Instantiate(Resources.Load("GameAssets") as GameObject).GetComponent<GameAssetsManager>());
-
-                _instance.RefreshSkillDatabase();
             }
 
             return _instance;
@@ -47,12 +45,8 @@ public class GameAssetsManager : MonoBehaviour
 
     #region Arrays/Databases
 
-
-    public PlayerCharacter[]    playerCharacters;
-    public Enemy[]              enemies;
-    public Item[]               items;
-    public BaseSkillClass[]     classes;
-    private List<Skill>         skills;
+    public AudioMixer           mixer;
+    public AudioMixerGroup      mixerMasterGroup;
     public SpriteInfo[]         sprites;
     public SoundAudioClip[]     sounds;
     public MusicInfo[]          music;
@@ -81,25 +75,12 @@ public class GameAssetsManager : MonoBehaviour
 
     public PlayerCharacter  GetPC           (int id)                                
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBPlayerCharacter.pCharacters.Count; i++)
         {
-            for (int i = 0; i < playerCharacters.Length; i++)
+            PlayerCharacter current = DBPlayerCharacter.pCharacters[i];
+            if (current.ID == id)
             {
-                if (playerCharacters[i].ID == id)
-                {
-                    return playerCharacters[i];
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBPlayerCharacter.pCharacters.Count; i++)
-            {
-                PlayerCharacter current = DBPlayerCharacter.pCharacters[i];
-                if (current.ID == id)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -108,52 +89,26 @@ public class GameAssetsManager : MonoBehaviour
     }
     public PlayerCharacter  GetPC           (string name)                           
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBPlayerCharacter.pCharacters.Count; i++)
         {
-            for (int i = 0; i < playerCharacters.Length; i++)
+            PlayerCharacter current = DBPlayerCharacter.pCharacters[i];
+            if (current.name == name)
             {
-                if (playerCharacters[i].name == name)
-                {
-                    return playerCharacters[i];
-                }
+                return current;
             }
         }
-        else
-        {
-            for (int i = 0; i < DBPlayerCharacter.pCharacters.Count; i++)
-            {
-                PlayerCharacter current = DBPlayerCharacter.pCharacters[i];
-                if (current.name == name)
-                {
-                    return current;
-                }
-            }
-        }
-
+        
         Debug.LogError("Could not find the Player Character with name " + name + ".");
         return null;
     }
     public Enemy            GetEnemy        (int id)                                
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBEnemies.enemies.Count; i++)
         {
-            for (int i = 0; i < enemies.Length; i++)
+            Enemy current = DBEnemies.enemies[i];
+            if (current.ID == id)
             {
-                if (enemies[i].ID == id)
-                {
-                    return enemies[i];
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBEnemies.enemies.Count; i++)
-            {
-                Enemy current = DBEnemies.enemies[i];
-                if (current.ID == id)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -162,25 +117,12 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Enemy            GetEnemy        (string name)                           
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBEnemies.enemies.Count; i++)
         {
-            for (int i = 0; i < enemies.Length; i++)
+            Enemy current = DBEnemies.enemies[i];
+            if (current.name == name)
             {
-                if (enemies[i].name == name)
-                {
-                    return enemies[i];
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBEnemies.enemies.Count; i++)
-            {
-                Enemy current = DBEnemies.enemies[i];
-                if (current.name == name)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -189,28 +131,12 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Item             GetItem         (int id)                                
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBItems.items.Count; i++)
         {
-            for (int i = 0; i < items.Length; i++)
+            Item current = DBItems.items[i];
+            if (current.ID == id)
             {
-                if (items[i] != null)
-                {
-                    if (items[i].ID == id)
-                    {
-                        return items[i];
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBItems.items.Count; i++)
-            {
-                Item current = DBItems.items[i];
-                if (current.ID == id)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -219,89 +145,40 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Item             GetItem         (string name)                           
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBItems.items.Count; i++)
         {
-            for (int i = 0; i < items.Length; i++)
+            Item current = DBItems.items[i];
+            if (current.name == name)
             {
-                if (items[i] != null)
-                {
-                    if (items[i].name == name)
-                    {
-                        return items[i];
-                    }
-                }
+                return current;
             }
         }
-        else
-        {
-            for (int i = 0; i < DBItems.items.Count; i++)
-            {
-                Item current = DBItems.items[i];
-                if (current.name == name)
-                {
-                    return current;
-                }
-            }
-        }
-
+        
         Debug.LogError("Could not find the enemy with name " + name + ".");
         return null;
     }
     public BaseSkillClass   GetClass        (int id)                                
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBClasses.classes.Count; i++)
         {
-            for (int i = 0; i < classes.Length; i++)
+            BaseSkillClass current = DBClasses.classes[i];
+            if (current.ID == id)
             {
-                if (classes[i] != null)
-                {
-                    if (classes[i].ID == id)
-                    {
-                        return classes[i];
-                    }
-                }
+                return current;
             }
         }
-        else
-        {
-            for (int i = 0; i < DBClasses.classes.Count; i++)
-            {
-                BaseSkillClass current = DBClasses.classes[i];
-                if (current.ID == id)
-                {
-                    return current;
-                }
-            }
-        }
-        
 
         Debug.LogError("Could not find the class with id " + id + ".");
         return null;
     }
     public BaseSkillClass   GetClass        (string name)                           
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBClasses.classes.Count; i++)
         {
-            for (int i = 0; i < classes.Length; i++)
+            BaseSkillClass current = DBClasses.classes[i];
+            if (current.name == name)
             {
-                if (classes[i] != null)
-                {
-                    if (classes[i].name == name)
-                    {
-                        return classes[i];
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBClasses.classes.Count; i++)
-            {
-                BaseSkillClass current = DBClasses.classes[i];
-                if (current.name == name)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -310,25 +187,12 @@ public class GameAssetsManager : MonoBehaviour
     }   
     public Skill            GetSkill        (int classID, int skillID)              
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBSkills.skills.Count; i++)
         {
-            for (int i = 0; i < skills.Count; i++)
+            Skill current = DBSkills.skills[i];
+            if (current.skillClass.ID == classID && current.ID == skillID)
             {
-                if (skills[i].ID == skillID && skills[i].skillClass.ID == classID)
-                {
-                    return skills[i];
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBSkills.skills.Count; i++)
-            {
-                Skill current = DBSkills.skills[i];
-                if (current.skillClass.ID == classID && current.ID == skillID)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -337,25 +201,12 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Skill            GetSkill        (string className, string skillName)    
     {
-        if (BattleManager.instance.scriptableObjectMode)
+        for (int i = 0; i < DBSkills.skills.Count; i++)
         {
-            for (int i = 0; i < skills.Count; i++)
+            Skill current = DBSkills.skills[i];
+            if (current.skillClass.name == className && current.name == skillName)
             {
-                if (skills[i].name == skillName && skills[i].skillClass.name == className)
-                {
-                    return skills[i];
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DBSkills.skills.Count; i++)
-            {
-                Skill current = DBSkills.skills[i];
-                if (current.skillClass.name == className && current.name == skillName)
-                {
-                    return current;
-                }
+                return current;
             }
         }
 
@@ -401,32 +252,11 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the sound " + music.ToString() + ".");
         return null;
     }
-    
+
     #endregion
 
-    public void RefreshSkillDatabase()
+    public void SetVolume(float sliderValue)
     {
-        if (_instance.skills == null)
-        {
-            _instance.skills = new List<Skill>();
-        }
-
-        if (_instance.classes != null)
-        {
-            for (int i = 0; i < _instance.classes.Length; i++)
-            {
-                BaseSkillClass currentClass = _instance.classes[i];
-
-                if (currentClass != null)
-                {
-                    for (int j = 0; j < currentClass.skillList.Count; j++)
-                    {
-                        Skill currentSkill = currentClass.skillList[j];
-                        currentSkill.skillClass = currentClass;
-                        _instance.skills.Add(currentSkill);
-                    }
-                }
-            }
-        }
+        mixer.SetFloat("GeneralVolume", Mathf.Log10(sliderValue) * 20);
     }
 }

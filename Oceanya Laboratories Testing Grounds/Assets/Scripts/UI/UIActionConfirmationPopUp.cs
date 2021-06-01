@@ -1,21 +1,59 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class UIActionConfirmationPopUp : MonoBehaviour
 {
     public GameObject objToHide;
     private Character caster;
     private List<Character> targets;
+    private Action<Character, List<Character>> actionType1;
+    private Action actionType2;
+    private actionTypes type;
+    public enum actionTypes
+    {
+        CasterAndTargets,
+        NoParameters
+    }
     private void Awake()
     {
         Hide();
     }
 
-    public void Show(Character caster, List<Character> targets)
+    public void SetCharacters(Character caster, List<Character> targets)
     {
         this.caster = caster;
         this.targets = targets;
+    }
+
+    public void SetConfirmAction(Action<Character, List<Character>> confirmAction)
+    {
+        actionType1 = confirmAction;
+        type = actionTypes.CasterAndTargets;
+    }
+    public void SetConfirmAction(Action action)
+    {
+        actionType2 = action;
+        type = actionTypes.NoParameters;
+    }
+    public void Show(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction)
+    {
+        SetCharacters(caster, targets);
+        SetConfirmAction(confirmAction);
+        if (BattleManager.i.confirmMode)
+        {
+            objToHide.SetActive(true);
+        }
+        else
+        {
+            Confirm();
+        }
+    }
+
+    public void Show(Action action)
+    {
+        SetConfirmAction(action);
         objToHide.SetActive(true);
     }
 
@@ -27,11 +65,30 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     public void Confirm()
     {
         Hide();
-        UICharacterActions.instance.Act(caster, targets);
+        InvokeAction(type);
     }
     public void Deny()
     {
         Hide();
-        TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+        if(type == actionTypes.CasterAndTargets)
+        {
+            BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
+            TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+        }
+    }
+
+    public void InvokeAction(actionTypes type)
+    {
+        switch (type)
+        {
+            case actionTypes.CasterAndTargets:
+                actionType1.Invoke(caster, targets);
+                break;
+            case actionTypes.NoParameters:
+                actionType2.Invoke();
+                break;
+            default:
+                break;
+        }
     }
 }

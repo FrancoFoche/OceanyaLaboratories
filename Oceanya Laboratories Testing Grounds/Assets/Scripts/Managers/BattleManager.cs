@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public enum BattleState
 {
@@ -17,7 +15,7 @@ public enum BattleState
 public class BattleManager : MonoBehaviour
 {
     private static BattleManager _instance;
-    public static BattleManager instance { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
+    public static BattleManager i { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
 
 
     public static   Character           caster          { get; private set; }
@@ -28,14 +26,14 @@ public class BattleManager : MonoBehaviour
     public          bool                inCombat        { get; private set; }
     public          bool                enemyTeamDeath  { get; private set; }
     public          bool                allyTeamDeath   { get; private set; }
-
-    public static   BattleLog           battleLog       { get; private set; }
-    public static   BattleUIList        uiList          { get; private set; }
-    public static   UICharacterActions  charActions     { get; private set; }
-    
     public          bool                debugMode       { get; private set; } //Toggles debug/manual battle features
+    public          bool                confirmMode     { get; private set; } //Toggles confirmation popup
 
-    public bool scriptableObjectMode;
+    public          BattleLog           battleLog;
+    public          BattleUIList        uiList;
+    public          UICharacterActions  charActions;
+    public          PauseMenu           pauseMenu;
+
     public          GameObject          easteregg;
 
     float exitTime = 1.5f;
@@ -46,7 +44,7 @@ public class BattleManager : MonoBehaviour
         easteregg.gameObject.SetActive(false);
 
         #region Initializations
-        caster = ScriptableObject.CreateInstance<Character>();
+        caster = new Character();
         target = new List<Character>();
 
         //BattleState is initialized in "Start Combat"
@@ -54,10 +52,11 @@ public class BattleManager : MonoBehaviour
         enemyTeamDeath = false;
         allyTeamDeath = false;
 
-        battleLog = FindObjectOfType<BattleLog>();
-        uiList = FindObjectOfType<BattleUIList>();
-        charActions = FindObjectOfType<UICharacterActions>();
-        SetDebugMode(false);
+        pauseMenu.manualMode.isOn = false;
+        debugMode = false;
+
+        confirmMode = true;
+        pauseMenu.confirmActions.isOn = true;
 
         //easter egg is assigned through the editor
         #endregion
@@ -68,54 +67,73 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (!pauseMenu.paused)
         {
-            SceneLoaderManager.instance.ReloadScene();
-        }
-
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ToggleDebugMode();
-        }
-
-        if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
-        {
-            if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                Debug.Log("Targetting done.");
-                UICharacterActions.instance.ConfirmAction(caster, target);
-                uiList.TurnToggles(false);
-                target.Clear();
+                SceneLoaderManager.instance.ReloadScene();
             }
-            else
+
+            if (Input.GetKeyDown(KeyCode.M))
             {
-                if(caster.team == Team.Ally || debugMode)
+                ToggleDebugMode();
+            }
+
+            if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
+            {
+                if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
                 {
-                    SetTargets(uiList.CheckTargets());
+                    Debug.Log("Targetting done.");
+                    TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
                 }
-            }
-        }
-        else
-        {
-            if (debugMode)
-            {
-                bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
-                if (togglesOn && uiList.different)
+                else
                 {
-                    uiList.UpdateSelected();
-                    GetCaster();
-                    UISkillContext.instance.Hide();
+                    if (caster.team == Team.Ally || debugMode)
+                    {
+                        SetTargets(uiList.CheckTargets());
+                    }
+                }
+
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    UICharacterActions.instance.confirmationPopup.Deny();
                 }
             }
             else
             {
-                if(BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
+                if (debugMode)
                 {
-                    Debug.LogWarning("The half-assed bugfix patch was triggered.");
-                    uiList.SelectCharacter(TeamOrderManager.currentTurn);
-                }
+                    bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
+                    if (togglesOn && uiList.different)
+                    {
+                        uiList.UpdateSelected();
+                        GetCaster();
+                        UISkillContext.instance.Hide();
+                    }
 
+                    #region Debug Features
+                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn && debugMode)
+                    {
+                        battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
+                        ReselectOriginalTurn();
+                    }
+                    #endregion
+                }
+                else
+                {
+                    if (BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
+                    {
+                        Debug.LogWarning("The half-assed bugfix patch was triggered.");
+                        uiList.SelectCharacter(TeamOrderManager.currentTurn);
+                    }
+
+                }
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            pauseMenu.TogglePause();
         }
 
         if (Input.GetKey(KeyCode.Escape))
@@ -132,20 +150,10 @@ public class BattleManager : MonoBehaviour
         {
             curHold = 0;
         }
-
-        #region Debug Features
-        if (Input.GetKeyDown(KeyCode.Escape) && caster != TeamOrderManager.currentTurn)
-        {
-            battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
-            ReselectOriginalTurn();
-        }
-        #endregion
     }
 
     void                            ToggleDebugMode     ()                          
     {
-        battleLog.LogBattleEffect("Set debug mode to " + !debugMode + ".");
-
         if (debugMode)
         {
             SetDebugMode(false);
@@ -158,12 +166,33 @@ public class BattleManager : MonoBehaviour
     public void                     SetDebugMode        (bool mode)                 
     {
         debugMode = mode;
+        battleLog.LogBattleEffect("Set Manual mode to " + mode);
 
-        if (TeamOrderManager.turnState == TurnState.WaitingForAction && mode)
+        if (mode)
         {
-            uiList.InteractableToggles(true);
-            battleLog.LogBattleEffect("Set UIs to interactable.");
+            if (TeamOrderManager.turnState == TurnState.WaitingForAction)
+            {
+                uiList.InteractableToggles(true);
+            }
         }
+        else
+        {
+            uiList.SelectCharacter(TeamOrderManager.currentTurn);
+        }
+    }
+    public void                     SetConfirmMode      (bool mode)                 
+    {
+        confirmMode = mode;
+
+        if (mode)
+        {
+            battleLog.LogBattleEffect("Activated action confirmation.");
+        }
+        else
+        {
+            battleLog.LogBattleEffect("Action confirmation disabled.");
+        }
+        
     }
     public void                     StartCombat         ()                          
     {

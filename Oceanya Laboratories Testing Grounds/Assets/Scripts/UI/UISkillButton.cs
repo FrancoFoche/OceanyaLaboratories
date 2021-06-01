@@ -21,6 +21,18 @@ public class UISkillButton : MonoBehaviour
 
     public void ActivateLoadedSkill()
     {
+        if(loadedSkill.targetType == TargetType.Multiple || loadedSkill.targetType == TargetType.Single)
+        {
+            UICharacterActions.instance.SetSkillToActivate(loadedSkill);
+        }
+        else
+        {
+            UICharacterActions.instance.confirmationPopup.Show(ConfirmButtonActionFirst);
+        }
+    }
+
+    public void ConfirmButtonActionFirst()
+    {
         UICharacterActions.instance.SetSkillToActivate(loadedSkill);
     }
 

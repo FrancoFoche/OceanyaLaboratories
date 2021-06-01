@@ -7,6 +7,7 @@ public enum TurnState
     Start,
     WaitingForAction,
     WaitingForTarget,
+    WaitingForConfirmation,
     End,
     NonDefined
 }
@@ -36,17 +37,19 @@ public static class TeamOrderManager
         {
             totalCharList.Add(allySide[i]);
             allySide[i].SetTeam(Team.Ally);
+            allySide[i].SetAIControlled(false);
         }
         for (int i = 0; i < enemySide.Count; i++)
         {
             totalCharList.Add(enemySide[i]);
             enemySide[i].SetTeam(Team.Enemy);
+            enemySide[i].SetAIControlled(true);
         }
 
         turnState = TurnState.NonDefined;
 
         currentTeamOrderIndex = 0;
-        currentTurn = ScriptableObject.CreateInstance<Character>();
+        currentTurn = new Character();
 
         spdSystem = new SPDSystem(allySide, enemySide);
         spdSystem.BuildSPDSystem();
@@ -55,8 +58,8 @@ public static class TeamOrderManager
     {
         currentTurn = character;
 
-        BattleManager.battleLog.LogTurn(currentTurn);
-        BattleManager.uiList.SelectCharacter(currentTurn);
+        BattleManager.i.battleLog.LogTurn(currentTurn);
+        BattleManager.i.uiList.SelectCharacter(currentTurn);
     }
     public static void                  SetTurnState    (TurnState state)       
     {
@@ -67,77 +70,102 @@ public static class TeamOrderManager
         else
         {
             Character caster = BattleManager.caster;
+            List<Character> target = BattleManager.target;
 
             switch (state)
             {
                 case TurnState.Start:
-                    turnState = TurnState.Start;
-
-                    if (caster.defending)
                     {
-                        caster.SetDefending(false);
-                    }
+                        turnState = TurnState.Start;
 
-                    if (!caster.dead)
-                    {
-                        caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
-                    }
+                        if (caster.defending)
+                        {
+                            caster.SetDefending(false);
+                        }
 
-                    if (caster.team == Team.Ally || BattleManager.instance.debugMode)
-                    {
-                        AIturn = false;
-                        SetTurnState(TurnState.WaitingForAction);
-                    }
-                    else
-                    {
-                        AIturn = true;
-                        UICharacterActions.instance.InteractableButtons(false);
-                        UISkillContext.instance.InteractableButtons(false);
-                        BattleManager.uiList.InteractableToggles(false);
+                        if (!caster.dead)
+                        {
+                            caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+                        }
 
-                        BattleManager.instance.DelayAction(3, caster.AITurn);
-                    }
+                        if (!caster.AIcontrolled || BattleManager.i.debugMode)
+                        {
+                            AIturn = false;
+                            SetTurnState(TurnState.WaitingForAction);
+                        }
+                        else
+                        {
+                            AIturn = true;
+                            UICharacterActions.instance.InteractableButtons(false);
+                            UISkillContext.instance.InteractableButtons(false);
+                            BattleManager.i.uiList.InteractableToggles(false);
 
+                            BattleManager.i.DelayAction(3, caster.AITurn);
+                        }
+                    }
                     break;
 
                 case TurnState.WaitingForAction:
-                    UICharacterActions.instance.InteractableButtons(true);
-                    UISkillContext.instance.InteractableButtons(true);
-                    BattleManager.uiList.TurnToggleGroup(true);
-
-                    if (BattleManager.instance.debugMode)
                     {
-                        BattleManager.uiList.InteractableToggles(true);
-                    }
-                    else
-                    {
-                        BattleManager.uiList.InteractableToggles(false);
-                    }
+                        UICharacterActions.instance.InteractableButtons(true);
+                        UISkillContext.instance.InteractableButtons(true);
+                        BattleManager.i.uiList.TurnToggleGroup(true);
 
-                    turnState = TurnState.WaitingForAction;
+                        if (BattleManager.i.debugMode)
+                        {
+                            BattleManager.i.uiList.InteractableToggles(true);
+                        }
+                        else
+                        {
+                            BattleManager.i.uiList.InteractableToggles(false);
+                        }
+
+                        BattleManager.i.uiList.SetTargettingMode(false);
+
+                        turnState = TurnState.WaitingForAction;
+                    }
                     break;
 
-
                 case TurnState.WaitingForTarget:
-                    UICharacterActions.instance.InteractableButtons(false);
-                    UISkillContext.instance.InteractableButtons(false);
-                    BattleManager.uiList.TurnToggleGroup(false);
-                    BattleManager.uiList.TurnToggles(false);
-                    BattleManager.uiList.InteractableToggles(true);
+                    {
+                        UICharacterActions.instance.InteractableButtons(false);
+                        UISkillContext.instance.InteractableButtons(false);
+                        BattleManager.i.uiList.TurnToggleGroup(false);
+                        BattleManager.i.uiList.TurnToggles(false);
+                        BattleManager.i.uiList.InteractableToggles(true);
+                        BattleManager.i.uiList.SetTargettingMode(true);
 
-                    BattleManager.instance.ClearTargets();
-                    turnState = TurnState.WaitingForTarget;
+                        BattleManager.i.ClearTargets();
+                        turnState = TurnState.WaitingForTarget;
+                    }
+                    break;
+
+                case TurnState.WaitingForConfirmation:
+                    {
+                        turnState = TurnState.WaitingForConfirmation;
+                        if (AIturn)
+                        {
+                            UICharacterActions.instance.InstantConfirmAction(caster, target, UICharacterActions.instance.Act);
+                        }
+                        else
+                        {
+                            UICharacterActions.instance.DelayConfirmAction(caster, target, UICharacterActions.instance.Act);
+                        }
+
+                    }
                     break;
 
                 case TurnState.End:
-                    turnState = TurnState.End;
-
-                    if (!caster.dead)
                     {
-                        caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
-                    }
+                        turnState = TurnState.End;
 
-                    BattleManager.instance.CheckTotalTeamKill();
+                        if (!caster.dead)
+                        {
+                            caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
+                        }
+
+                        BattleManager.i.CheckTotalTeamKill();
+                    }
                     break;
             }
         }
@@ -151,7 +179,7 @@ public static class TeamOrderManager
         if (currentTeamOrderIndex + 1 == spdSystem.teamOrder.Count)
         {
             spdSystem.SetNextPeriod();
-            BattleManager.battleLog.LogBattleStatus("TOP OF THE ROUND");
+            BattleManager.i.battleLog.LogBattleStatus("TOP OF THE ROUND");
             currentTeamOrderIndex = 0;
         }
         else
@@ -164,7 +192,7 @@ public static class TeamOrderManager
 
         if (currentTurn.dead)
         {
-            BattleManager.battleLog.LogBattleEffect($"But {currentTurn.name} was already dead... F.");
+            BattleManager.i.battleLog.LogBattleEffect($"But {currentTurn.name} was already dead... F.");
             Continue();
             return;
         }
@@ -173,7 +201,7 @@ public static class TeamOrderManager
     {
         SetTurnState(TurnState.End);
 
-        if (BattleManager.instance.inCombat)
+        if (BattleManager.i.inCombat)
         {
             if (BattleManager.caster == currentTurn)
             {
@@ -185,10 +213,10 @@ public static class TeamOrderManager
             {
                 BattleManager.caster.SetPlayed();
                 BattleManager.caster.UpdateCDs();
-                BattleManager.instance.ReselectOriginalTurn();
+                BattleManager.i.ReselectOriginalTurn();
             }
 
-            BattleManager.instance.GetCaster();
+            BattleManager.i.GetCaster();
 
             SetTurnState(TurnState.Start);
         }
