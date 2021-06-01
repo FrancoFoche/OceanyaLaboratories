@@ -14,6 +14,7 @@ public class UICharacterActions : ButtonList
     public string actionString;
 
     public static UICharacterActions instance;
+    public UIActionConfirmationPopUp confirmationPopup;
 
     #region Setters
     public void SetSkillToActivate(Skill skill)
@@ -27,6 +28,7 @@ public class UICharacterActions : ButtonList
     private void Start()
     {
         instance = this;
+        confirmationPopup = FindObjectOfType<UIActionConfirmationPopUp>();
     }
 
     public void AddAction(CharActions action)
@@ -269,6 +271,11 @@ public class UICharacterActions : ButtonList
     public void ActionDoesNotRequireTarget(CharActions action)
     {
         this.action = action;
-        Act(BattleManager.caster, BattleManager.target);
+        ConfirmAction(BattleManager.caster, BattleManager.target);
+    }
+
+    public void ConfirmAction(Character caster, List<Character> targets)
+    {
+        confirmationPopup.Show(caster, targets);
     }
 }

@@ -16,6 +16,10 @@ public enum BattleState
 
 public class BattleManager : MonoBehaviour
 {
+    private static BattleManager _instance;
+    public static BattleManager instance { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
+
+
     public static   Character           caster          { get; private set; }
     public static   List<Character>     target          { get; private set; }
 
@@ -28,10 +32,10 @@ public class BattleManager : MonoBehaviour
     public static   BattleLog           battleLog       { get; private set; }
     public static   BattleUIList        uiList          { get; private set; }
     public static   UICharacterActions  charActions     { get; private set; }
-    public static   BattleManager       instance        { get; private set; }
-
+    
     public          bool                debugMode       { get; private set; } //Toggles debug/manual battle features
 
+    public bool scriptableObjectMode;
     public          GameObject          easteregg;
 
     float exitTime = 1.5f;
@@ -42,7 +46,7 @@ public class BattleManager : MonoBehaviour
         easteregg.gameObject.SetActive(false);
 
         #region Initializations
-        caster = new Character();
+        caster = ScriptableObject.CreateInstance<Character>();
         target = new List<Character>();
 
         //BattleState is initialized in "Start Combat"
@@ -53,7 +57,6 @@ public class BattleManager : MonoBehaviour
         battleLog = FindObjectOfType<BattleLog>();
         uiList = FindObjectOfType<BattleUIList>();
         charActions = FindObjectOfType<UICharacterActions>();
-        instance = this;
         SetDebugMode(false);
 
         //easter egg is assigned through the editor
@@ -80,8 +83,9 @@ public class BattleManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
             {
                 Debug.Log("Targetting done.");
+                UICharacterActions.instance.ConfirmAction(caster, target);
                 uiList.TurnToggles(false);
-                UICharacterActions.instance.Act(caster, target);
+                target.Clear();
             }
             else
             {

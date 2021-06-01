@@ -81,11 +81,25 @@ public class GameAssetsManager : MonoBehaviour
 
     public PlayerCharacter  GetPC           (int id)                                
     {
-        for (int i = 0; i < playerCharacters.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (playerCharacters[i].ID == id)
+            for (int i = 0; i < playerCharacters.Length; i++)
             {
-                return playerCharacters[i];
+                if (playerCharacters[i].ID == id)
+                {
+                    return playerCharacters[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBPlayerCharacter.pCharacters.Count; i++)
+            {
+                PlayerCharacter current = DBPlayerCharacter.pCharacters[i];
+                if (current.ID == id)
+                {
+                    return current;
+                }
             }
         }
 
@@ -94,11 +108,25 @@ public class GameAssetsManager : MonoBehaviour
     }
     public PlayerCharacter  GetPC           (string name)                           
     {
-        for (int i = 0; i < playerCharacters.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (playerCharacters[i].name == name)
+            for (int i = 0; i < playerCharacters.Length; i++)
             {
-                return playerCharacters[i];
+                if (playerCharacters[i].name == name)
+                {
+                    return playerCharacters[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBPlayerCharacter.pCharacters.Count; i++)
+            {
+                PlayerCharacter current = DBPlayerCharacter.pCharacters[i];
+                if (current.name == name)
+                {
+                    return current;
+                }
             }
         }
 
@@ -107,11 +135,25 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Enemy            GetEnemy        (int id)                                
     {
-        for (int i = 0; i < enemies.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (enemies[i].ID == id)
+            for (int i = 0; i < enemies.Length; i++)
             {
-                return enemies[i];
+                if (enemies[i].ID == id)
+                {
+                    return enemies[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBEnemies.enemies.Count; i++)
+            {
+                Enemy current = DBEnemies.enemies[i];
+                if (current.ID == id)
+                {
+                    return current;
+                }
             }
         }
 
@@ -120,11 +162,25 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Enemy            GetEnemy        (string name)                           
     {
-        for (int i = 0; i < enemies.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (enemies[i].name == name)
+            for (int i = 0; i < enemies.Length; i++)
             {
-                return enemies[i];
+                if (enemies[i].name == name)
+                {
+                    return enemies[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBEnemies.enemies.Count; i++)
+            {
+                Enemy current = DBEnemies.enemies[i];
+                if (current.name == name)
+                {
+                    return current;
+                }
             }
         }
 
@@ -133,13 +189,27 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Item             GetItem         (int id)                                
     {
-        for (int i = 0; i < items.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if(items[i] != null)
+            for (int i = 0; i < items.Length; i++)
             {
-                if (items[i].ID == id)
+                if (items[i] != null)
                 {
-                    return items[i];
+                    if (items[i].ID == id)
+                    {
+                        return items[i];
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBItems.items.Count; i++)
+            {
+                Item current = DBItems.items[i];
+                if (current.ID == id)
+                {
+                    return current;
                 }
             }
         }
@@ -149,13 +219,27 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Item             GetItem         (string name)                           
     {
-        for (int i = 0; i < items.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (items[i] != null)
+            for (int i = 0; i < items.Length; i++)
             {
-                if (items[i].name == name)
+                if (items[i] != null)
                 {
-                    return items[i];
+                    if (items[i].name == name)
+                    {
+                        return items[i];
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBItems.items.Count; i++)
+            {
+                Item current = DBItems.items[i];
+                if (current.name == name)
+                {
+                    return current;
                 }
             }
         }
@@ -165,29 +249,58 @@ public class GameAssetsManager : MonoBehaviour
     }
     public BaseSkillClass   GetClass        (int id)                                
     {
-        for (int i = 0; i < classes.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (classes[i] != null)
+            for (int i = 0; i < classes.Length; i++)
             {
-                if (classes[i].ID == id)
+                if (classes[i] != null)
                 {
-                    return classes[i];
+                    if (classes[i].ID == id)
+                    {
+                        return classes[i];
+                    }
                 }
             }
         }
+        else
+        {
+            for (int i = 0; i < DBClasses.classes.Count; i++)
+            {
+                BaseSkillClass current = DBClasses.classes[i];
+                if (current.ID == id)
+                {
+                    return current;
+                }
+            }
+        }
+        
 
         Debug.LogError("Could not find the class with id " + id + ".");
         return null;
     }
     public BaseSkillClass   GetClass        (string name)                           
     {
-        for (int i = 0; i < classes.Length; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (classes[i] != null)
+            for (int i = 0; i < classes.Length; i++)
             {
-                if (classes[i].name == name)
+                if (classes[i] != null)
                 {
-                    return classes[i];
+                    if (classes[i].name == name)
+                    {
+                        return classes[i];
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBClasses.classes.Count; i++)
+            {
+                BaseSkillClass current = DBClasses.classes[i];
+                if (current.name == name)
+                {
+                    return current;
                 }
             }
         }
@@ -197,11 +310,25 @@ public class GameAssetsManager : MonoBehaviour
     }   
     public Skill            GetSkill        (int classID, int skillID)              
     {
-        for (int i = 0; i < skills.Count; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (skills[i].ID == skillID && skills[i].skillClass.ID == classID)
+            for (int i = 0; i < skills.Count; i++)
             {
-                return skills[i];
+                if (skills[i].ID == skillID && skills[i].skillClass.ID == classID)
+                {
+                    return skills[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBSkills.skills.Count; i++)
+            {
+                Skill current = DBSkills.skills[i];
+                if (current.skillClass.ID == classID && current.ID == skillID)
+                {
+                    return current;
+                }
             }
         }
 
@@ -210,11 +337,25 @@ public class GameAssetsManager : MonoBehaviour
     }
     public Skill            GetSkill        (string className, string skillName)    
     {
-        for (int i = 0; i < skills.Count; i++)
+        if (BattleManager.instance.scriptableObjectMode)
         {
-            if (skills[i].name == skillName && skills[i].skillClass.name == className)
+            for (int i = 0; i < skills.Count; i++)
             {
-                return skills[i];
+                if (skills[i].name == skillName && skills[i].skillClass.name == className)
+                {
+                    return skills[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < DBSkills.skills.Count; i++)
+            {
+                Skill current = DBSkills.skills[i];
+                if (current.skillClass.name == className && current.name == skillName)
+                {
+                    return current;
+                }
             }
         }
 

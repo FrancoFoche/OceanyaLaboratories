@@ -17,7 +17,7 @@ public enum StatModificationTypes
     Buff,
     Debuff
 }
-public class Character : ScriptableObject
+public class Character : ScriptableObject, ISerializationCallbackReceiver
 {
     [SerializeField] private bool                               _AIcontrolled;
     [SerializeField] private int                                _ID;
@@ -81,6 +81,106 @@ public class Character : ScriptableObject
 
     public Dictionary<CharActions, int>         importanceOfActions         { get { return _importanceOfActions; }      protected set { _importanceOfActions = value; } }
     public Dictionary<Skill, int>               importanceOfSkills          { get { return _importanceOfSkills; }       protected set { _importanceOfSkills = value; } }
+    #endregion
+
+    #region Dictionary Serialization
+    [SerializeField] private List<Stats> _statsKeys = new List<Stats>();
+    [SerializeField] private List<int> _statsValues = new List<int>();
+
+    [SerializeField] private List<SkillResources> _skillResourcesKeys = new List<SkillResources>();
+    [SerializeField] private List<int> _skillResourcesValues = new List<int>();
+
+    [SerializeField] private List<CharActions> _importanceOfActionsKeys = new List<CharActions>();
+    [SerializeField] private List<int> _importanceOfActionsValues = new List<int>();
+
+    [SerializeField] private List<Skill> _importanceOfSkillsKeys = new List<Skill>();
+    [SerializeField] private List<int> _importanceOfSkillsValues = new List<int>();
+
+    public void OnBeforeSerialize()
+    {
+        #region Stats Dictionary
+        _statsKeys.Clear();
+        _statsValues.Clear();
+
+        foreach (var kvp in stats)
+        {
+            _statsKeys.Add(kvp.Key);
+            _statsValues.Add(kvp.Value);
+        }
+        #endregion
+
+        #region Skill Resources Dictionary
+        _skillResourcesKeys.Clear();
+        _skillResourcesValues.Clear();
+
+        foreach (var kvp in skillResources)
+        {
+            _skillResourcesKeys.Add(kvp.Key);
+            _skillResourcesValues.Add(kvp.Value);
+        }
+        #endregion
+
+        #region Importance of Actions Dictionary
+        _importanceOfActionsKeys.Clear();
+        _importanceOfActionsValues.Clear();
+
+        foreach (var kvp in importanceOfActions)
+        {
+            _importanceOfActionsKeys.Add(kvp.Key);
+            _importanceOfActionsValues.Add(kvp.Value);
+        }
+        #endregion
+
+        #region Importance of Skills Dictionary
+        _importanceOfSkillsKeys.Clear();
+        _importanceOfSkillsValues.Clear();
+
+        foreach (var kvp in importanceOfSkills)
+        {
+            _importanceOfSkillsKeys.Add(kvp.Key);
+            _importanceOfSkillsValues.Add(kvp.Value);
+        }
+        #endregion
+    }
+
+    public void OnAfterDeserialize()
+    {
+        #region Stats Dictionary
+        stats = new Dictionary<Stats, int>();
+
+        for (int i = 0; i != Mathf.Min(_statsKeys.Count, _statsValues.Count); i++)
+        {
+            stats.Add(_statsKeys[i], _statsValues[i]);
+        }
+        #endregion
+
+        #region Skill Resources Dictionary
+        skillResources = new Dictionary<SkillResources, int>();
+
+        for (int i = 0; i != Mathf.Min(_skillResourcesKeys.Count, _skillResourcesValues.Count); i++)
+        {
+            skillResources.Add(_skillResourcesKeys[i], _skillResourcesValues[i]);
+        }
+        #endregion
+
+        #region Importance of Actions Dictionary
+        importanceOfActions = new Dictionary<CharActions, int>();
+
+        for (int i = 0; i != Mathf.Min(_importanceOfActionsKeys.Count, _importanceOfActionsValues.Count); i++)
+        {
+            importanceOfActions.Add(_importanceOfActionsKeys[i], _importanceOfActionsValues[i]);
+        }
+        #endregion
+
+        #region Importance of Skills Dictionary
+        importanceOfSkills = new Dictionary<Skill, int>();
+
+        for (int i = 0; i != Mathf.Min(_importanceOfSkillsKeys.Count, _importanceOfSkillsValues.Count); i++)
+        {
+            importanceOfSkills.Add(_importanceOfSkillsKeys[i], _importanceOfSkillsValues[i]);
+        }
+        #endregion
+    }
     #endregion
 
     protected void InitializeVariables()
@@ -273,7 +373,10 @@ public class Character : ScriptableObject
     {
         for (int i = 0; i < skillList.Count; i++)
         {
-            skillList[i].UpdateCD();
+            if(skillList[i] != null)
+            {
+                skillList[i].UpdateCD();
+            }
         }
     }
     public void             CheckPassives()
@@ -281,9 +384,12 @@ public class Character : ScriptableObject
         Character character = this;
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            if (character.skillList[i].skill.activatableType == ActivatableType.Passive)
+            if(character.skillList[i] != null && character.skillList[i].skill != null)
             {
-                character.skillList[i].SetActive();
+                if (character.skillList[i].skill.activatableType == ActivatableType.Passive)
+                {
+                    character.skillList[i].SetActive();
+                }
             }
         }
     }
@@ -301,29 +407,41 @@ public class Character : ScriptableObject
         List<string> skillnames = new List<string>();
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            skillnames.Add(character.skillList[i].skill.name);
+            if(character.skillList[i] != null)
+            {
+                if(character.skillList[i].skill != null)
+                {
+                    skillnames.Add(character.skillList[i].skill.name);
+                }
+            }
         }
 
 
         for (int i = 0; i < character.skillList.Count; i++)
         {
             SkillInfo curSkillInfo = character.skillList[i];
-            Skill curSkill = curSkillInfo.skill;
-            string name = curSkill.name;
-
-            if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
+            if (curSkillInfo != null)
             {
-                if(curSkill.activatableType == ActivatableType.Active && curSkillInfo.currentlyActive || curSkill.activatableType == ActivatableType.Passive)
+                Skill curSkill = curSkillInfo.skill;
+                if (curSkill != null)
                 {
-                    curSkill.Activate(character);
+                    string name = curSkill.name;
 
-                    if (curSkill.lasts)
+                    if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
                     {
-                        curSkillInfo.timesActivated++;
-
-                        if (curSkillInfo.timesActivated == curSkill.lastsFor)
+                        if (curSkill.activatableType == ActivatableType.Active && curSkillInfo.currentlyActive || curSkill.activatableType == ActivatableType.Passive)
                         {
-                            curSkillInfo.SetDeactivated();
+                            curSkill.Activate(character);
+
+                            if (curSkill.lasts)
+                            {
+                                curSkillInfo.timesActivated++;
+
+                                if (curSkillInfo.timesActivated == curSkill.lastsFor)
+                                {
+                                    curSkillInfo.SetDeactivated();
+                                }
+                            }
                         }
                     }
                 }
@@ -358,8 +476,18 @@ public class Character : ScriptableObject
     /// </summary>
     public SkillInfo        ConvertSkillToSkillInfo(Skill skill)
     {
-        SkillInfo newInfo = CreateInstance<SkillInfo>();
-        newInfo.SetSkill(skill);
+        SkillInfo newInfo;
+
+        if (BattleManager.instance.scriptableObjectMode) 
+        {
+            newInfo = CreateInstance<SkillInfo>();
+            newInfo.SetSkill(skill);
+        }
+        else
+        {
+            newInfo = new SkillInfo(this, skill);
+        }
+        
         return newInfo;
     }
     public ItemInfo         ConvertItemToItemInfo(Item item)
@@ -503,12 +631,15 @@ public class Character : ScriptableObject
                 for (int i = 0; i < skillList.Count; i++)
                 {
                     SkillInfo curskillInfo = skillList[i];
-                    Skill curSkill = curskillInfo.skill;
-                    curskillInfo.CheckActivatable();
-
-                    if (curskillInfo.activatable && !curskillInfo.currentlyActive)
+                    if (curskillInfo != null)
                     {
-                        cleanList.Add(curSkill);
+                        Skill curSkill = curskillInfo.skill;
+                        curskillInfo.CheckActivatable();
+
+                        if (curskillInfo.activatable && !curskillInfo.currentlyActive)
+                        {
+                            cleanList.Add(curSkill);
+                        }
                     }
                 }
 
@@ -663,7 +794,6 @@ public class Character : ScriptableObject
         importanceOfSkills = normalImportance;
     }
     #endregion
-
 
     #region CustomEditor
 #if UNITY_EDITOR
@@ -834,7 +964,7 @@ public class Character : ScriptableObject
 
             #endregion
         }
-        public static void PaintStats(Character character)
+        public static Dictionary<Stats, int> PaintStats(Character character)
         {
             #region Stats
             editorShowStats = EditorGUILayout.Foldout(editorShowStats, "Stats");
@@ -859,6 +989,8 @@ public class Character : ScriptableObject
 
                 }
             }
+
+            return character.stats;
 
             #endregion
         }

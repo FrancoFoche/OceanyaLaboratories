@@ -8,9 +8,10 @@ using UnityEngine.UIElements;
 public class DBItems : MonoBehaviour
 {
     public static List<Item> items = new List<Item>();
-    /*
-    public static void buildDataBase()
+
+    public static void BuildDatabase()
     {
+        /*
         items = new List<Item>()
         {
             new Item(new BaseObjectInfo("Heal test", 1, "Heals"), ItemType.consume, TargetType.Self,
@@ -22,6 +23,7 @@ public class DBItems : MonoBehaviour
             new Dictionary<Item.ItemStats, int>())
 
         };
+        */
     }
-    */
+
 }

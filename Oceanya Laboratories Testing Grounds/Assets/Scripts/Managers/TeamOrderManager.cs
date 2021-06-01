@@ -26,7 +26,8 @@ public static class TeamOrderManager
     public  static  Character           currentTurn;
     public  static  SPDSystem           spdSystem;
 
-    public static void                  BuildTeamOrder  ()                      {
+    public static void                  BuildTeamOrder  ()                      
+    {
         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) };
         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(3) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
         
@@ -45,7 +46,7 @@ public static class TeamOrderManager
         turnState = TurnState.NonDefined;
 
         currentTeamOrderIndex = 0;
-        currentTurn = new Character();
+        currentTurn = ScriptableObject.CreateInstance<Character>();
 
         spdSystem = new SPDSystem(allySide, enemySide);
         spdSystem.BuildSPDSystem();

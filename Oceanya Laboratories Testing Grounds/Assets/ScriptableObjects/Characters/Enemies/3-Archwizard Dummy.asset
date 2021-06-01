@@ -19,7 +19,7 @@ MonoBehaviour:
   _basicAttackFormula:
   - {fileID: 11400000, guid: 38cdbba7ccaf9d149879d56dc0394157, type: 2}
   _basicAttackType: 2
-  _team: 1
+  _team: 0
   _targettable: 1
   _dead: 0
   _permadead: 0

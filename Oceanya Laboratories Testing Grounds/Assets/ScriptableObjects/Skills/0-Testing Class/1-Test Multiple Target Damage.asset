@@ -47,7 +47,7 @@ MonoBehaviour:
   _newBasicAttackFormula: []
   _newBasicAttackDamageType: 0
   _revives: 0
-  _costsTurn: 0
+  _costsTurn: 1
   _appliesStatusEffects: 0
   _doesSummon: 0
   _doesShield: 0

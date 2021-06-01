@@ -67,7 +67,7 @@ public class PlayerCharacter : Character
 
             RuleManager.BuildHelpers();
 
-            CharacterCustomEditor.PaintStats(character);
+            character.stats = CharacterCustomEditor.PaintStats(character);
 
             CharacterCustomEditor.PaintSkillResources(character);
 

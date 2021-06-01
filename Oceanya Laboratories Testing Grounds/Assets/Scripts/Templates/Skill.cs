@@ -430,6 +430,14 @@ public class SkillInfo : ActivatableInfo
     public  CooldownStates  cooldownState       { get; private set; }
     public  int             currentCooldown     { get; private set; }
 
+    public SkillInfo(Character character, Skill skill)
+    {
+        this.character = character;
+        this.skill = skill;
+        equipped = true;
+        activatable = true;
+    }
+
     public void             SetSkill        (Skill skill)                       
     {
         this.skill = skill;

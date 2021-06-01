@@ -6,19 +6,19 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-public abstract class Activatables : ScriptableObject
+public abstract class Activatables : ScriptableObject, ISerializationCallbackReceiver
 {
     [SerializeField] private string                                 _name;
     [SerializeField] private int                                    _ID;
     [SerializeField] private string                                 _description;
     [SerializeField] private ActivatableType                        _activatableType;
 
-    [SerializeField] private List<Behaviors>                        _behaviors;
+    [SerializeField] private List<Behaviors>                        _behaviors                          = new List<Behaviors>();
 
     [SerializeField] private string                                 _activationText;
 
     [SerializeField] private bool                                   _hasActivationRequirement;
-    [SerializeField] private List<ActivationRequirement>            _activationRequirements;
+    [SerializeField] private List<ActivationRequirement>            _activationRequirements             = new List<ActivationRequirement>();
 
     [SerializeField] private bool                                   _hasPassive;
     [SerializeField] private ActivationTime                         _passiveActivationType;
@@ -35,25 +35,25 @@ public abstract class Activatables : ScriptableObject
     [SerializeField] private bool                                   _doesDamage;
     [SerializeField] private DamageType                             _damageType;
     [SerializeField] private ElementType                            _damageElement;
-    [SerializeField] private List<RPGFormula>                       _damageFormula;
+    [SerializeField] private List<RPGFormula>                       _damageFormula                      = new List<RPGFormula>();
 
     [SerializeField] private bool                                   _doesHeal;
-    [SerializeField] private List<RPGFormula>                       _healFormula;
+    [SerializeField] private List<RPGFormula>                       _healFormula                        = new List<RPGFormula>();
 
     [SerializeField] private bool                                   _flatModifiesStat;
-    [SerializeField] private Dictionary<Stats, int>                 _flatStatModifiers;
+    [SerializeField] private Dictionary<Stats, int>                 _flatStatModifiers                  = new Dictionary<Stats, int>();
     [SerializeField] private bool                                   _formulaModifiesStat;
-    [SerializeField] private Dictionary<Stats, List<RPGFormula>>    _formulaStatModifiers;
+    [SerializeField] private Dictionary<Stats, List<RPGFormula>>    _formulaStatModifiers               = new Dictionary<Stats, List<RPGFormula>>();
     [SerializeField] private StatModificationTypes                  _modificationType;
 
     [SerializeField] private bool                                   _modifiesResource;
-    [SerializeField] private Dictionary<SkillResources, int>        _resourceModifiers;
+    [SerializeField] private Dictionary<SkillResources, int>        _resourceModifiers                  = new Dictionary<SkillResources, int>();
 
     [SerializeField] private bool                                   _unlocksResource;
-    [SerializeField] private List<SkillResources>                   _unlockedResources;
+    [SerializeField] private List<SkillResources>                   _unlockedResources                  = new List<SkillResources>();
 
     [SerializeField] private bool                                   _changesBasicAttack;
-    [SerializeField] private List<RPGFormula>                       _newBasicAttackFormula;
+    [SerializeField] private List<RPGFormula>                       _newBasicAttackFormula              = new List<RPGFormula>();
     [SerializeField] private DamageType                             _newBasicAttackDamageType;
 
     [SerializeField] private bool                                   _revives;
@@ -126,6 +126,128 @@ public abstract class Activatables : ScriptableObject
     public bool                                     doesShield                          { get { return _doesShield; }                   protected set { _doesShield = value; } }
     #endregion
 
+    #region Dictionary Serialization
+    [SerializeField] private List<Stats>                            _flatStatModifiersKeys              = new List<Stats>();
+    [SerializeField] private List<int>                              _flatStatModifiersValues            = new List<int>();
+
+    [SerializeField] private List<Stats>                            _formulaStatModifiersKeys           = new List<Stats>();
+    [SerializeField] private List<List<RPGFormula>>                 _formulaStatModifiersValues         = new List<List<RPGFormula>>();
+
+    [SerializeField] private List<SkillResources>                   _resourceModifiersKeys              = new List<SkillResources>();
+    [SerializeField] private List<int>                              _resourceModifiersValues            = new List<int>();
+
+    public void OnBeforeSerialize()
+    {
+        #region Flat Stat Modifiers Dictionary
+        _flatStatModifiersKeys = new List<Stats>();
+        _flatStatModifiersValues = new List<int>();
+
+        if (flatStatModifiers == null)
+        {
+            flatStatModifiers = new Dictionary<Stats, int>();
+        }
+
+        foreach (var kvp in flatStatModifiers)
+        {
+            _flatStatModifiersKeys.Add(kvp.Key);
+            _flatStatModifiersValues.Add(kvp.Value);
+        }
+        #endregion
+        
+        #region Formula Stats Modifiers Dictionary
+        _formulaStatModifiersKeys = new List<Stats>();
+        _formulaStatModifiersValues = new List<List<RPGFormula>>();
+
+        if (formulaStatModifiers == null)
+        {
+            formulaStatModifiers = new Dictionary<Stats, List<RPGFormula>>();
+        }
+
+        foreach (var kvp in formulaStatModifiers)
+        {
+            _formulaStatModifiersKeys.Add(kvp.Key);
+            _formulaStatModifiersValues.Add(kvp.Value);
+        }
+        #endregion
+
+        #region Resource Modifiers Dictionary
+        _resourceModifiersKeys = new List<SkillResources>();
+        _resourceModifiersValues = new List<int>();
+
+        if(resourceModifiers == null)
+        {
+            resourceModifiers = new Dictionary<SkillResources, int>();
+        }
+
+        foreach (var kvp in resourceModifiers)
+        {
+            _resourceModifiersKeys.Add(kvp.Key);
+            _resourceModifiersValues.Add(kvp.Value);
+        }
+        #endregion
+    }
+
+    public void OnAfterDeserialize()
+    {
+        #region Flat Stat Modifiers Dictionary
+        flatStatModifiers = new Dictionary<Stats, int>();
+
+        if (_flatStatModifiersKeys == null)
+        {
+            _flatStatModifiersKeys = new List<Stats>();
+        }
+
+        if (_flatStatModifiersValues == null)
+        {
+            _flatStatModifiersValues = new List<int>();
+        }
+
+        for (int i = 0; i != Mathf.Min(_flatStatModifiersKeys.Count, _flatStatModifiersValues.Count); i++)
+        {
+            flatStatModifiers.Add(_flatStatModifiersKeys[i], _flatStatModifiersValues[i]);
+        }
+        #endregion
+
+        #region Formula Stats Modifiers Dictionary
+        formulaStatModifiers = new Dictionary<Stats, List<RPGFormula>>();
+
+        if(_formulaStatModifiersKeys == null)
+        {
+            _formulaStatModifiersKeys = new List<Stats>();
+        }
+
+        if (_formulaStatModifiersValues == null)
+        {
+            _formulaStatModifiersValues = new List<List<RPGFormula>>();
+        } 
+
+        for (int i = 0; i != Mathf.Min(_formulaStatModifiersKeys.Count, _formulaStatModifiersValues.Count); i++)
+        {
+            formulaStatModifiers.Add(_formulaStatModifiersKeys[i], _formulaStatModifiersValues[i]);
+        }
+        #endregion
+
+        #region Resource Modifiers Dictionary
+        resourceModifiers = new Dictionary<SkillResources, int>();
+
+        if (_resourceModifiersKeys == null)
+        {
+            _resourceModifiersKeys = new List<SkillResources>();
+        }
+
+        if (_resourceModifiersValues == null)
+        {
+            _resourceModifiersValues = new List<int>();
+        }
+
+        for (int i = 0; i != Mathf.Min(_resourceModifiersKeys.Count, _resourceModifiersValues.Count); i++)
+        {
+            resourceModifiers.Add(_resourceModifiersKeys[i], _resourceModifiersValues[i]);
+        }
+        #endregion
+    }
+    #endregion
+
     public enum Behaviors
     {
         None,
@@ -175,7 +297,7 @@ public abstract class Activatables : ScriptableObject
     public class ActivatablesCustomEditor : Editor
     {
         static Activatables Target;
-        public static Dictionary<Behaviors, bool> behaviorShow;
+        public static Dictionary<Behaviors, bool> behaviorShow = new Dictionary<Behaviors, bool>();
         public static bool editorShowBehaviors;
 
         private void OnEnable()
@@ -301,17 +423,12 @@ public abstract class Activatables : ScriptableObject
         public static int behaviorPickedIndex;
         public static List<Behaviors> PaintBehaviorList(List<Behaviors> targetList)
         {
-            if (targetList == null)
-            {
-                targetList = new List<Behaviors>();
-            }
-
-            if (behaviorShow == null)
-            {
-                behaviorShow = new Dictionary<Behaviors, bool>();
-            }
-
             List<Behaviors> list = targetList;
+
+            if(list == null)
+            {
+                list = new List<Behaviors>();
+            }
 
             List<Behaviors> options = new List<Behaviors>();
             List<Behaviors> alreadyPicked = new List<Behaviors>();
@@ -363,6 +480,11 @@ public abstract class Activatables : ScriptableObject
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Add", EditorStyles.boldLabel, GUILayout.MaxWidth(55f));
                 behaviorOptionIndex = EditorGUILayout.Popup(behaviorOptionIndex, stringOptions);
+                if (behaviorOptionIndex >= options.Count)
+                {
+                    behaviorOptionIndex = options.Count - 1;
+                }
+
                 Behaviors curBehavior = options[behaviorOptionIndex];
                 if (GUILayout.Button("Add " + curBehavior.ToString()))
                 {
@@ -379,6 +501,10 @@ public abstract class Activatables : ScriptableObject
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Remove", EditorStyles.boldLabel, GUILayout.MaxWidth(55f));
                 behaviorPickedIndex = EditorGUILayout.Popup(behaviorPickedIndex, stringAlreadyPicked);
+                if(behaviorPickedIndex >= alreadyPicked.Count)
+                {
+                    behaviorPickedIndex = alreadyPicked.Count - 1;
+                }
                 if (GUILayout.Button("Remove " + alreadyPicked[behaviorPickedIndex].ToString()))
                 {
                     list.Remove(alreadyPicked[behaviorPickedIndex]);
@@ -430,12 +556,6 @@ public abstract class Activatables : ScriptableObject
                         Target.damageType = (DamageType)EditorGUILayout.EnumPopup("Type", Target.damageType);
                         Target.damageElement = (ElementType)EditorGUILayout.EnumPopup("Element", Target.damageElement);
 
-
-                        if (Target.damageFormula == null)
-                        {
-                            Target.damageFormula = new List<RPGFormula>();
-                        }
-
                         Target.damageFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.damageFormula);
                     }
                     break;
@@ -455,11 +575,6 @@ public abstract class Activatables : ScriptableObject
                     {
                         Target.doesHeal = true;
 
-                        if (Target.healFormula == null)
-                        {
-                            Target.healFormula = new List<RPGFormula>();
-                        }
-
                         Target.healFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.healFormula);
                     }
                     break;
@@ -467,11 +582,6 @@ public abstract class Activatables : ScriptableObject
                 case Behaviors.FlatModifiesStat:
                     {
                         Target.flatModifiesStat = true;
-
-                        if (Target.flatStatModifiers == null)
-                        {
-                            Target.flatStatModifiers = new Dictionary<Stats, int>();
-                        }
 
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField("Mod Type", EditorStyles.boldLabel);
@@ -500,11 +610,6 @@ public abstract class Activatables : ScriptableObject
                     {
                         Target.formulaModifiesStat = true;
 
-                        if (Target.formulaStatModifiers == null)
-                        {
-                            Target.formulaStatModifiers = new Dictionary<Stats, List<RPGFormula>>();
-                        }
-
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField("Mod Type", EditorStyles.boldLabel);
                         Target.modificationType = (StatModificationTypes)EditorGUILayout.EnumPopup(Target.modificationType);
@@ -531,7 +636,7 @@ public abstract class Activatables : ScriptableObject
                     {
                         Target.modifiesResource = true;
 
-                        if (Target.resourceModifiers == null)
+                        if(Target.resourceModifiers == null)
                         {
                             Target.resourceModifiers = new Dictionary<SkillResources, int>();
                         }
@@ -559,12 +664,6 @@ public abstract class Activatables : ScriptableObject
                         Target.unlocksResource = true;
 
                         List<SkillResources> list = Target.unlockedResources;
-
-                        if (list == null)
-                        {
-                            list = new List<SkillResources>();
-                        }
-
 
                         int size = Mathf.Max(0, EditorGUILayout.IntField("ResourceCount", list.Count));
 
@@ -610,10 +709,6 @@ public abstract class Activatables : ScriptableObject
                 case Behaviors.ActivationRequirement:
                     {
                         Target.hasActivationRequirement = true;
-                        if (Target.activationRequirements == null)
-                        {
-                            Target.activationRequirements = new List<ActivationRequirement>();
-                        }
 
                         Target.activationRequirements = ActivationRequirement.ActivationRequirementEditor.PaintActivationRequirementObjectList(Target.activationRequirements);
                     }
@@ -630,11 +725,6 @@ public abstract class Activatables : ScriptableObject
                     {
                         Target.changesBasicAttack = true;
                         Target.newBasicAttackDamageType = (DamageType)EditorGUILayout.EnumPopup("DMG Type", Target.newBasicAttackDamageType);
-
-                        if (Target.newBasicAttackFormula == null)
-                        {
-                            Target.newBasicAttackFormula = new List<RPGFormula>();
-                        }
 
                         Target.newBasicAttackFormula = RPGFormula.RPGFormulaCustomEditor.PaintObjectList(Target.newBasicAttackFormula);
                     }

@@ -21,7 +21,13 @@ public class UISkillContext : ButtonList
         loadedCharacter = character;
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            AddSkill(character.skillList[i].skill);
+            if(character.skillList[i] != null)
+            {
+                if (character.skillList[i].skill != null)
+                {
+                    AddSkill(character.skillList[i].skill);
+                }
+            }
         }
     }
 

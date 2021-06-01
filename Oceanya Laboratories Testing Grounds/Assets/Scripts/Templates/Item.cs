@@ -288,6 +288,13 @@ public class ItemInfo : ActivatableInfo
     public Item item                    { get; private set; }
     public int amount                   { get; private set; }
 
+    public ItemInfo(Character character, Item item)
+    {
+        this.character = character;
+        this.item = item;
+        activatable = true;
+    }
+
     public void CheckActivatable()
     {
         activatable = ActivatableInfo.CheckActivatable(item);
@@ -303,6 +310,10 @@ public class ItemInfo : ActivatableInfo
     public void SetItem(Item item)
     {
         this.item = item;
+    }
+    public void SetAmount(int amount)
+    {
+        this.amount = amount;
     }
 
     #region CustomEditor

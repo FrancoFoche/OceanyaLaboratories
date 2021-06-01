@@ -2436,9 +2436,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 890478107}
-  - component: {fileID: 890478106}
   - component: {fileID: 890478108}
-  - component: {fileID: 890478109}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -2446,18 +2444,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &890478106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 890478105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20ddf27f52fba014885afb271f04f834, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &890478107
 Transform:
   m_ObjectHideFlags: 0
@@ -2485,18 +2471,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   easteregg: {fileID: 1941859085}
---- !u!114 &890478109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 890478105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b41973593fd99ec4aba55ef6d8bba4bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &951406233
 GameObject:
   m_ObjectHideFlags: 0
