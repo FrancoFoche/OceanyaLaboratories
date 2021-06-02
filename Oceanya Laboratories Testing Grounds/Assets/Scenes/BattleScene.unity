@@ -4258,6 +4258,7 @@ MonoBehaviour:
   charActions: {fileID: 1504574657}
   pauseMenu: {fileID: 902837552}
   easteregg: {fileID: 1941859085}
+  test: {fileID: 0}
 --- !u!1 &902837550
 GameObject:
   m_ObjectHideFlags: 0

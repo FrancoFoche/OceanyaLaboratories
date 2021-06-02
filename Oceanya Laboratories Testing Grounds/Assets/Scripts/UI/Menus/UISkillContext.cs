@@ -7,7 +7,7 @@ public class UISkillContext : ButtonList
 {
     static Character loadedCharacter;
     public static UISkillContext instance;
-
+    private List<UISkillButton> uiList = new List<UISkillButton>();
     private void Awake()
     {
         instance = this;
@@ -21,21 +21,18 @@ public class UISkillContext : ButtonList
         loadedCharacter = character;
         for (int i = 0; i < character.skillList.Count; i++)
         {
-            if(character.skillList[i] != null)
-            {
-                if (character.skillList[i].skill != null)
-                {
-                    AddSkill(character.skillList[i].skill);
-                }
-            }
+            AddSkill(character.skillList[i].skill);
         }
     }
 
     public void AddSkill(Skill skill)
     {
         GameObject newEntry = AddObject();
-        newEntry.GetComponent<UISkillButton>().LoadSkill(skill);
         buttons.Add(newEntry.GetComponent<Button>());
+
+        UISkillButton newButton = newEntry.GetComponent<UISkillButton>();
+        uiList.Add(newButton);
+        newButton.LoadSkill(skill);
     }
 
     public void Show()
@@ -47,5 +44,18 @@ public class UISkillContext : ButtonList
     public void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    public void InteractableUIButtons(bool state)
+    {
+        InteractableButtons(state);
+    }
+
+    public void RefreshFormats()
+    {
+        for (int i = 0; i < uiList.Count; i++)
+        {
+            uiList[i].UpdateFormat();
+        }
     }
 }

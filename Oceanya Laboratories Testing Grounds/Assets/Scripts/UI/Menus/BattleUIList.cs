@@ -83,8 +83,13 @@ public class BattleUIList : ToggleList
             if (list[i].GetComponent<BattleUI>().loadedChar.ID == character.ID)
             {
                 SelectObject(i);
+                if(curCharacterSelected != character)
+                {
+                    Debug.Log($"Selected {character.name}");
+                }
+
                 curCharacterSelected = character;
-                Debug.Log($"Selected {character.name}");
+                
                 break;
             }
         }
@@ -121,5 +126,15 @@ public class BattleUIList : ToggleList
         {
             generalList[i].TargettingMode(state);
         }
+    }
+
+    public void             InteractableUIs(bool state)
+    {
+        for (int i = 0; i < generalList.Count; i++)
+        {
+            generalList[i].InteractableUI(state);
+        }
+
+        Debug.Log("Set all UI's interactables to " + state);
     }
 }

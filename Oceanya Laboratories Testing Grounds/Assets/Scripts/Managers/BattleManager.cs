@@ -36,6 +36,8 @@ public class BattleManager : MonoBehaviour
 
     public          GameObject          easteregg;
 
+    public UnityEngine.UI.Toggle test;
+
     float exitTime = 1.5f;
     float curHold;
 
@@ -67,6 +69,31 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            test.isOn = !test.isOn;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && TeamOrderManager.turnState == TurnState.WaitingForAction)
+        {
+            pauseMenu.TogglePause();
+        }
+
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            curHold += Time.deltaTime;
+
+            if (curHold > exitTime)
+            {
+                SceneLoaderManager.instance.Quit();
+            }
+        }
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            curHold = 0;
+        }
+
         if (!pauseMenu.paused)
         {
             if (Input.GetKeyDown(KeyCode.R))
@@ -94,7 +121,7 @@ public class BattleManager : MonoBehaviour
                     }
                 }
 
-                if (Input.GetKeyDown(KeyCode.Escape))
+                if (Input.GetKeyDown(KeyCode.Escape) && !TeamOrderManager.AIturn)
                 {
                     UICharacterActions.instance.confirmationPopup.Deny();
                 }
@@ -103,6 +130,7 @@ public class BattleManager : MonoBehaviour
             {
                 if (debugMode)
                 {
+                    uiList.CheckCurrentSelection();
                     bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
                     if (togglesOn && uiList.different)
                     {
@@ -112,7 +140,7 @@ public class BattleManager : MonoBehaviour
                     }
 
                     #region Debug Features
-                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn && debugMode)
+                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn)
                     {
                         battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
                         ReselectOriginalTurn();
@@ -129,26 +157,6 @@ public class BattleManager : MonoBehaviour
 
                 }
             }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            pauseMenu.TogglePause();
-        }
-
-        if (Input.GetKey(KeyCode.Escape))
-        {
-            curHold += Time.deltaTime;
-
-            if(curHold > exitTime)
-            {
-                SceneLoaderManager.instance.Quit(); 
-            }
-        }
-
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            curHold = 0;
         }
     }
 
@@ -172,12 +180,12 @@ public class BattleManager : MonoBehaviour
         {
             if (TeamOrderManager.turnState == TurnState.WaitingForAction)
             {
-                uiList.InteractableToggles(true);
+                uiList.InteractableUIs(true);
             }
         }
         else
         {
-            uiList.SelectCharacter(TeamOrderManager.currentTurn);
+            //uiList.SelectCharacter(TeamOrderManager.currentTurn);
         }
     }
     public void                     SetConfirmMode      (bool mode)                 
@@ -239,7 +247,7 @@ public class BattleManager : MonoBehaviour
 
                         MusicManager.PlayMusic(Music.Combat);
                         charActions.InteractableButtons(false);
-                        uiList.InteractableToggles(false);
+                        uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("COMBAT START!");
                     }
                     break;
@@ -253,7 +261,7 @@ public class BattleManager : MonoBehaviour
                     {
                         MusicManager.PlayMusic(Music.Win);
                         charActions.InteractableButtons(false);
-                        uiList.InteractableToggles(false);
+                        uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("Ally team wins!");
                         easteregg.SetActive(true);
                         for (int i = 0; i < array.Length; i++)
@@ -268,7 +276,7 @@ public class BattleManager : MonoBehaviour
                     {
                         MusicManager.PlayMusic(Music.Lose);
                         charActions.InteractableButtons(false);
-                        uiList.InteractableToggles(false);
+                        uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("Enemy team wins!");
                         easteregg.SetActive(true);
                         for (int i = 0; i < array.Length; i++)
@@ -345,8 +353,13 @@ public class BattleManager : MonoBehaviour
     }
     public void                     SetTargets          (List<Character> targets)   
     {
+        if(target.Count != targets.Count)
+        {
+            Debug.Log("Set targets, current count: " + targets.Count);
+        }
+        
         target = targets;
-        Debug.Log("Set targets, current count: " + target.Count);
+        
     }
     public void                     ClearTargets        ()                          
     {

@@ -446,6 +446,7 @@ GameObject:
   - component: {fileID: 328203950}
   - component: {fileID: 328203949}
   - component: {fileID: 328203951}
+  - component: {fileID: 328203952}
   m_Layer: 5
   m_Name: TimelineDirector
   m_TagString: Untagged
@@ -629,6 +630,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &328203952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 328203947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 251b07267a1846346a14a073c53334eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  director: {fileID: 328203950}
+  time: 29
 --- !u!1 &444780009
 GameObject:
   m_ObjectHideFlags: 0

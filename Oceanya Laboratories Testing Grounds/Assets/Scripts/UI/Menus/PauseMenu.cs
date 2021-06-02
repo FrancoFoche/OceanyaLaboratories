@@ -28,6 +28,8 @@ public class PauseMenu : MonoBehaviour
     public void Show()
     {
         paused = true;
+        settingsRoot.SetActive(false);
+        generalRoot.SetActive(true);
         pauseRoot.SetActive(true);
     }
 
@@ -71,14 +73,14 @@ public class PauseMenu : MonoBehaviour
 
     public void Quit()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.Quit);
+        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.Quit, false);
     }
     public void MainMenu()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu);
+        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu, false);
     }
     public void Restart()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene);
+        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene, false);
     }
 }

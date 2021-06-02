@@ -23,6 +23,7 @@ public class BattleUI : MonoBehaviour
     public CharacterStatToolTip toolTip;
     public EffectAnimator effectAnimator;
     public Image targettingModeImage;
+    public Image raycastBlock;
 
     private void Update()
     {
@@ -60,5 +61,10 @@ public class BattleUI : MonoBehaviour
     public void TargettingMode(bool state)
     {
         targettingModeImage.gameObject.SetActive(state);
+    }
+
+    public void InteractableUI(bool state)
+    {
+        raycastBlock.gameObject.SetActive(!state);
     }
 }

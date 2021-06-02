@@ -149,11 +149,11 @@ public class Skill: Activatables
         if (skillInfo.activatable)
         {
             bool firstActivation = !skillInfo.currentlyActive;
-            skillInfo.SetActive();
 
             if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
             {
                 BattleManager.i.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
+                skillInfo.SetActive();
 
                 if (costsTurn)
                 {
@@ -215,6 +215,15 @@ public class Skill: Activatables
 
     public override void Action(Character caster, List<Character> target)
     {
+        SkillInfo skillInfo = caster.GetSkillFromSkillList(this);
+
+        bool firstActivation = !skillInfo.currentlyActive;
+
+        if((targetType == TargetType.Single || targetType == TargetType.Multiple) && firstActivation)
+        {
+            skillInfo.SetActive();
+        }
+        
         for (int i = 0; i < target.Count; i++)
         {
             Dictionary<ReplaceStringVariables, string> activationText = new Dictionary<ReplaceStringVariables, string>();

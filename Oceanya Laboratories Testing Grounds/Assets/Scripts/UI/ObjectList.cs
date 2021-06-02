@@ -94,12 +94,6 @@ public class ToggleList : ObjectList
     public bool different { get; private set; }
 
 
-    private void Update()
-    {
-        CheckCurrentSelection();
-    }
-
-
     /// <summary>
     /// Checks which objects are currently selected
     /// </summary>
@@ -167,6 +161,8 @@ public class ToggleList : ObjectList
         {
             toggles[i].isOn = toggle;
         }
+
+        Debug.Log("Set all toggles to " + toggle);
     }
     public void TurnToggleGroup         (bool toggle)   
     {

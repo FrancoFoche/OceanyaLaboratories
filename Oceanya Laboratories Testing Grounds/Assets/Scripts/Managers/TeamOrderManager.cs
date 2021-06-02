@@ -97,8 +97,9 @@ public static class TeamOrderManager
                         {
                             AIturn = true;
                             UICharacterActions.instance.InteractableButtons(false);
-                            UISkillContext.instance.InteractableButtons(false);
-                            BattleManager.i.uiList.InteractableToggles(false);
+                            UISkillContext.instance.InteractableUIButtons(false);
+                            BattleManager.i.uiList.InteractableUIs(false);
+                            BattleManager.i.uiList.SetTargettingMode(false);
 
                             BattleManager.i.DelayAction(3, caster.AITurn);
                         }
@@ -108,19 +109,18 @@ public static class TeamOrderManager
                 case TurnState.WaitingForAction:
                     {
                         UICharacterActions.instance.InteractableButtons(true);
-                        UISkillContext.instance.InteractableButtons(true);
+                        UISkillContext.instance.InteractableUIButtons(true);
                         BattleManager.i.uiList.TurnToggleGroup(true);
+                        BattleManager.i.uiList.SetTargettingMode(false);
 
                         if (BattleManager.i.debugMode)
                         {
-                            BattleManager.i.uiList.InteractableToggles(true);
+                            BattleManager.i.uiList.InteractableUIs(true);
                         }
                         else
                         {
-                            BattleManager.i.uiList.InteractableToggles(false);
+                            BattleManager.i.uiList.InteractableUIs(false);
                         }
-
-                        BattleManager.i.uiList.SetTargettingMode(false);
 
                         turnState = TurnState.WaitingForAction;
                     }
@@ -129,11 +129,15 @@ public static class TeamOrderManager
                 case TurnState.WaitingForTarget:
                     {
                         UICharacterActions.instance.InteractableButtons(false);
-                        UISkillContext.instance.InteractableButtons(false);
+                        UISkillContext.instance.InteractableUIButtons(false);
                         BattleManager.i.uiList.TurnToggleGroup(false);
+                        BattleManager.i.uiList.InteractableUIs(true);
                         BattleManager.i.uiList.TurnToggles(false);
-                        BattleManager.i.uiList.InteractableToggles(true);
-                        BattleManager.i.uiList.SetTargettingMode(true);
+
+                        if (!AIturn)
+                        {
+                            BattleManager.i.uiList.SetTargettingMode(true);
+                        }
 
                         BattleManager.i.ClearTargets();
                         turnState = TurnState.WaitingForTarget;
@@ -189,6 +193,7 @@ public static class TeamOrderManager
 
         Character newTurn = spdSystem.teamOrder[currentTeamOrderIndex];
         SetCurrentTurn(newTurn);
+        BattleManager.i.DelayAction(0, () => BattleManager.i.uiList.SelectCharacter(currentTurn));
 
         if (currentTurn.dead)
         {
@@ -197,6 +202,8 @@ public static class TeamOrderManager
             return;
         }
     }
+    
+
     public static void                  EndTurn         ()                      
     {
         SetTurnState(TurnState.End);

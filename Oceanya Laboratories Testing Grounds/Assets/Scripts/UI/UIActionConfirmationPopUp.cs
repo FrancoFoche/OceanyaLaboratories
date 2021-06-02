@@ -37,24 +37,37 @@ public class UIActionConfirmationPopUp : MonoBehaviour
         actionType2 = action;
         type = actionTypes.NoParameters;
     }
-    public void Show(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction)
+    public void Show(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction, bool affectedByConfirmActionSetting = true)
     {
         SetCharacters(caster, targets);
         SetConfirmAction(confirmAction);
-        if (BattleManager.i.confirmMode)
+        if (affectedByConfirmActionSetting)
         {
-            objToHide.SetActive(true);
-        }
-        else
-        {
-            Confirm();
+            if (BattleManager.i.confirmMode)
+            {
+                objToHide.SetActive(true);
+            }
+            else
+            {
+                Confirm();
+            }
         }
     }
 
-    public void Show(Action action)
+    public void Show(Action action, bool affectedByConfirmActionSetting = true)
     {
         SetConfirmAction(action);
-        objToHide.SetActive(true);
+        if (affectedByConfirmActionSetting)
+        {
+            if (BattleManager.i.confirmMode)
+            {
+                objToHide.SetActive(true);
+            }
+            else
+            {
+                Confirm();
+            }
+        }
     }
 
     public void Hide()
@@ -74,6 +87,19 @@ public class UIActionConfirmationPopUp : MonoBehaviour
         {
             BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
             TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+
+            Character character;
+
+            if (BattleManager.i.debugMode)
+            {
+                character = BattleManager.caster;
+            }
+            else
+            {
+                character = TeamOrderManager.currentTurn;
+            }
+
+            BattleManager.i.uiList.SelectCharacter(character);
         }
     }
 

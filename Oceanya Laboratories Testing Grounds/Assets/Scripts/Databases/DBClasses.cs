@@ -165,6 +165,7 @@ public class DBClasses : MonoBehaviour
                     .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){{ Stats.INT, new List<RPGFormula>() { new RPGFormula(Stats.INT, operationActions.Multiply,0.5f)} } })
                     .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP,operationActions.Multiply,0.1f)})
                     .BehaviorLastsFor(3)
+                    .BehaviorHasCooldown(CDType.Other)
                 }
             ),
 
