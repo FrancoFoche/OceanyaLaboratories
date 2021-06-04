@@ -37,8 +37,9 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.HPREGEN  , 100  }
                 },
                 GameAssetsManager.instance.GetClass(0).skillList,
-                new List<Item>
+                new Dictionary<Item, int>()
                 {
+
                 }
             ),
 
@@ -64,7 +65,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     GameAssetsManager.instance.GetSkill(ClassNames.Vampire.ToString(),"Dry their blood"),
                     GameAssetsManager.instance.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
                 },
-                new List<Item>
+                new Dictionary<Item, int>()
                 {
 
                 }
@@ -90,7 +91,10 @@ public class DBPlayerCharacter : MonoBehaviour
                     GameAssetsManager.instance.GetSkill(ClassNames.Doctor.ToString(),"Heal"),
                     GameAssetsManager.instance.GetSkill("Testing Class","Regenerative Meditation"),
                 },
-                new List<Item>()
+                new Dictionary<Item, int>()
+                {
+
+                }
             ),
 
             new PlayerCharacter(9 , "Archive" , 5,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
@@ -116,7 +120,10 @@ public class DBPlayerCharacter : MonoBehaviour
                     GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
                     GameAssetsManager.instance.GetSkill("Testing Class","Arcane Overflow"),
                 },
-                new List<Item>()
+                new Dictionary<Item, int>()
+                {
+                    { GameAssetsManager.instance.GetItem(1) , 2}
+                }
             ),
         };
     }

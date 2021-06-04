@@ -21,16 +21,15 @@ public class UIItemContext : ButtonList
         loadedCharacter = character;
         for (int a = 0; a < character.inventory.Count; a++)
         {
-            AddItem(character.inventory[a].item);
+            AddItem(character.inventory[a]);
         }
     }
 
-    public void AddItem(Item item)
+    public void AddItem(ItemInfo item)
     {
         GameObject newEntry = AddObject(); ;
-        newEntry.GetComponent<UIItemButton>().LoadItem(item);
+        newEntry.GetComponent<UIItemButton>().LoadItem(item.item, item.amount);
         buttons.Add(newEntry.GetComponent<Button>());
-        print(item.name);
     }
 
     public void Show()

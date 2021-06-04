@@ -11,19 +11,20 @@ public class DBItems : MonoBehaviour
 
     public static void BuildDatabase()
     {
-        /*
         items = new List<Item>()
         {
-            new Item(new BaseObjectInfo("Heal test", 1, "Heals"), ItemType.consume, TargetType.Self,
-            new Dictionary<Item.ItemStats, int>()
-            {
-                { Item.ItemStats.Heal, 20 }
-            })  .BehaviorDoesHeal(),
-            new Item(new BaseObjectInfo("Test 2", 2, "test"), ItemType.consume, TargetType.Self,
-            new Dictionary<Item.ItemStats, int>())
+            new Item(new BaseObjectInfo("Heal test", 1, "Heals"),
+            "test",
+            Item.Type.Consumable,
+            GameAssetsManager.instance.GetItemIcon(ItemIcon.test1),
+            ActivatableType.Active,
+            TargetType.Single
+            )
+            .BehaviorDoesHeal(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,2f)})
+            .BehaviorCostsTurn()
 
         };
-        */
+
     }
 
 }

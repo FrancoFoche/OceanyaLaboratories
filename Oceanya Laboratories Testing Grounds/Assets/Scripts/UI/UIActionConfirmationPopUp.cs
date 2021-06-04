@@ -52,6 +52,10 @@ public class UIActionConfirmationPopUp : MonoBehaviour
                 Confirm();
             }
         }
+        else
+        {
+            objToHide.SetActive(true);
+        }
     }
 
     public void Show(Action action, bool affectedByConfirmActionSetting = true)
@@ -67,6 +71,10 @@ public class UIActionConfirmationPopUp : MonoBehaviour
             {
                 Confirm();
             }
+        }
+        else
+        {
+            objToHide.SetActive(true);
         }
     }
 

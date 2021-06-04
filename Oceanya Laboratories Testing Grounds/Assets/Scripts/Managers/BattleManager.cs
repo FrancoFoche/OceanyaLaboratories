@@ -36,8 +36,6 @@ public class BattleManager : MonoBehaviour
 
     public          GameObject          easteregg;
 
-    public UnityEngine.UI.Toggle test;
-
     float exitTime = 1.5f;
     float curHold;
 
@@ -54,11 +52,13 @@ public class BattleManager : MonoBehaviour
         enemyTeamDeath = false;
         allyTeamDeath = false;
 
-        pauseMenu.manualMode.isOn = false;
-        debugMode = false;
+        debugMode = MainMenu.manualMode;
+        pauseMenu.manualMode.isOn = debugMode;
 
-        confirmMode = true;
-        pauseMenu.confirmActions.isOn = true;
+        confirmMode = MainMenu.actionConfirmation;
+        pauseMenu.confirmActions.isOn = confirmMode;
+
+        pauseMenu.volume.value = MainMenu.volumeSlider;
 
         //easter egg is assigned through the editor
         #endregion
@@ -69,10 +69,6 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            test.isOn = !test.isOn;
-        }
 
         if (Input.GetKeyDown(KeyCode.Escape) && TeamOrderManager.turnState == TurnState.WaitingForAction)
         {
@@ -137,6 +133,7 @@ public class BattleManager : MonoBehaviour
                         uiList.UpdateSelected();
                         GetCaster();
                         UISkillContext.instance.Hide();
+                        UIItemContext.instance.Hide();
                     }
 
                     #region Debug Features

@@ -9,7 +9,7 @@ public class DBEnemies : MonoBehaviour
     {
         enemies = new List<Enemy>()
         {
-            new Enemy(1 , "TankDummy" , GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
+            new Enemy(1 , "TankDummy" , GameAssetsManager.instance.GetSprite(Sprites.Kirbo), 10,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 200   },
@@ -26,10 +26,14 @@ public class DBEnemies : MonoBehaviour
                 new List<Skill>()
                 {
                     GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Great Fire Ball"),
-                }, new List<Item>()
+                },
+                new Dictionary<Item, int>()
+                {
+
+                }
             ),
 
-            new Enemy(2 , "Wizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 10,
+            new Enemy(2 , "Wizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.Obama), 10,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 100 },
@@ -47,10 +51,14 @@ public class DBEnemies : MonoBehaviour
                 {
                     GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Mind Over Body"),
                     GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
-                }, new List<Item>()
+                }, 
+                new Dictionary<Item, int>()
+                {
+
+                }
             ),
 
-            new Enemy(3 , "Archwizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.MagnoDrip), 20,
+            new Enemy(3 , "Archwizard Dummy" ,GameAssetsManager.instance.GetSprite(Sprites.Vergil), 20,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 150 },
@@ -70,7 +78,11 @@ public class DBEnemies : MonoBehaviour
                     GameAssetsManager.instance.GetSkill(SenjutsuSubclasses.FrogStyleSage.ToString(),"Triple Threat"),
                     GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"White Dragon Breath"),
                     GameAssetsManager.instance.GetSkill(ClassNames.MasterOfDarkArts.ToString(),"Soul Spear"),
-                }, new List<Item>()
+                },
+                new Dictionary<Item, int>()
+                {
+
+                }
             ),
         };
     }

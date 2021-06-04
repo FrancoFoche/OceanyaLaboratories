@@ -34,6 +34,8 @@ public class EnemySpawner : ObjectList
 
             EffectAnimator curEffectAnimator = curEnemy.GetComponentInChildren<EffectAnimator>();
             SpriteAnimator curSpriteAnimator = curEnemy.GetComponentInChildren<SpriteAnimator>();
+            EnemySprite curSprite = curEnemy.GetComponentInChildren<EnemySprite>();
+            curSprite.SwitchSprites(enemyList[i].sprite);
 
             Transform[] children = curEnemy.GetComponentsInChildren<Transform>();
             for (int j = 0; j < children.Length; j++)

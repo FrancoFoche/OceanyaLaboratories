@@ -10,7 +10,7 @@ public class UICharacterActions : ButtonList
     public CharActions action;
 
     public Skill skillToActivate { get; private set; } //in case of using the skill action, this skill will activate after targetting
-    public Item itemToUse;
+    public Item itemToUse { get; private set; }
 
     public string actionString;
 
@@ -23,6 +23,12 @@ public class UICharacterActions : ButtonList
         skill.Activate(BattleManager.caster);
         skillToActivate = skill;
         Debug.Log("Set skill to activate to " + skill.name);
+    }
+    public void SetItemToActivate(Item item)
+    {
+        item.Activate(BattleManager.caster);
+        itemToUse = item;
+        Debug.Log("Set item to activate to " + item.name);
     }
     #endregion
 
@@ -69,7 +75,7 @@ public class UICharacterActions : ButtonList
                 result = "Use a skill from your skill list";
                 break;
             case CharActions.Item:
-                result = "(NOT YET IMPLEMENTED) Utilize an item from your inventory";
+                result = "Utilize an item from your inventory";
                 break;
             case CharActions.Rearrange:
                 result = "Use this turn to rearrange yourself in the team order.";

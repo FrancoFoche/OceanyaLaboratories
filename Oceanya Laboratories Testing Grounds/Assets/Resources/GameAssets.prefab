@@ -47,7 +47,15 @@ MonoBehaviour:
   mixerMasterGroup: {fileID: 24300002, guid: 090abefc08f71c04fbdcbfba5f1af744, type: 2}
   sprites:
   - spriteName: 0
-    sprite: {fileID: 21300000, guid: 8efc7f0fed324ad458f7a8aef14bbd6e, type: 3}
+    sprite: {fileID: 2800000, guid: 8efc7f0fed324ad458f7a8aef14bbd6e, type: 3}
+  - spriteName: 1
+    sprite: {fileID: 2800000, guid: 9e8708d6ff2fd9348a32785daf508bcb, type: 3}
+  - spriteName: 2
+    sprite: {fileID: 2800000, guid: 81f81b21fac8e584296fc8b780913875, type: 3}
+  - spriteName: 3
+    sprite: {fileID: 2800000, guid: 40ed74a8472bea040a19a09af1cdda53, type: 3}
+  - spriteName: 4
+    sprite: {fileID: 2800000, guid: 15edc8023fa1d344d9369f04c7d0ba85, type: 3}
   sounds:
   - sound: 0
     audioClip: {fileID: 8300000, guid: 6766ad8c642bd63469f74726759053fd, type: 3}
@@ -72,3 +80,8 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 75e24864167da7e44a8853f4cb65e725, type: 3}
   - music: 4
     audioClip: {fileID: 8300000, guid: 5b46e3fb20aea7c4782860e2c8dc19d6, type: 3}
+  itemIcons:
+  - icon: 0
+    sprite: {fileID: 21300000, guid: ced6eb974ab038c448ce984f431e4339, type: 3}
+  - icon: 1
+    sprite: {fileID: 21300000, guid: b929ec8307fa4ef499ba0a8f7b76bfb3, type: 3}

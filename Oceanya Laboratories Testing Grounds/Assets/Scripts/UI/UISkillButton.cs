@@ -27,13 +27,8 @@ public class UISkillButton : MonoBehaviour
         }
         else
         {
-            UICharacterActions.instance.confirmationPopup.Show(ConfirmButtonActionFirst);
+            UICharacterActions.instance.confirmationPopup.Show(() => UICharacterActions.instance.SetSkillToActivate(loadedSkill));
         }
-    }
-
-    public void ConfirmButtonActionFirst()
-    {
-        UICharacterActions.instance.SetSkillToActivate(loadedSkill);
     }
 
     public void UpdateFormat()

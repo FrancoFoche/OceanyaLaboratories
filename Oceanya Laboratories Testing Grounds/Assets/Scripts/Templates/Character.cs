@@ -22,6 +22,8 @@ public class Character
     [SerializeField] private bool                               _AIcontrolled;
     [SerializeField] private int                                _ID;
     [SerializeField] private string                             _name;
+    [SerializeField] private Texture2D                          _sprite;
+    
     [SerializeField] private int                                _level;
     [SerializeField] private Dictionary<Stats, int>             _stats;
     [SerializeField] private Dictionary<SkillResources, int>    _skillResources;
@@ -54,6 +56,8 @@ public class Character
     public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
     public int                                  ID                          { get { return _ID; }                       protected set { _ID = value; } }
     public string                               name                        { get { return _name; }                     protected set { _name = value; } }
+    public Texture2D                            sprite                      { get { return _sprite; }                   protected set { _sprite = value; } }
+
     public int                                  level                       { get { return _level; }                    protected set { _level = value; } }
     public Dictionary<Stats, int>               stats                       { get { return _stats; }                    protected set { _stats = value; } }
     public Dictionary<SkillResources, int>      skillResources              { get { return _skillResources; }           protected set { _skillResources = value; } }
@@ -359,13 +363,22 @@ public class Character
 
         return newList;
     }
-    public List<ItemInfo>   ConvertItemsToItemInfo(List<Item> infoList)
+    public List<ItemInfo>   ConvertItemsToItemInfo(Dictionary<Item, int> inventory)
     {
+        List<Item> itemList = new List<Item>(); 
+        List<int> amount = new List<int>();
+
+        foreach(var kvp in inventory)
+        {
+            itemList.Add(kvp.Key);
+            amount.Add(kvp.Value);
+        }
+
         List<ItemInfo> newList = new List<ItemInfo>();
 
-        for (int i = 0; i < infoList.Count; i++)
+        for (int i = 0; i < Mathf.Min(itemList.Count, amount.Count); i++)
         {
-            newList.Add(ConvertItemToItemInfo(infoList[i]));
+            newList.Add(ConvertItemToItemInfo(itemList[i], amount[i]));
         }
 
         return newList;
@@ -379,10 +392,9 @@ public class Character
         SkillInfo newInfo = new SkillInfo(this, skill);
         return newInfo;
     }
-    public ItemInfo         ConvertItemToItemInfo(Item item)
+    public ItemInfo         ConvertItemToItemInfo(Item item, int amount)
     {
-        ItemInfo newInfo = new ItemInfo(this, item);
-        newInfo.SetItem(item);
+        ItemInfo newInfo = new ItemInfo(this, item, amount);
         return newInfo;
     }
 
@@ -412,7 +424,6 @@ public class Character
         Debug.LogError($"{name} did not have the item {item.name}");
         return null;
     }
-
 
     #endregion
 

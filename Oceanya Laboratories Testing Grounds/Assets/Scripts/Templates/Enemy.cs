@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Enemy : Character
 {
-    public Sprite image;
-
-    public Enemy(int ID, string name, Sprite image, int level, Dictionary<Stats, int> stats, List<Skill> skillList, List<Item> items)
+    public Enemy(int ID, string name, Texture2D sprite, int level, Dictionary<Stats, int> stats, List<Skill> skillList, Dictionary<Item, int> inventory)
     {
         InitializeVariables();
 
@@ -14,8 +12,8 @@ public class Enemy : Character
         this.level = level;
         this.name = name;
         this.stats = stats;
-        this.image = image;
-        this.inventory = ConvertItemsToItemInfo(items);
+        this.sprite = sprite;
+        this.inventory = ConvertItemsToItemInfo(inventory);
 
         this.skillList = ConvertSkillsToSkillInfo(skillList);
     }

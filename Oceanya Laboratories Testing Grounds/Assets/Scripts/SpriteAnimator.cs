@@ -12,11 +12,6 @@ public class SpriteAnimator : MonoBehaviour
 
     public Animator animator;
 
-    private void Update()
-    {
-        Testing();
-    }
-
     public void PlayAnimation(Animations animations)
     {
         Debug.Log("Played animation: " + animations.ToString() + ".");
@@ -26,15 +21,5 @@ public class SpriteAnimator : MonoBehaviour
     public void PlaySound(Sounds sound)
     {
         SFXManager.PlaySound(sound);
-    }
-    /// <summary>
-    /// Just a testing function that reads your input
-    /// </summary>
-    public void Testing()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            PlayAnimation(Animations.Attacked);
-        }
     }
 }

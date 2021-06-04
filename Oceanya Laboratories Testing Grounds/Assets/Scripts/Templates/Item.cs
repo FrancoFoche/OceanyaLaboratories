@@ -4,20 +4,149 @@ using UnityEngine;
 
 public class Item : Activatables
 {
+    public enum Type
+    {
+        Consumable,
+        Equippable
+    }
+
+    public Type type;
+    public Sprite icon;
+
+    #region Constructors
+    public Item(BaseObjectInfo baseInfo, string activationText, Type type, Sprite icon, ActivatableType skillType, TargetType targetType, int maxTargets = 1)
+    {
+        this.name = baseInfo.name;
+        ID = baseInfo.id;
+        description = baseInfo.description;
+        this.activationText = activationText;
+        this.targetType = targetType;
+        this.maxTargets = maxTargets;
+        activatableType = skillType;
+        this.type = type;
+        this.icon = icon;
+        //Default and initializer values go here
+
+        cooldown = 0;
+        behaviors = new List<Behaviors>();
+    }
+    public Item BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<RPGFormula> damageFormula)
+    {
+        behaviors.Add(Behaviors.DoesDamage);
+        doesDamage = true;
+        this.damageType = damageType;
+        this.damageElement = damageElement;
+        this.damageFormula = damageFormula;
+        return this;
+    }
+    public Item BehaviorHasCooldown(CDType cdType)
+    {
+        behaviors.Add(Behaviors.HasCooldown);
+        this.cdType = cdType;
+        return this;
+    }
+    public Item BehaviorHasCooldown(CDType cdType, int cooldown)
+    {
+        behaviors.Add(Behaviors.HasCooldown);
+        this.cdType = cdType;
+        this.cooldown = cooldown;
+        return this;
+    }
+    public Item BehaviorDoesHeal(List<RPGFormula> healFormula)
+    {
+        behaviors.Add(Behaviors.DoesHeal);
+        doesHeal = true;
+        this.healFormula = healFormula;
+        return this;
+    }
+    public Item BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, int> statModifiers)
+    {
+        behaviors.Add(Behaviors.FlatModifiesStat);
+        flatModifiesStat = true;
+        flatStatModifiers = statModifiers;
+        this.modificationType = modificationType;
+        return this;
+    }
+    public Item BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, List<RPGFormula>> statModifiers)
+    {
+        behaviors.Add(Behaviors.FormulaModifiesStat);
+        formulaModifiesStat = true;
+        formulaStatModifiers = statModifiers;
+        this.modificationType = modificationType;
+        return this;
+    }
+    public Item BehaviorModifiesResource(Dictionary<SkillResources, int> resourceModifiers)
+    {
+        behaviors.Add(Behaviors.ModifiesResource);
+        modifiesResource = true;
+        this.resourceModifiers = resourceModifiers;
+        return this;
+    }
+    public Item BehaviorUnlocksResource(List<SkillResources> unlockedResources)
+    {
+        behaviors.Add(Behaviors.UnlocksResource);
+        unlocksResource = true;
+        this.unlockedResources = unlockedResources;
+        return this;
+    }
+    public Item BehaviorPassive(ActivationTime activationType)
+    {
+        behaviors.Add(Behaviors.Passive);
+        hasPassive = true;
+        this.passiveActivationType = activationType;
+        return this;
+    }
+    public Item BehaviorCostsTurn()
+    {
+        behaviors.Add(Behaviors.CostsTurn);
+        costsTurn = true;
+        return this;
+    }
+    public Item BehaviorActivationRequirement(List<ActivationRequirement> requirements)
+    {
+        behaviors.Add(Behaviors.ActivationRequirement);
+        hasActivationRequirement = true;
+        activationRequirements = requirements;
+        return this;
+    }
+    public Item BehaviorLastsFor(int maxActivationTimes)
+    {
+        behaviors.Add(Behaviors.LastsFor);
+        lasts = true;
+        lastsFor = maxActivationTimes;
+        return this;
+    }
+    public Item BehaviorChangesBasicAttack(List<RPGFormula> newBaseFormula, DamageType newDamageType)
+    {
+        behaviors.Add(Behaviors.ChangesBasicAttack);
+        this.newBasicAttackFormula = newBaseFormula;
+        this.newBasicAttackDamageType = newDamageType;
+        changesBasicAttack = true;
+        return this;
+    }
+    public Item BehaviorRevives()
+    {
+        behaviors.Add(Behaviors.Revives);
+        revives = true;
+        return this;
+    }
+
+    #endregion
+
     public override void Activate(Character caster)
     {
-        ItemInfo itemInfo = caster.GetItemFromInventory(this);
+        ItemInfo info = caster.GetItemFromInventory(this);
 
-        itemInfo.CheckActivatable();
+        info.CheckActivatable();
 
-        if (itemInfo.activatable)
+        if (info.activatable)
         {
-            bool firstActivation = !itemInfo.currentlyActive;
-            itemInfo.SetActive();
+            bool firstActivation = !info.currentlyActive;
 
             if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
             {
                 BattleManager.i.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
+                info.SetActive();
 
                 if (costsTurn)
                 {
@@ -26,41 +155,48 @@ public class Item : Activatables
             }
             else
             {
-                switch (targetType)
+                if (targetType == TargetType.Single || targetType == TargetType.Multiple)
                 {
-                    case TargetType.Self:
-                        Action(caster, new List<Character>() { caster });
-                        break;
+                    UICharacterActions.instance.maxTargets = maxTargets;
+                    UICharacterActions.instance.ActionRequiresTarget(CharActions.Item);
+                }
+                else
+                {
+                    List<Character> targets = new List<Character>();
+                    switch (targetType)
+                    {
+                        case TargetType.Self:
+                            targets = new List<Character>() { caster };
+                            break;
 
-                    case TargetType.Single:
-                    case TargetType.Multiple:
-                        UICharacterActions.instance.maxTargets = maxTargets;
-                        UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
-                        break;
+                        case TargetType.AllAllies:
+                            if (caster.team == Team.Ally)
+                            {
+                                targets = TeamOrderManager.allySide;
+                            }
+                            else
+                            {
+                                targets = TeamOrderManager.enemySide;
+                            }
+                            break;
+                        case TargetType.AllEnemies:
+                            if (caster.team == Team.Ally)
+                            {
+                                targets = TeamOrderManager.enemySide;
+                            }
+                            else
+                            {
+                                targets = TeamOrderManager.allySide;
+                            }
+                            break;
+                        case TargetType.Bounce:
+                            targets = new List<Character>() { BattleManager.caster };
+                            break;
+                    }
 
-                    case TargetType.AllAllies:
-                        if (caster.team == Team.Ally)
-                        {
-                            Action(caster, TeamOrderManager.allySide);
-                        }
-                        else
-                        {
-                            Action(caster, TeamOrderManager.enemySide);
-                        }
-                        break;
-                    case TargetType.AllEnemies:
-                        if (caster.team == Team.Ally)
-                        {
-                            Action(caster, TeamOrderManager.enemySide);
-                        }
-                        else
-                        {
-                            Action(caster, TeamOrderManager.allySide);
-                        }
-                        break;
-                    case TargetType.Bounce:
-                        Action(caster, new List<Character>() { BattleManager.caster });
-                        break;
+                    BattleManager.i.SetTargets(targets);
+
+                    Action(caster, targets);
                 }
             }
         }
@@ -72,6 +208,15 @@ public class Item : Activatables
 
     public override void Action(Character caster, List<Character> target)
     {
+        ItemInfo info = caster.GetItemFromInventory(this);
+
+        bool firstActivation = !info.currentlyActive;
+
+        if ((targetType == TargetType.Single || targetType == TargetType.Multiple) && firstActivation)
+        {
+            info.SetActive();
+        }
+
         for (int i = 0; i < target.Count; i++)
         {
             Dictionary<ReplaceStringVariables, string> activationText = new Dictionary<ReplaceStringVariables, string>();
@@ -192,10 +337,11 @@ public class ItemInfo : ActivatableInfo
     public Item item                    { get; private set; }
     public int amount                   { get; private set; }
 
-    public ItemInfo(Character character, Item item)
+    public ItemInfo(Character character, Item item, int amount)
     {
         this.character = character;
         this.item = item;
+        this.amount = amount;
         activatable = true;
     }
 
@@ -209,6 +355,34 @@ public class ItemInfo : ActivatableInfo
         if (item.hasPassive)
         {
             BattleManager.i.battleLog.LogBattleEffect($"{item.name} deactivated for {character.name}.");
+        }
+
+        switch (item.type)
+        {
+            case Item.Type.Consumable:
+                amount -= 1;
+                if (amount <= 0)
+                {
+                    character.inventory.Remove(this);
+                }
+                break;
+            case Item.Type.Equippable:
+                Unequip();
+                break;
+        }
+    }
+    public override void SetActive()
+    {
+        base.SetActive();
+
+        switch (item.type)
+        {
+            case Item.Type.Consumable:
+                break;
+            case Item.Type.Equippable:
+                Equip();
+                
+                break;
         }
     }
     public void SetItem(Item item)

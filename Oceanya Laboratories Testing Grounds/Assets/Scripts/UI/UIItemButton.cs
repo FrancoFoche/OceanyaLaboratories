@@ -8,20 +8,34 @@ using TMPro;
 public class UIItemButton : MonoBehaviour
 {
     public Item loadedItem;
-    public TextMeshProUGUI buttonText;
     public Button button;
 
-    public void LoadItem(Item item)
+    public TextMeshProUGUI itemName;
+    public Image itemIcon;
+    public TextMeshProUGUI itemAmount;
+
+    public void LoadItem(Item item, int amount)
     {
         gameObject.name = item.name;
         loadedItem = item;
-        button = GetComponent<Button>();
-        buttonText.text = loadedItem.name;
+        itemIcon.sprite = item.icon;
+        UpdateFormat();
     }
     public void ActivateLoadedItem()
     {
-        loadedItem.Activate(BattleManager.caster);
-        UICharacterActions.instance.itemToUse = loadedItem;
+        if (loadedItem.targetType == TargetType.Multiple || loadedItem.targetType == TargetType.Single)
+        {
+            UICharacterActions.instance.SetItemToActivate(loadedItem);
+        }
+        else
+        {
+            UICharacterActions.instance.confirmationPopup.Show(() => UICharacterActions.instance.SetItemToActivate(loadedItem));
+        }
     }
-
+    public void UpdateFormat()
+    {
+        ItemInfo info = BattleManager.caster.GetItemFromInventory(loadedItem);
+        itemName.text = info.item.name;
+        itemAmount.text = "x" + info.amount.ToString();
+    }
 }

@@ -23,7 +23,17 @@ public enum Music
 
 public enum Sprites
 {
-    MagnoDrip
+    MagnoDrip,
+    Sasque,
+    Vergil,
+    Obama,
+    Kirbo
+}
+
+public enum ItemIcon
+{
+    test1,
+    test2
 }
 
 public class GameAssetsManager : MonoBehaviour
@@ -47,17 +57,18 @@ public class GameAssetsManager : MonoBehaviour
 
     public AudioMixer           mixer;
     public AudioMixerGroup      mixerMasterGroup;
-    public SpriteInfo[]         sprites;
+    public SpriteTextureInfo[]  sprites;
     public SoundAudioClip[]     sounds;
     public MusicInfo[]          music;
+    public ItemIconInfo[]       itemIcons;
 
     #endregion
 
     #region Data Structures
-    [System.Serializable] public struct SpriteInfo
+    [System.Serializable] public struct SpriteTextureInfo
     {
         public Sprites spriteName;
-        public Sprite sprite;
+        public Texture2D sprite;
     }
     [System.Serializable] public struct SoundAudioClip
     {
@@ -68,6 +79,11 @@ public class GameAssetsManager : MonoBehaviour
     {
         public Music music;
         public AudioClip audioClip;
+    }
+    [System.Serializable] public struct ItemIconInfo
+    {
+        public ItemIcon icon;
+        public Sprite sprite;
     }
     #endregion
 
@@ -213,7 +229,7 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError($"Could not find the skill '{skillName}' of class {className}.");
         return null;
     }
-    public Sprite           GetSprite       (Sprites sprite)                        
+    public Texture2D        GetSprite       (Sprites sprite)                        
     {
         for (int i = 0; i < sprites.Length; i++)
         {
@@ -250,6 +266,19 @@ public class GameAssetsManager : MonoBehaviour
         }
 
         Debug.LogError("Could not find the sound " + music.ToString() + ".");
+        return null;
+    }
+    public Sprite           GetItemIcon     (ItemIcon icon)                         
+    {
+        for (int i = 0; i < itemIcons.Length; i++)
+        {
+            if (itemIcons[i].icon == icon)
+            {
+                return itemIcons[i].sprite;
+            }
+        }
+
+        Debug.LogError("Could not find the item icon sprite " + icon.ToString() + ".");
         return null;
     }
 
