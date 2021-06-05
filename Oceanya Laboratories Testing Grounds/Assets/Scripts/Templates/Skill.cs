@@ -291,7 +291,14 @@ public class Skill: Activatables
                 }
                 if (revives)
                 {
-                    target[i].Revive();
+                    if (target[i].dead)
+                    {
+                        target[i].Revive();
+                    }
+                    else
+                    {
+                        BattleManager.i.battleLog.LogBattleEffect($"But {target[i].name} was not dead...");
+                    }
                 }
 
                 if (appliesStatusEffects)

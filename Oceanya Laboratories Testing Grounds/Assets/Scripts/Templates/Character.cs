@@ -217,23 +217,16 @@ public class Character
             }
         }
     }
-    public void     ChangeBaseAttack        (List<RPGFormula> newBaseFormula, DamageType newDamageType)                   
+    public void     ChangeBaseAttack        (List<RPGFormula> newBaseFormula, DamageType newDamageType)                     
     {
         basicAttackFormula = newBaseFormula;
         basicAttackType = newDamageType;
     }
     public void     Revive                  ()                                                                              
     {
-        if (dead)
-        {
-            dead = false;
-            stats[Stats.CURHP] = stats[Stats.MAXHP];
-            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
-        }
-        else
-        {
-            BattleManager.i.battleLog.LogBattleEffect($"But {name} was not dead...");
-        }
+        dead = false;
+        stats[Stats.CURHP] = stats[Stats.MAXHP];
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
     }
     #endregion
 
