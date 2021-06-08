@@ -922,9 +922,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b1c231f2837f4245945b3f60000a6a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  charHashCode: 0
   type: 0
   charID: 13
   charName: 
+  curUI: {fileID: 0}
+  charHP: 0
+  charSTR: 0
   nameText: {fileID: 2805799296140635636}
   hpSlider: {fileID: 2805799296614637552}
   hpText: {fileID: 2805799296894346134}
@@ -1008,7 +1012,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 0.5529412}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
-    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 0}
     m_DisabledColor: {r: 1, g: 1, b: 1, a: 0}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1

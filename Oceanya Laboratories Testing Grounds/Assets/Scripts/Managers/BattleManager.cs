@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Kam.TooltipUI;
 
 public enum BattleState
 {
@@ -11,6 +12,17 @@ public enum BattleState
     Lost,
     End
 }
+public struct Battle
+{
+    public List<Character> allySide;
+    public List<Character> enemySide;
+
+    public Battle(List<Character> allySide, List<Character> enemySide)
+    {
+        this.allySide = allySide;
+        this.enemySide = enemySide;
+    }
+}
 
 public class BattleManager : MonoBehaviour
 {
@@ -18,21 +30,25 @@ public class BattleManager : MonoBehaviour
     public static BattleManager i { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
 
 
-    public static   Character           caster          { get; private set; }
-    public static   List<Character>     target          { get; private set; }
+    public static   Character           caster              { get; private set; }
+    public static   List<Character>     target              { get; private set; }
 
-    public          BattleState         battleState     { get; private set; }
+    public static   Battle[]            battles             { get; private set; }
+    public static   int                 currentBattleIndex  { get; private set; }
 
-    public          bool                inCombat        { get; private set; }
-    public          bool                enemyTeamDeath  { get; private set; }
-    public          bool                allyTeamDeath   { get; private set; }
-    public          bool                debugMode       { get; private set; } //Toggles debug/manual battle features
-    public          bool                confirmMode     { get; private set; } //Toggles confirmation popup
+    public          BattleState         battleState         { get; private set; }
+
+    public          bool                inCombat            { get; private set; }
+    public          bool                enemyTeamDeath      { get; private set; }
+    public          bool                allyTeamDeath       { get; private set; }
+    public          bool                debugMode           { get; private set; } //Toggles debug/manual battle features
+    public          bool                confirmMode         { get; private set; } //Toggles confirmation popup
 
     public          BattleLog           battleLog;
     public          BattleUIList        uiList;
     public          UICharacterActions  charActions;
     public          PauseMenu           pauseMenu;
+    public          TooltipPopup        tooltipPopup;
 
     public          GameObject          easteregg;
 
@@ -41,16 +57,10 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        easteregg.gameObject.SetActive(false);
+        #region One time only Initializations
+        currentBattleIndex = 0;
 
-        #region Initializations
-        caster = new Character();
-        target = new List<Character>();
-
-        //BattleState is initialized in "Start Combat"
         inCombat = false;
-        enemyTeamDeath = false;
-        allyTeamDeath = false;
 
         debugMode = MainMenu.manualMode;
         pauseMenu.manualMode.isOn = debugMode;
@@ -59,12 +69,27 @@ public class BattleManager : MonoBehaviour
         pauseMenu.confirmActions.isOn = confirmMode;
 
         pauseMenu.volume.value = MainMenu.volumeSlider;
-
-        //easter egg is assigned through the editor
         #endregion
 
-        TeamOrderManager.BuildTeamOrder();
-        StartCombat();
+        battles = new Battle[4];
+        battles[0] = new Battle(
+            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+            new List<Character>() { GameAssetsManager.instance.GetEnemy(1) }
+            );
+        battles[1] = new Battle(
+            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+            new List<Character>() { GameAssetsManager.instance.GetEnemy(3) }
+            );
+        battles[2] = new Battle(
+            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+            new List<Character>() { GameAssetsManager.instance.GetEnemy(1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1) }
+            );
+        battles[3] = new Battle(
+            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+            new List<Character>() { GameAssetsManager.instance.GetEnemy(3), GameAssetsManager.instance.GetEnemy(1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1), GameAssetsManager.instance.GetEnemy(3) }
+            );
+
+        StartCombat(battles[0]);
     }
 
     private void Update()
@@ -199,11 +224,17 @@ public class BattleManager : MonoBehaviour
         }
         
     }
-    public void                     StartCombat         ()                          
+    public void                     StartCombat         (Battle combat)             
     {
-        charActions.AddAllActions();
+        easteregg.gameObject.SetActive(false);
+        UISkillContext.instance.Hide();
+        UIItemContext.instance.Hide();
+
+        enemyTeamDeath = false;
+        allyTeamDeath = false;
+
+        TeamOrderManager.BuildTeamOrder(combat);
         SetBattleState(BattleState.Start);
-        DelayAction(3,SetupBattle);
     }
     public void                     SetupBattle         ()                          
     {
@@ -229,12 +260,12 @@ public class BattleManager : MonoBehaviour
                     {
                         battleState = BattleState.Start;
 
-                        for (int i = 0; i < TeamOrderManager.allySide.Count; i++)
-                        {
-                            uiList.AddAlly(TeamOrderManager.allySide[i]);
-                        }
+                        caster = new Character();
+                        target = new List<Character>();
 
-                        EnemySpawner.instance.SpawnAllEnemies(TeamOrderManager.enemySide);
+                        charActions.AddAllActions();
+                        uiList.SetSides(TeamOrderManager.allySide, TeamOrderManager.enemySide);
+                        
 
                         for (int i = 0; i < TeamOrderManager.totalCharList.Count; i++)
                         {
@@ -246,16 +277,21 @@ public class BattleManager : MonoBehaviour
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("COMBAT START!");
+
+                        DelayAction(3, SetupBattle);
                     }
                     break;
 
                 case BattleState.InCombat:
-                    inCombat = true;
-                    battleState = BattleState.InCombat;
+                    {
+                        inCombat = true;
+                        battleState = BattleState.InCombat;
+                    }
                     break;
 
                 case BattleState.Won:
                     {
+                        battleState = BattleState.Won;
                         MusicManager.PlayMusic(Music.Win);
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
@@ -271,6 +307,7 @@ public class BattleManager : MonoBehaviour
 
                 case BattleState.Lost:
                     {
+                        battleState = BattleState.Lost;
                         MusicManager.PlayMusic(Music.Lose);
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
@@ -285,13 +322,33 @@ public class BattleManager : MonoBehaviour
                     break;
 
                 case BattleState.End:
-                    battleState = BattleState.End;
-                    battleLog.LogCountdown(20, "Credits start in _countdown_...", () => SceneLoaderManager.instance.LoadCredits());
+                    {
+                        UISkillContext.instance.Hide();
+                        UIItemContext.instance.Hide();
+
+                        if (battleState == BattleState.Lost)
+                        {
+                            currentBattleIndex = 0;
+                            battleLog.LogCountdown(5, "Restarting battle in _countdown_...", () => StartCombat(battles[0]));
+                            return;
+                        }
+
+                        battleState = BattleState.End;
+                        currentBattleIndex++;
+                        if (currentBattleIndex < battles.Length)
+                        {
+                            battleLog.LogCountdown(5, "Next wave starts in _countdown_...", () => StartCombat(battles[currentBattleIndex]));
+                        }
+                        else
+                        {
+                            battleLog.LogCountdown(20, "Credits start in _countdown_...", () => SceneLoaderManager.instance.LoadCredits());
+                        }
+                    }
                     break;
             }
         }
     }
-    public void                     CheckTotalTeamKill  ()                          
+    public void                     TotalTeamKill_Check ()                          
     {
         if (battleState != BattleState.End)
         {
@@ -310,7 +367,6 @@ public class BattleManager : MonoBehaviour
             {
                 allyTeamDeath = true;
                 inCombat = false;
-                SetBattleState(BattleState.Lost);
                 return;
             }
 
@@ -330,6 +386,22 @@ public class BattleManager : MonoBehaviour
             {
                 enemyTeamDeath = true;
                 inCombat = false;
+                return;
+            }
+        }
+    }
+    public void                     TotalTeamKill_Act   ()                          
+    {
+        if (battleState != BattleState.End)
+        {
+            if (allyTeamDeath)
+            {
+                SetBattleState(BattleState.Lost);
+                return;
+            }
+
+            if (enemyTeamDeath)
+            {
                 SetBattleState(BattleState.Won);
                 return;
             }
@@ -378,6 +450,8 @@ public class BattleManager : MonoBehaviour
         battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
     }
 
+
+    #region Utilities
     public void                     DelayAction         (float secondsToDelay, Action delayedAction)      
     {
         StartCoroutine(Delay(secondsToDelay, delayedAction));
@@ -389,4 +463,5 @@ public class BattleManager : MonoBehaviour
 
         delayedAction.Invoke();
     }
+    #endregion
 }

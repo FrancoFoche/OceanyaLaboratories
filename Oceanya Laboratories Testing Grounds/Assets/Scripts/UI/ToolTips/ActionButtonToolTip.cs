@@ -7,12 +7,7 @@ using System.Text;
 
 public class ActionButtonToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private TooltipPopup tooltipPopup;
     public string info = "";
-    private void Start()
-    {
-        tooltipPopup = FindObjectOfType<TooltipPopup>();
-    }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -20,11 +15,11 @@ public class ActionButtonToolTip : MonoBehaviour, IPointerEnterHandler, IPointer
 
         info.Append("<color=green>").Append("<size=15>").Append(gameObject.name).Append("</size>").Append("</color>").AppendLine();
         info.Append(this.info);
-        tooltipPopup.DisplayInfo(info);
+        BattleManager.i.tooltipPopup.DisplayInfo(info);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        tooltipPopup.HideInfo();
+        BattleManager.i.tooltipPopup.HideInfo();
     }
 }

@@ -1740,6 +1740,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 579924658}
   m_CullTransparentMesh: 0
+--- !u!114 &633306220 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1962422152156828998, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
+    type: 3}
+  m_PrefabInstance: {fileID: 985487997}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7be28c656112d03499094158a76935a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &634949181
 GameObject:
   m_ObjectHideFlags: 0
@@ -2985,6 +2997,7 @@ MonoBehaviour:
   uiList: {fileID: 1399045341}
   charActions: {fileID: 1504574657}
   pauseMenu: {fileID: 902837552}
+  tooltipPopup: {fileID: 633306220}
   easteregg: {fileID: 1941859085}
 --- !u!224 &902837551 stripped
 RectTransform:
@@ -3475,7 +3488,7 @@ PrefabInstance:
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 7988005460079559454, guid: 8f8fdc7ac4c307143a8daa38e4e6cd5d,
         type: 3}
@@ -4295,8 +4308,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 322664055}
   m_HandleRect: {fileID: 322664054}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.9999999
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

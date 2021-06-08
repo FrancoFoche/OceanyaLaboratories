@@ -82,6 +82,10 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 5b46e3fb20aea7c4782860e2c8dc19d6, type: 3}
   itemIcons:
   - icon: 0
-    sprite: {fileID: 21300000, guid: ced6eb974ab038c448ce984f431e4339, type: 3}
+    sprite: {fileID: 21300000, guid: e5b08141f55221e468c6cc7dc21f7d2a, type: 3}
   - icon: 1
-    sprite: {fileID: 21300000, guid: b929ec8307fa4ef499ba0a8f7b76bfb3, type: 3}
+    sprite: {fileID: 21300000, guid: c63032be7af200240a3aaeacc6e5757d, type: 3}
+  - icon: 2
+    sprite: {fileID: 21300000, guid: 3d84418e29ec8144ca3c94e33ec280c3, type: 3}
+  - icon: 3
+    sprite: {fileID: 21300000, guid: ddb5da602661dad4889a2878de2c2a5d, type: 3}

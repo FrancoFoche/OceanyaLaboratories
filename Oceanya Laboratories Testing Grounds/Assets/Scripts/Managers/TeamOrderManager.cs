@@ -27,10 +27,10 @@ public static class TeamOrderManager
     public  static  Character           currentTurn;
     public  static  SPDSystem           spdSystem;
 
-    public static void                  BuildTeamOrder  ()                      
+    public static void                  BuildTeamOrder  (Battle battle)         
     {
-        allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) };
-        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(3) }; //Ally side and enemy side should be set outside of this script, this is here for testing reasons
+        allySide = battle.allySide;
+        enemySide = battle.enemySide;
         
         totalCharList = new List<Character>();
         for (int i = 0; i < allySide.Count; i++)
@@ -38,12 +38,22 @@ public static class TeamOrderManager
             totalCharList.Add(allySide[i]);
             allySide[i].SetTeam(Team.Ally);
             allySide[i].SetAIControlled(false);
+
+            if(BattleManager.i.battleState == BattleState.Lost)
+            {
+                allySide[i].ResetFull();
+            }
+            else
+            {
+                allySide[i].ResetToOriginalStatBuffs();
+            }
         }
         for (int i = 0; i < enemySide.Count; i++)
         {
             totalCharList.Add(enemySide[i]);
             enemySide[i].SetTeam(Team.Enemy);
             enemySide[i].SetAIControlled(true);
+            enemySide[i].ResetFull();
         }
 
         turnState = TurnState.NonDefined;
@@ -86,6 +96,13 @@ public static class TeamOrderManager
                         if (!caster.dead)
                         {
                             caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+
+                            if (caster.dead)
+                            {
+                                BattleManager.i.battleLog.LogBattleEffect("Aaaaaand they died. Oh well, next turn.");
+                                EndTurn();
+                                return;
+                            }
                         }
 
                         if (!caster.AIcontrolled || BattleManager.i.debugMode)
@@ -98,6 +115,7 @@ public static class TeamOrderManager
                             AIturn = true;
                             UICharacterActions.instance.InteractableButtons(false);
                             UISkillContext.instance.InteractableUIButtons(false);
+                            UIItemContext.instance.InteractableButtons(false);
                             BattleManager.i.uiList.InteractableUIs(false);
                             BattleManager.i.uiList.SetTargettingMode(false);
 
@@ -110,6 +128,7 @@ public static class TeamOrderManager
                     {
                         UICharacterActions.instance.InteractableButtons(true);
                         UISkillContext.instance.InteractableUIButtons(true);
+                        UIItemContext.instance.InteractableButtons(true);
                         BattleManager.i.uiList.TurnToggleGroup(true);
                         BattleManager.i.uiList.SetTargettingMode(false);
 
@@ -130,6 +149,7 @@ public static class TeamOrderManager
                     {
                         UICharacterActions.instance.InteractableButtons(false);
                         UISkillContext.instance.InteractableUIButtons(false);
+                        UIItemContext.instance.InteractableButtons(false);
                         BattleManager.i.uiList.TurnToggleGroup(false);
                         BattleManager.i.uiList.InteractableUIs(true);
                         BattleManager.i.uiList.TurnToggles(false);
@@ -147,13 +167,14 @@ public static class TeamOrderManager
                 case TurnState.WaitingForConfirmation:
                     {
                         turnState = TurnState.WaitingForConfirmation;
+                        System.Action action = delegate { UICharacterActions.instance.Act(new ActionData(caster, target)); };
                         if (AIturn)
                         {
-                            UICharacterActions.instance.InstantConfirmAction(caster, target, UICharacterActions.instance.Act);
+                            UICharacterActions.instance.confirmationPopup.Show(action, true, true);
                         }
                         else
                         {
-                            UICharacterActions.instance.DelayConfirmAction(caster, target, UICharacterActions.instance.Act);
+                            UICharacterActions.instance.confirmationPopup.Show(action, true, false);
                         }
 
                     }
@@ -167,8 +188,6 @@ public static class TeamOrderManager
                         {
                             caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
                         }
-
-                        BattleManager.i.CheckTotalTeamKill();
                     }
                     break;
             }
@@ -207,6 +226,8 @@ public static class TeamOrderManager
     public static void                  EndTurn         ()                      
     {
         SetTurnState(TurnState.End);
+
+        BattleManager.i.TotalTeamKill_Check();
 
         if (BattleManager.i.inCombat)
         {

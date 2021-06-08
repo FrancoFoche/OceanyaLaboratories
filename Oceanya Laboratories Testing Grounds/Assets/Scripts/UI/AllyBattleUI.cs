@@ -51,14 +51,6 @@ public class AllyBattleUI : BattleUI
 
     public override void UpdateUI()
     {
-        switch (type)
-        {
-            case CharacterType.PlayerCharacter:
-                LoadChar(GameAssetsManager.instance.GetPC(charID));
-                break;
-            case CharacterType.Enemy:
-                LoadChar(GameAssetsManager.instance.GetEnemy(charID));
-                break;
-        }
+        LoadChar(loadedChar);
     }
 }

@@ -12,9 +12,16 @@ public class PlayerCharacter : Character
         this.ID = ID;
         this.level = level;
         this.name = name;
+
         this.rpgClass = rpgClass;
+
+        this._originalStats = MakeCopyOfStatsDictionary(stats);
         this.stats = stats;
+
         this.inventory = ConvertItemsToItemInfo(inventory);
+        this._originalInventory = MakeCopyOfItemInfo(this.inventory);
+
         this.skillList = ConvertSkillsToSkillInfo(skillList);
+        this._originalSkillList = MakeCopyOfSkillInfo(this.skillList);
     }
 }

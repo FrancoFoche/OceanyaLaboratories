@@ -43,6 +43,7 @@ public class UISkillContext : ButtonList
     }
     public void Hide()
     {
+        BattleManager.i.tooltipPopup.HideInfo();
         gameObject.SetActive(false);
     }
 

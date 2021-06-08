@@ -29,7 +29,7 @@ public class UIItemButton : MonoBehaviour
         }
         else
         {
-            UICharacterActions.instance.confirmationPopup.Show(() => UICharacterActions.instance.SetItemToActivate(loadedItem));
+            UICharacterActions.instance.confirmationPopup.Show(() => UICharacterActions.instance.SetItemToActivate(loadedItem), true, false);
         }
     }
     public void UpdateFormat()

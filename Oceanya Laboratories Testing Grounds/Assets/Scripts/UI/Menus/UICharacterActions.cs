@@ -20,13 +20,13 @@ public class UICharacterActions : ButtonList
     #region Setters
     public void SetSkillToActivate(Skill skill)
     {
-        skill.Activate(BattleManager.caster);
+        skill.Activate(BattleManager.caster, BattleManager.caster.GetSkillFromSkillList(skill));
         skillToActivate = skill;
         Debug.Log("Set skill to activate to " + skill.name);
     }
     public void SetItemToActivate(Item item)
     {
-        item.Activate(BattleManager.caster);
+        item.Activate(BattleManager.caster, BattleManager.caster.GetItemFromInventory(item));
         itemToUse = item;
         Debug.Log("Set item to activate to " + item.name);
     }
@@ -46,6 +46,7 @@ public class UICharacterActions : ButtonList
     }
     public void AddAllActions()
     {
+        ClearList();
         buttons = new List<Button>();
 
         for (int i = 0; i < RuleManager.CharActionsHelper.Length; i++)
@@ -66,10 +67,10 @@ public class UICharacterActions : ButtonList
         switch (action)
         {
             case CharActions.Attack:
-                result = "Target an enemy, and deal 100% your STR stat as physical damage";
+                result = "Target an enemy, and deal damage based on the character's basic attack formula";
                 break;
             case CharActions.Defend:
-                result = "For this turn, you take 50% damage from all sources.";
+                result = "For this turn, you take 50% damage from all sources. Deactivates on your next turn, or when you get attacked once.";
                 break;
             case CharActions.Skill:
                 result = "Use a skill from your skill list";
@@ -94,8 +95,15 @@ public class UICharacterActions : ButtonList
     /// <summary>
     /// Uses the action that was saved to actually run the code for the action.
     /// </summary>
-    public void Act(Character caster, List<Character> target)
+    public void Act(ActionData data)
     {
+        Character caster = data.caster;
+        List<Character> target = data.targets;
+
+        UISkillContext.instance.Hide();
+        UIItemContext.instance.Hide();
+        BattleManager.i.uiList.SetTargettingMode(false);
+
         switch (action)
         {
             case CharActions.Attack:
@@ -110,12 +118,6 @@ public class UICharacterActions : ButtonList
                                 int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
                                 BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
                                 target[i].GetsDamagedBy(resultDMG);
-
-                                if (!target[i].checkedPassives)
-                                {
-                                    target[i].SetCheckedPassives(true);
-                                    target[i].ActivatePassiveEffects(ActivationTime.WhenAttacked);
-                                }
 
                                 if (target[i].stats[Stats.CURHP] <= 0)
                                 {
@@ -150,13 +152,13 @@ public class UICharacterActions : ButtonList
             case CharActions.Skill:
                 {
                     Debug.Log("Entered Skill ACT; Skill to activate: " + skillToActivate.name);
-                    skillToActivate.Action(caster, target);
+                    skillToActivate.Action(caster, target, caster.GetSkillFromSkillList(skillToActivate));
                 }
                 break;
 
             case CharActions.Item:
                 {
-                    itemToUse.Action(caster, target);
+                    itemToUse.Action(caster, target, caster.GetItemFromInventory(itemToUse));
                 }
                 break;
 
@@ -209,62 +211,78 @@ public class UICharacterActions : ButtonList
     {
         Debug.Log("ButtonAction called, with action: " + action);
         Character caster = BattleManager.caster;
+        UISkillContext.instance.Hide();
+        UIItemContext.instance.Hide();
 
         switch (action)
         {
             case CharActions.Attack:
-                maxTargets = 1;
-                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
-                ActionRequiresTarget(CharActions.Attack);
+                {
+                    maxTargets = 1;
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
+                    ActionRequiresTarget(CharActions.Attack);
+                }
                 break;
 
             case CharActions.Defend:
-                ActionDoesNotRequireTarget(CharActions.Defend);
+                {
+                    ActionDoesNotRequireTarget(CharActions.Defend);
+                }
                 break;
 
             case CharActions.Skill:
-                if (caster.skillList.Count == 0)
                 {
-                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} has no skills to activate...");
-                }
-                else
-                {
-                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
-
-
-                    if(!TeamOrderManager.AIturn || BattleManager.i.debugMode) 
+                    if (caster.skillList.Count == 0)
                     {
-                        UISkillContext.instance.Show();
-                        UIItemContext.instance.Hide();
+                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} has no skills to activate...");
+                    }
+                    else
+                    {
+                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
+
+
+                        if (!TeamOrderManager.AIturn || BattleManager.i.debugMode)
+                        {
+                            UISkillContext.instance.Show();
+                            UIItemContext.instance.Hide();
+                        }
                     }
                 }
                 break;
 
             case CharActions.Item:
-                if (caster.inventory.Count == 0)
                 {
-                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} has no items to use...");
-                }
-                else
-                {
-                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses an item!");
-                    UISkillContext.instance.Hide();
-                    UIItemContext.instance.Show();
+                    if (caster.inventory.Count == 0)
+                    {
+                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} has no items to use...");
+                    }
+                    else
+                    {
+                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses an item!");
+                        UISkillContext.instance.Hide();
+                        UIItemContext.instance.Show();
+                    }
                 }
                 break;
 
             case CharActions.Rearrange:
-                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone! (Choose a target)");
-                maxTargets = 1;
-                ActionRequiresTarget(CharActions.Rearrange);
+                {
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone! (Choose a target)");
+                    maxTargets = 1;
+                    ActionRequiresTarget(CharActions.Rearrange);
+                }
                 break;
 
             case CharActions.Prepare:
-                ActionDoesNotRequireTarget(CharActions.Prepare);
+                {
+                    ActionDoesNotRequireTarget(CharActions.Prepare);
+                }
                 break;
 
             case CharActions.Skip:
-                ActionDoesNotRequireTarget(CharActions.Skip);
+                {
+                    ActionDoesNotRequireTarget(CharActions.Skip);
+                }
                 break;
         }
     }
@@ -279,17 +297,5 @@ public class UICharacterActions : ButtonList
     {
         this.action = action;
         TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
-    }
-
-    public void InstantConfirmAction(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction)
-    {
-        confirmationPopup.SetCharacters(caster, targets);
-        confirmationPopup.SetConfirmAction(confirmAction);
-        confirmationPopup.Confirm();
-    }
-
-    public void DelayConfirmAction(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction)
-    {
-        confirmationPopup.Show(caster, targets, confirmAction);
     }
 }

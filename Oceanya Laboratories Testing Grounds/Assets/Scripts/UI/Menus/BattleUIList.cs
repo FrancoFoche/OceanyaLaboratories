@@ -16,6 +16,13 @@ public class BattleUIList : ToggleList
 
     private List<BattleUI> generalList = new List<BattleUI>();
 
+    public void SetSides(List<Character> allies, List<Character> enemies)
+    {
+        generalList.Clear();
+        AddAllAllies(allies);
+        AddAllEnemies(enemies);
+    }
+
     /// <summary>
     /// Creates and adds a player character to the ally battle UIs.
     /// </summary>
@@ -32,17 +39,22 @@ public class BattleUIList : ToggleList
         toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
         generalList.Add(newCharUI);
 
-        System.Type type = character.GetType();
-        if (type == typeof(PlayerCharacter))
+        newCharUI.LoadChar(character);
+
+        if (character.dead)
         {
-            newCharUI.LoadChar(GameAssetsManager.instance.GetPC(character.ID));
-        }
-        else if (type == typeof(Enemy))
-        {
-            newCharUI.LoadChar(GameAssetsManager.instance.GetEnemy(character.ID));
+            character.curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
         }
 
         return newCharUI;
+    }
+    public void                 AddAllAllies    (List<Character> allies)
+    {
+        ClearList();
+        for (int i = 0; i < allies.Count; i++)
+        {
+            AddAlly(allies[i]);
+        }
     }
 
     public EnemyBattleUI        AddEnemy        (Character character, Transform uiPosition)
@@ -59,28 +71,26 @@ public class BattleUIList : ToggleList
         toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
         generalList.Add(newCharUI);
 
-        System.Type type = character.GetType();
-        if (type == typeof(PlayerCharacter))
-        {
-            newCharUI.LoadChar(GameAssetsManager.instance.GetPC(character.ID));
-        }
-        else if (type == typeof(Enemy))
-        {
-            newCharUI.LoadChar(GameAssetsManager.instance.GetEnemy(character.ID));
-        }
-
+        newCharUI.LoadChar(character);
+       
         return newCharUI;
+    }
+    public void                 AddAllEnemies   (List<Character> enemies)
+    {
+        EnemySpawner.instance.SpawnAllEnemies(enemies);
     }
 
     /// <summary>
     /// Selects a character from the toggle group
     /// </summary>
     /// <param name="character">Character to select</param>
-    public void             SelectCharacter (Character character)   
+    public void                 SelectCharacter (Character character)   
     {
+        TurnToggles(false);
+
         for (int i = 0; i < list.Count; i++)
         {
-            if (list[i].GetComponent<BattleUI>().loadedChar.ID == character.ID)
+            if (list[i].GetComponent<BattleUI>().loadedChar == character)
             {
                 SelectObject(i);
                 if(curCharacterSelected != character)

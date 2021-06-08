@@ -7,14 +7,8 @@ using System.Text;
 
 public class SkillToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private TooltipPopup tooltipPopup;
     public Skill loadedSkill;
     StringBuilder result = new StringBuilder();
-
-    private void Start()
-    {
-        tooltipPopup = FindObjectOfType<TooltipPopup>();
-    }
 
     public void LoadSkill(Skill skill)
     {
@@ -28,11 +22,11 @@ public class SkillToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerEnter(PointerEventData eventData)
     {
         LoadSkill(gameObject.GetComponent<UISkillButton>().loadedSkill);
-        tooltipPopup.DisplayInfo(result);
+        BattleManager.i.tooltipPopup.DisplayInfo(result);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        tooltipPopup.HideInfo();
+        BattleManager.i.tooltipPopup.HideInfo();
     }
 }

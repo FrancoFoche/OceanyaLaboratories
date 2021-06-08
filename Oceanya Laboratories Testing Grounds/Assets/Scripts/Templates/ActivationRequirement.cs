@@ -8,6 +8,7 @@ public class ActivationRequirement
 
     [SerializeField] private SkillResources _resource;
     [SerializeField] private Stats _stat;
+    [SerializeField] private RPGFormula _formula;
     //add a status one here whenever it's done
     [SerializeField] private int _skillclassID;
     [SerializeField] private int _skillID;
@@ -20,6 +21,7 @@ public class ActivationRequirement
 
     public SkillResources       resource        { get { return _resource; }         private set { _resource = value; } }
     public Stats                stat            { get { return _stat; }             private set { _stat = value; } }
+    public RPGFormula           formula         { get { return _formula; }          private set { _formula = value; } }
     
     public int                  skillclassID    { get { return _skillclassID; }     private set { _skillclassID = value; } }
     public int                  skillID         { get { return _skillID; }          private set { _skillID = value; } }
@@ -41,6 +43,14 @@ public class ActivationRequirement
         this.stat = stat;
         comparer = comparingType;
         this.number = number;
+    }
+
+    public ActivationRequirement(Stats stat, ComparerType comparingType, RPGFormula formula)
+    {
+        type = RequirementType.FormulaStat;
+        this.stat = stat;
+        comparer = comparingType;
+        this.formula = formula;
     }
     /// <summary>
     /// Resource requirement
@@ -70,6 +80,7 @@ public class ActivationRequirement
     public enum RequirementType
     {
         Stat,
+        FormulaStat,
         Resource,
         Status,
         SkillIsActive
@@ -88,6 +99,10 @@ public class ActivationRequirement
         switch (type)
         {
             case RequirementType.Stat:
+                return CheckRequirement(caster.stats[stat]);
+
+            case RequirementType.FormulaStat:
+                this.number = RPGFormula.Read(formula, caster.stats);
                 return CheckRequirement(caster.stats[stat]);
 
             case RequirementType.Resource:

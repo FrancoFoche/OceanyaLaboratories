@@ -7,15 +7,8 @@ using UnityEngine.EventSystems;
 
 public class ItemToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private TooltipPopup tooltipPopup;
     public Item item;
     StringBuilder result = new StringBuilder();
-
-    private void Start()
-    {
-        tooltipPopup = FindObjectOfType<TooltipPopup>();
-    }
-
     public void LoadItem(Item item)
     {
         this.item = item;
@@ -28,11 +21,11 @@ public class ItemToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void OnPointerEnter(PointerEventData eventData)
     {
         LoadItem(gameObject.GetComponent<UIItemButton>().loadedItem);
-        tooltipPopup.DisplayInfo(result);
+        BattleManager.i.tooltipPopup.DisplayInfo(result);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        tooltipPopup.HideInfo();
+        BattleManager.i.tooltipPopup.HideInfo();
     }
 }

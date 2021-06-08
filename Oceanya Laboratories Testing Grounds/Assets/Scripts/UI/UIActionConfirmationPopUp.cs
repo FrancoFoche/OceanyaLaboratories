@@ -6,92 +6,53 @@ using System;
 public class UIActionConfirmationPopUp : MonoBehaviour
 {
     public GameObject objToHide;
-    private Character caster;
-    private List<Character> targets;
-    private Action<Character, List<Character>> actionType1;
-    private Action actionType2;
-    private actionTypes type;
-    public enum actionTypes
-    {
-        CasterAndTargets,
-        NoParameters
-    }
+    private Action confirmAction;
+
     private void Awake()
     {
         Hide();
     }
 
-    public void SetCharacters(Character caster, List<Character> targets)
+    public void Show(Action confirmAction, bool affectedByConfirmActionSetting, bool instant)
     {
-        this.caster = caster;
-        this.targets = targets;
-    }
+        this.confirmAction = confirmAction;
 
-    public void SetConfirmAction(Action<Character, List<Character>> confirmAction)
-    {
-        actionType1 = confirmAction;
-        type = actionTypes.CasterAndTargets;
-    }
-    public void SetConfirmAction(Action action)
-    {
-        actionType2 = action;
-        type = actionTypes.NoParameters;
-    }
-    public void Show(Character caster, List<Character> targets, Action<Character, List<Character>> confirmAction, bool affectedByConfirmActionSetting = true)
-    {
-        SetCharacters(caster, targets);
-        SetConfirmAction(confirmAction);
-        if (affectedByConfirmActionSetting)
+        if (instant)
         {
-            if (BattleManager.i.confirmMode)
-            {
-                objToHide.SetActive(true);
-            }
-            else
-            {
-                Confirm();
-            }
+            Confirm();
         }
         else
         {
-            objToHide.SetActive(true);
-        }
-    }
-
-    public void Show(Action action, bool affectedByConfirmActionSetting = true)
-    {
-        SetConfirmAction(action);
-        if (affectedByConfirmActionSetting)
-        {
-            if (BattleManager.i.confirmMode)
+            if (affectedByConfirmActionSetting)
             {
-                objToHide.SetActive(true);
+                if (BattleManager.i.confirmMode)
+                {
+                    objToHide.SetActive(true);
+                }
+                else
+                {
+                    Confirm();
+                }
             }
             else
             {
-                Confirm();
+                objToHide.SetActive(true);
             }
         }
-        else
-        {
-            objToHide.SetActive(true);
-        }
     }
-
     public void Hide()
     {
         objToHide.SetActive(false);
     }
-
     public void Confirm()
     {
         Hide();
-        InvokeAction(type);
+        confirmAction();
     }
     public void Deny()
     {
         Hide();
-        if(type == actionTypes.CasterAndTargets)
+        if(!BattleManager.i.pauseMenu.paused)
         {
             BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
             TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
@@ -110,19 +71,16 @@ public class UIActionConfirmationPopUp : MonoBehaviour
             BattleManager.i.uiList.SelectCharacter(character);
         }
     }
+}
 
-    public void InvokeAction(actionTypes type)
+public struct ActionData
+{
+    public Character caster;
+    public List<Character> targets;
+
+    public ActionData(Character caster, List<Character> targets)
     {
-        switch (type)
-        {
-            case actionTypes.CasterAndTargets:
-                actionType1.Invoke(caster, targets);
-                break;
-            case actionTypes.NoParameters:
-                actionType2.Invoke();
-                break;
-            default:
-                break;
-        }
+        this.caster = caster;
+        this.targets = targets;
     }
 }

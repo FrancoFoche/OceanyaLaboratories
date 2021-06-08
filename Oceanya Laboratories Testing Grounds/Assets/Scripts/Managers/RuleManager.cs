@@ -91,6 +91,7 @@ public enum ActivationTime
 }
 public enum ClassNames              
 {
+    Default,
     Nobody,
     SenjutsuMastery,
     DojutsuMastery,

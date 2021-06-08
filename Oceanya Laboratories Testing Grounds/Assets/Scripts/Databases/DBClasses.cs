@@ -12,6 +12,12 @@ public class DBClasses : MonoBehaviour
     {
         classes = new List<BaseSkillClass>()
         {
+            new BaseSkillClass(new BaseObjectInfo(ClassNames.Default.ToString(), 01 , "This is the default class, has just skills that haven't been assigned another class yet"), 
+                new List<Skill>
+                {
+                }
+            ),
+
             new BaseSkillClass(new BaseObjectInfo("Testing Class", 0 , "This is the class that has every test skill"),
                 new List<Skill>
                 {
@@ -155,7 +161,7 @@ public class DBClasses : MonoBehaviour
 
                     new Skill
                     (
-                            new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! You will receive a 50% INT increase at the start of your next 3 turns, BUT you will also receive 10% of your MaxHP as direct damage each time.")
+                            new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! You will receive a 50% INT increase at the start of your next 3 turns, BUT you will also receive 20 DIRECT DMG each time.")
                             ,"_caster_'s body is overflowing with energy! Their INT is buffed by 50%, yet their body takes _damage_ DMG."
                             ,ActivatableType.Active
                             ,TargetType.Self
@@ -163,7 +169,7 @@ public class DBClasses : MonoBehaviour
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.StartOfTurn)
                     .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){{ Stats.INT, new List<RPGFormula>() { new RPGFormula(Stats.INT, operationActions.Multiply,0.5f)} } })
-                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP,operationActions.Multiply,0.1f)})
+                    .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, 20)
                     .BehaviorLastsFor(3)
                     .BehaviorHasCooldown(CDType.Other)
                 }

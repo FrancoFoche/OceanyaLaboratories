@@ -6,11 +6,15 @@ using UnityEngine.UI;
 public class BattleUI : MonoBehaviour
 {
     [Header("Character Loaded")]
-    public CharacterType type;
-    public int charID;
-    public string charName;
-
-    public Character loadedChar { get; private set; }
+    [SerializeField] protected int charHashCode;
+    [SerializeField] protected CharacterType type;
+    [SerializeField] protected int charID;
+    [SerializeField] protected string charName;
+    [SerializeField] protected BattleUI curUI;
+    [SerializeField] protected int charHP;
+    [SerializeField] protected int charSTR;
+    [SerializeField] protected Character _loadedChar;
+    public Character loadedChar { get { return _loadedChar; } private set { _loadedChar = value; } }
 
     [Header("BASE INFO")]
     public Text nameText;
@@ -27,13 +31,16 @@ public class BattleUI : MonoBehaviour
 
     private void Update()
     {
-        if (loadedChar != null)
+        if(loadedChar != null)
         {
+            #region Inspector Update, just for testing.
             charName = loadedChar.name;
-        }
-        else
-        {
-            charName = "Char does not exist";
+            charID = loadedChar.ID;
+            curUI = loadedChar.curUI;
+            charHP = loadedChar.stats[Stats.CURHP];
+            charSTR = loadedChar.stats[Stats.STR];
+            charHashCode = loadedChar.GetHashCode();
+            #endregion
         }
     }
 

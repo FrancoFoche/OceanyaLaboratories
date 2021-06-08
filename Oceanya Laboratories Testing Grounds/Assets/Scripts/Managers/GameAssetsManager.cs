@@ -32,8 +32,10 @@ public enum Sprites
 
 public enum ItemIcon
 {
-    test1,
-    test2
+    Liquid_green,
+    Liquid_red,
+    Liquid_yellow,
+    Liquid_blue,
 }
 
 public class GameAssetsManager : MonoBehaviour
@@ -124,7 +126,7 @@ public class GameAssetsManager : MonoBehaviour
             Enemy current = DBEnemies.enemies[i];
             if (current.ID == id)
             {
-                return current;
+                return new Enemy(current);
             }
         }
 

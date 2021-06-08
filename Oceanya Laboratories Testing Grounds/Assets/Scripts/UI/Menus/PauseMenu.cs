@@ -73,14 +73,14 @@ public class PauseMenu : MonoBehaviour
 
     public void Quit()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.Quit, false);
+        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.Quit, false, false);
     }
     public void MainMenu()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu, false);
+        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu, false, false);
     }
     public void Restart()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene, false);
+        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene, false, false);
     }
 }

@@ -34,9 +34,9 @@ public class EffectAnimator : MonoBehaviour
     }
     public void CheckTeamDeath()
     {
-        Debug.Log("Checked total team death");
+        Debug.Log("Total team death: Act");
         
-        BattleManager.i.CheckTotalTeamKill();
+        BattleManager.i.TotalTeamKill_Act();
     }
     public void UpdateUI()
     {

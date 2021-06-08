@@ -25,7 +25,9 @@ public class Character
     [SerializeField] private Texture2D                          _sprite;
     
     [SerializeField] private int                                _level;
+    
     [SerializeField] private Dictionary<Stats, int>             _stats;
+    
     [SerializeField] private Dictionary<SkillResources, int>    _skillResources;
 
     [SerializeField] private List<RPGFormula>                   _basicAttackFormula;
@@ -51,6 +53,14 @@ public class Character
 
     [SerializeField] private Dictionary<CharActions, int>       _importanceOfActions;
     [SerializeField] private Dictionary<Skill, int>             _importanceOfSkills;
+
+    #region Original variables (Creation)
+    [SerializeField] protected Dictionary<Stats, int>           _originalStats;
+
+    [SerializeField] protected List<SkillInfo>                  _originalSkillList;
+
+    [SerializeField] protected List<ItemInfo>                   _originalInventory;
+    #endregion
 
     #region Getters/Setters
     public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
@@ -115,9 +125,6 @@ public class Character
 
         checkedPassives = false;
 
-        curUI = null;
-        curSprite = null;
-
         importanceOfActions = new Dictionary<CharActions, int>();
         importanceOfSkills = new Dictionary<Skill, int>();
     }
@@ -125,6 +132,12 @@ public class Character
     #region Character Reactions
     public void     GetsDamagedBy           (int DamageTaken)                                                               
     {
+        if (!checkedPassives)
+        {
+            SetCheckedPassives(true);
+            ActivatePassiveEffects(ActivationTime.WhenAttacked);
+        }
+
         curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
         int dmg = DamageTaken;
 
@@ -139,8 +152,7 @@ public class Character
         if (result <= 0)
         {
             stats[Stats.CURHP] = 0;
-            dead = true;
-            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
+            Die();
         }
 
         if (!dead)
@@ -211,7 +223,15 @@ public class Character
                 }
                 else if (modificationType == StatModificationTypes.Debuff)
                 {
-                    stats[currentStat] -= modifiedStats[currentStat];
+                    int result = stats[currentStat] - modifiedStats[currentStat];
+                    if(result < 1)
+                    {
+                        stats[currentStat] = 1;
+                    }
+                    else
+                    {
+                        stats[currentStat] = result;
+                    }
                     curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Debuff);
                 }
             }
@@ -227,6 +247,11 @@ public class Character
         dead = false;
         stats[Stats.CURHP] = stats[Stats.MAXHP];
         curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
+    }
+    public void     Die                     ()                                                                              
+    {
+        dead = true;
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
     }
     #endregion
 
@@ -290,7 +315,84 @@ public class Character
             }
         }
     }
-    
+
+    #region Reset Variables To Original
+    public void             ResetFull()
+    {
+        ResetToOriginalInventory();
+        ResetToOriginalSkillList();
+        ResetToOriginalStatBuffs();
+        ResetHP();
+    }
+    public void             ResetToOriginalSkillList()
+    {
+        skillList = MakeCopyOfSkillInfo(_originalSkillList);
+    }
+    public void             ResetToOriginalInventory()
+    {
+        inventory = MakeCopyOfItemInfo(_originalInventory);
+    }
+    public void             ResetToOriginalStatBuffs()
+    {
+        Dictionary<Stats, int> dictionary = MakeCopyOfStatsDictionary(_originalStats);
+        dictionary[Stats.CURHP] = stats[Stats.CURHP];
+        stats = dictionary;
+    }
+    public void             ResetHP()
+    {
+        dead = false;
+        permadead = false;
+        stats[Stats.CURHP] = stats[Stats.MAXHP];
+    }
+    #endregion
+
+    #region Make New Instances of variables
+    protected Dictionary<Stats, int> MakeCopyOfStatsDictionary(Dictionary<Stats, int> oldDictionary)
+    {
+        Dictionary<Stats, int> newDictionary = new Dictionary<Stats, int>();
+
+        foreach (var kvp in oldDictionary)
+        {
+            newDictionary.Add(kvp.Key, kvp.Value);
+        }
+
+        return newDictionary;
+    }
+    protected Dictionary<SkillResources, int> MakeCopyOfSkillResourcesDictionary(Dictionary<SkillResources, int> oldDictionary)
+    {
+        Dictionary<SkillResources, int> newDictionary = new Dictionary<SkillResources, int>();
+
+        foreach (var kvp in oldDictionary)
+        {
+            newDictionary.Add(kvp.Key, kvp.Value);
+        }
+
+        return newDictionary;
+    }
+    protected List<SkillInfo> MakeCopyOfSkillInfo(List<SkillInfo> old)
+    {
+        List<SkillInfo> newer = new List<SkillInfo>();
+
+        for (int i = 0; i < old.Count; i++)
+        {
+            newer.Add(ConvertSkillToSkillInfo(old[i].skill));
+        }
+
+        return newer;
+    }
+    protected List<ItemInfo> MakeCopyOfItemInfo(List<ItemInfo> old)
+    {
+        List<ItemInfo> newer = new List<ItemInfo>();
+
+        for (int i = 0; i < old.Count; i++)
+        {
+            newer.Add(ConvertItemToItemInfo(old[i].item, old[i].amount));
+        }
+
+        return newer;
+    }
+    #endregion
+
 
     /// <summary>
     /// Checks to activate a passive from a character's list IF its actuvation type matches the activation type you gave it
@@ -301,44 +403,25 @@ public class Character
     {
         Character character = this;
 
-        List<string> skillnames = new List<string>();
-        for (int i = 0; i < character.skillList.Count; i++)
-        {
-            if(character.skillList[i] != null)
-            {
-                if(character.skillList[i].skill != null)
-                {
-                    skillnames.Add(character.skillList[i].skill.name);
-                }
-            }
-        }
-
-
         for (int i = 0; i < character.skillList.Count; i++)
         {
             SkillInfo curSkillInfo = character.skillList[i];
-            if (curSkillInfo != null)
+            Skill curSkill = curSkillInfo.skill;
+            string name = curSkill.name;
+
+            if (curSkill.passiveActivationType == activationType && curSkill.behaviors.Contains(Activatables.Behaviors.Passive))
             {
-                Skill curSkill = curSkillInfo.skill;
-                if (curSkill != null)
+                if (curSkill.activatableType == ActivatableType.Active && curSkillInfo.currentlyActive || curSkill.activatableType == ActivatableType.Passive)
                 {
-                    string name = curSkill.name;
+                    curSkill.Activate(character, character.GetSkillFromSkillList(curSkill));
 
-                    if (curSkill.passiveActivationType == activationType && curSkill.hasPassive)
+                    if (curSkill.behaviors.Contains(Activatables.Behaviors.LastsFor))
                     {
-                        if (curSkill.activatableType == ActivatableType.Active && curSkillInfo.currentlyActive || curSkill.activatableType == ActivatableType.Passive)
+                        curSkillInfo.timesActivated++;
+
+                        if (curSkillInfo.timesActivated == curSkill.lastsFor)
                         {
-                            curSkill.Activate(character);
-
-                            if (curSkill.lasts)
-                            {
-                                curSkillInfo.timesActivated++;
-
-                                if (curSkillInfo.timesActivated == curSkill.lastsFor)
-                                {
-                                    curSkillInfo.SetDeactivated();
-                                }
-                            }
+                            curSkillInfo.SetDeactivated();
                         }
                     }
                 }
@@ -352,6 +435,17 @@ public class Character
         for (int i = 0; i < skills.Count; i++)
         {
             newList.Add(ConvertSkillToSkillInfo(skills[i]));
+        }
+
+        return newList;
+    }
+    public List<Skill>      ConvertSkillInfoToSkills(List<SkillInfo> skillInfo)
+    {
+        List<Skill> newList = new List<Skill>();
+
+        for (int i = 0; i < skillInfo.Count; i++)
+        {
+            newList.Add(skillInfo[i].skill);
         }
 
         return newList;
@@ -395,10 +489,21 @@ public class Character
     {
         for (int i = 0; i < skillList.Count; i++)
         {
-            if(skillList[i].skill.skillClass.ID == skill.skillClass.ID && skillList[i].skill.ID == skill.ID)
+            if(skillList[i].skill.skillClass == null || skill.skillClass == null)
             {
-                return skillList[i];
+                if (skillList[i].skill.skillClass == null && skill.skillClass == null && skillList[i].skill.ID == skill.ID)
+                {
+                    return skillList[i];
+                }
             }
+            else
+            {
+                if (skillList[i].skill.skillClass.ID == skill.skillClass.ID && skillList[i].skill.ID == skill.ID)
+                {
+                    return skillList[i];
+                }
+            }
+            
         }
 
         Debug.LogError($"{name} did not have the skill {skill.name}");
@@ -480,7 +585,7 @@ public class Character
     {
         Debug.Log("AI Turn Start.");
 
-        BattleManager.i.CheckTotalTeamKill();
+        BattleManager.i.TotalTeamKill_Check();
 
         if (!(BattleManager.i.enemyTeamDeath || BattleManager.i.allyTeamDeath))
         {
@@ -531,7 +636,7 @@ public class Character
                     if (curskillInfo != null)
                     {
                         Skill curSkill = curskillInfo.skill;
-                        curskillInfo.CheckActivatable();
+                        curskillInfo.UpdateActivatable(curSkill);
 
                         if (curskillInfo.activatable && !curskillInfo.currentlyActive)
                         {

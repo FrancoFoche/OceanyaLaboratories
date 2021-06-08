@@ -27,7 +27,7 @@ public class UISkillButton : MonoBehaviour
         }
         else
         {
-            UICharacterActions.instance.confirmationPopup.Show(() => UICharacterActions.instance.SetSkillToActivate(loadedSkill));
+            UICharacterActions.instance.confirmationPopup.Show(() => UICharacterActions.instance.SetSkillToActivate(loadedSkill), true, false);
         }
     }
 
@@ -45,7 +45,7 @@ public class UISkillButton : MonoBehaviour
 
         SkillInfo skillInfo = BattleManager.caster.GetSkillFromSkillList(loadedSkill);
 
-        skillInfo.CheckActivatable();
+        skillInfo.UpdateActivatable(loadedSkill);
 
         if (skillInfo.activatable)
         {

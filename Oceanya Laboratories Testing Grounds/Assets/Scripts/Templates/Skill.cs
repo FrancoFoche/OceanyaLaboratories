@@ -5,13 +5,13 @@ using UnityEngine;
 /// <summary>
 /// Template for any skill that is created
 /// </summary>
-public class Skill: Activatables
+public class Skill : Activatables
 {
     /// <summary>
     /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
     /// </summary>
-    public bool                                     done                                { get; private set; }
-    public BaseSkillClass                           skillClass;         //RPG Class it's from
+    public bool done { get; private set; }
+    public BaseSkillClass skillClass;         //RPG Class it's from
 
     #region Constructors
     public Skill(BaseObjectInfo baseInfo, string activationText, ActivatableType skillType, TargetType targetType, int maxTargets = 1)
@@ -27,14 +27,22 @@ public class Skill: Activatables
         done = false;
         cooldown = 0;
         behaviors = new List<Behaviors>();
+        skillClass = null;
     }
     public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<RPGFormula> damageFormula)
     {
-        behaviors.Add(Behaviors.DoesDamage);
-        doesDamage = true;
+        behaviors.Add(Behaviors.DoesDamage_Formula);
         this.damageType = damageType;
         this.damageElement = damageElement;
         this.damageFormula = damageFormula;
+        return this;
+    }
+    public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, int damage)
+    {
+        behaviors.Add(Behaviors.DoesDamage_Flat);
+        this.damageType = damageType;
+        this.damageElement = damageElement;
+        this.damageFlat = damage;
         return this;
     }
     public Skill BehaviorHasCooldown(CDType cdType)
@@ -52,23 +60,26 @@ public class Skill: Activatables
     }
     public Skill BehaviorDoesHeal(List<RPGFormula> healFormula)
     {
-        behaviors.Add(Behaviors.DoesHeal);
-        doesHeal = true;
+        behaviors.Add(Behaviors.DoesHeal_Formula);
         this.healFormula = healFormula;
+        return this;
+    }
+    public Skill BehaviorDoesHeal(int heal)
+    {
+        behaviors.Add(Behaviors.DoesHeal_Flat);
+        this.healFlat = heal;
         return this;
     }
     public Skill BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, int> statModifiers)
     {
-        behaviors.Add(Behaviors.FlatModifiesStat);
-        flatModifiesStat = true;
+        behaviors.Add(Behaviors.ModifiesStat_Flat);
         flatStatModifiers = statModifiers;
         this.modificationType = modificationType;
         return this;
     }
     public Skill BehaviorModifiesStat(StatModificationTypes modificationType, Dictionary<Stats, List<RPGFormula>> statModifiers)
     {
-        behaviors.Add(Behaviors.FormulaModifiesStat);
-        formulaModifiesStat = true;
+        behaviors.Add(Behaviors.ModifiesStat_Formula);
         formulaStatModifiers = statModifiers;
         this.modificationType = modificationType;
         return this;
@@ -76,41 +87,35 @@ public class Skill: Activatables
     public Skill BehaviorModifiesResource(Dictionary<SkillResources, int> resourceModifiers)
     {
         behaviors.Add(Behaviors.ModifiesResource);
-        modifiesResource = true;
         this.resourceModifiers = resourceModifiers;
         return this;
     }
     public Skill BehaviorUnlocksResource(List<SkillResources> unlockedResources)
     {
         behaviors.Add(Behaviors.UnlocksResource);
-        unlocksResource = true;
         this.unlockedResources = unlockedResources;
         return this;
     }
     public Skill BehaviorPassive(ActivationTime activationType)
     {
         behaviors.Add(Behaviors.Passive);
-        hasPassive = true;
         this.passiveActivationType = activationType;
         return this;
     }
     public Skill BehaviorCostsTurn()
     {
         behaviors.Add(Behaviors.CostsTurn);
-        costsTurn = true;
         return this;
     }
     public Skill BehaviorActivationRequirement(List<ActivationRequirement> requirements)
     {
         behaviors.Add(Behaviors.ActivationRequirement);
-        hasActivationRequirement = true;
         activationRequirements = requirements;
         return this;
     }
     public Skill BehaviorLastsFor(int maxActivationTimes)
     {
         behaviors.Add(Behaviors.LastsFor);
-        lasts = true;
         lastsFor = maxActivationTimes;
         return this;
     }
@@ -119,15 +124,14 @@ public class Skill: Activatables
         behaviors.Add(Behaviors.ChangesBasicAttack);
         this.newBasicAttackFormula = newBaseFormula;
         this.newBasicAttackDamageType = newDamageType;
-        changesBasicAttack = true;
         return this;
     }
     public Skill BehaviorRevives()
     {
         behaviors.Add(Behaviors.Revives);
-        revives = true;
         return this;
     }
+
 
     /// <summary>
     /// just marks the skill as done, this is just for development purposes
@@ -139,211 +143,6 @@ public class Skill: Activatables
         return this;
     }
     #endregion
-
-    public override void Activate(Character caster)
-    {
-        SkillInfo skillInfo = caster.GetSkillFromSkillList(this);
-
-        skillInfo.CheckActivatable();
-
-        if (skillInfo.activatable)
-        {
-            bool firstActivation = !skillInfo.currentlyActive;
-
-            if (activatableType == ActivatableType.Active && firstActivation && hasPassive)
-            {
-                BattleManager.i.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
-                skillInfo.SetActive();
-
-                if (costsTurn)
-                {
-                    TeamOrderManager.EndTurn();
-                }
-            }
-            else
-            {
-                if (targetType == TargetType.Single || targetType == TargetType.Multiple)
-                {
-                    UICharacterActions.instance.maxTargets = maxTargets;
-                    UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
-                }
-                else
-                {
-                    List<Character> targets = new List<Character>();
-                    switch (targetType)
-                    {
-                        case TargetType.Self:
-                            targets = new List<Character>() { caster };
-                            break;
-
-                        case TargetType.AllAllies:
-                            if (caster.team == Team.Ally)
-                            {
-                                targets = TeamOrderManager.allySide;
-                            }
-                            else
-                            {
-                                targets = TeamOrderManager.enemySide;
-                            }
-                            break;
-                        case TargetType.AllEnemies:
-                            if (caster.team == Team.Ally)
-                            {
-                                targets = TeamOrderManager.enemySide;
-                            }
-                            else
-                            {
-                                targets = TeamOrderManager.allySide;
-                            }
-                            break;
-                        case TargetType.Bounce:
-                            targets = new List<Character>() { BattleManager.caster };
-                            break;
-                    }
-
-                    BattleManager.i.SetTargets(targets);
-
-                    Action(caster, targets);
-                }
-            }
-        }
-        else
-        {
-            BattleManager.i.battleLog.LogBattleEffect($"But {caster.name} did not meet the requirements to activate the skill!");
-        }
-    }
-
-    public override void Action(Character caster, List<Character> target)
-    {
-        SkillInfo skillInfo = caster.GetSkillFromSkillList(this);
-
-        bool firstActivation = !skillInfo.currentlyActive;
-
-        if((targetType == TargetType.Single || targetType == TargetType.Multiple) && firstActivation)
-        {
-            skillInfo.SetActive();
-        }
-        
-        for (int i = 0; i < target.Count; i++)
-        {
-            Dictionary<ReplaceStringVariables, string> activationText = new Dictionary<ReplaceStringVariables, string>();
-
-            activationText.Add(ReplaceStringVariables._caster_, caster.name);
-            activationText.Add(ReplaceStringVariables._target_, target[i].name);
-
-            int tempDmg = 0;
-            bool wasDefending = false;
-            if (target[i].targettable)
-            {
-                if (doesDamage)
-                {
-                    int rawDMG = RPGFormula.ReadAndSumList(damageFormula, caster.stats);
-
-                    int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
-                    tempDmg = finalDMG;
-                    if (target[i].defending)
-                    {
-                        wasDefending = true;
-                    }
-
-                    target[i].GetsDamagedBy(finalDMG);
-
-                    activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
-                }
-                if (doesHeal)
-                {
-                    int healAmount = RPGFormula.ReadAndSumList(healFormula, caster.stats);
-
-                    target[i].GetsHealedBy(healAmount);
-
-                    activationText.Add(ReplaceStringVariables._heal_, healAmount.ToString());
-                }
-                if (flatModifiesStat)
-                {
-                    target[i].ModifyStat(modificationType, flatStatModifiers);
-                }
-                if (formulaModifiesStat)
-                {
-                    Dictionary<Stats, int> resultModifiers = new Dictionary<Stats, int>();
-                    for (int j = 0; j < RuleManager.StatHelper.Length; j++)
-                    {
-                        Stats currentStat = RuleManager.StatHelper[j];
-
-                        if (formulaStatModifiers.ContainsKey(currentStat))
-                        {
-                            resultModifiers.Add(currentStat, RPGFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
-                        }
-                    }
-
-                    target[i].ModifyStat(modificationType, resultModifiers);
-                }
-                if (unlocksResource)
-                {
-                    target[i].UnlockResources(unlockedResources);
-                }
-                if (modifiesResource)
-                {
-                    target[i].ModifyResource(resourceModifiers);
-                }
-                if (changesBasicAttack)
-                {
-                    target[i].ChangeBaseAttack(newBasicAttackFormula, newBasicAttackDamageType);
-                }
-                if (revives)
-                {
-                    if (target[i].dead)
-                    {
-                        target[i].Revive();
-                    }
-                    else
-                    {
-                        BattleManager.i.battleLog.LogBattleEffect($"But {target[i].name} was not dead...");
-                    }
-                }
-
-                if (appliesStatusEffects)
-                {
-
-                }
-
-                if (doesSummon)
-                {
-
-                }
-
-                if (doesShield)
-                {
-
-                }
-            }
-            else
-            {
-                BattleManager.i.battleLog.LogBattleEffect("Target wasn't targettable, smh");
-            }
-
-            BattleManager.i.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
-
-            if (wasDefending && doesDamage)
-            {
-                BattleManager.i.battleLog.LogBattleEffect($"But {target[i].name} was defending! Meaning they actually just took {Mathf.Floor(tempDmg / 2)} DMG.");
-            }
-
-        }
-
-
-        if (activatableType != ActivatableType.Passive && !hasPassive)
-        {
-            caster.GetSkillFromSkillList(this).SetDeactivated();
-        }
-
-        if (costsTurn)
-        {
-            if (!(activatableType == ActivatableType.Active && hasPassive && caster.GetSkillFromSkillList(this).currentlyActive))
-            {
-                TeamOrderManager.EndTurn();
-            }
-        }
-    }
 }
 
 
@@ -380,7 +179,7 @@ public class SkillInfo : ActivatableInfo
         base.SetDeactivated();
         cdStartedAt = character.timesPlayed;
 
-        if (skill.hasPassive)
+        if (skill.behaviors.Contains(Activatables.Behaviors.Passive))
         {
             BattleManager.i.battleLog.LogBattleEffect($"{skill.name} deactivated for {character.name}.");
         }
@@ -426,8 +225,8 @@ public class SkillInfo : ActivatableInfo
 
         cooldownState = newState;
     }
-    public void             CheckActivatable()                                  
+    public override void    SetAction       ()                                  
     {
-        activatable = ActivatableInfo.CheckActivatable(skill);
+        UICharacterActions.instance.ActionRequiresTarget(CharActions.Skill);
     }
 }

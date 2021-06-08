@@ -77,12 +77,13 @@ public class ObjectList : MonoBehaviour
         return newObject;
     }
 
-    public void ClearList()
+    public virtual void ClearList()
     {
         for (int i = 0; i < list.Count; i++)
         {
             Destroy(list[i]);
         }
+        list.Clear();
     }
 }
 
@@ -191,6 +192,11 @@ public class ToggleList : ObjectList
 
         Debug.Log("Set all toggles' interactables to " + state);
     }
+    public override void ClearList()
+    {
+        base.ClearList();
+        toggles.Clear();
+    }
 }
 
 public class ButtonList : ObjectList
@@ -213,5 +219,11 @@ public class ButtonList : ObjectList
                 buttons[i].interactable = true;
             }
         }
+    }
+
+    public override void ClearList()
+    {
+        base.ClearList();
+        buttons.Clear();
     }
 }

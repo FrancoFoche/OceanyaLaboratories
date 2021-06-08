@@ -7,14 +7,8 @@ using System.Text;
 
 public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private TooltipPopup tooltipPopup;
     public Character loadedChar;
     StringBuilder characterStats = new StringBuilder();
-
-    private void Start()
-    {
-        tooltipPopup = FindObjectOfType<TooltipPopup>();
-    }
 
     public void LoadCharStats(Character character)
     {
@@ -29,15 +23,19 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
 
             characterStats.Append("<size=15><color=green>").Append(curStat.ToString()).Append("</color></size>").Append("  |  ").Append(loadedChar.stats[curStat]).AppendLine();
         }
+
+        characterStats.AppendLine().Append("<size=15><color=green>").Append("Basic Attack: ").Append("</color></size>")
+            .Append(RPGFormula.FormulaListToString(character.basicAttackFormula)).Append(" (").Append(character.basicAttackType.ToString()).Append(" DMG)").AppendLine();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        tooltipPopup.DisplayInfo(characterStats);
+        LoadCharStats(loadedChar);
+        BattleManager.i.tooltipPopup.DisplayInfo(characterStats);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        tooltipPopup.HideInfo();
+        BattleManager.i.tooltipPopup.HideInfo();
     }
 }
