@@ -19,48 +19,49 @@ public enum StatModificationTypes
 }
 public class Character
 {
-    [SerializeField] private bool                               _AIcontrolled;
+    #region Structs
+    public struct Stat
+    {
+        public Stats stat;
+        public int value;
+    }
+    #endregion
+    //Serializable/Saveable variables
     [SerializeField] private int                                _ID;
     [SerializeField] private string                             _name;
-    [SerializeField] private Texture2D                          _sprite;
-    
-    [SerializeField] private int                                _level;
+    [SerializeField] private LevellingSystem                    _level;
     
     [SerializeField] private Dictionary<Stats, int>             _stats;
+    [SerializeField] protected Dictionary<Stats, int>           _nonBuffedStats;
+    [SerializeField] protected Dictionary<Stats, int>           _originalStats;
     
     [SerializeField] private Dictionary<SkillResources, int>    _skillResources;
 
     [SerializeField] private List<RPGFormula>                   _basicAttackFormula;
     [SerializeField] private DamageType                         _basicAttackType;
 
-    [SerializeField] private Team                               _team;
-    [SerializeField] private bool                               _targettable;
+    [SerializeField] private List<SkillInfo>                    _skillList;
+    [SerializeField] protected List<SkillInfo>                  _originalSkillList;
+
+    [SerializeField] private List<ItemInfo>                     _inventory;
+    [SerializeField] protected List<ItemInfo>                   _originalInventory;
 
     [SerializeField] private bool                               _dead;
     [SerializeField] private bool                               _permadead;
-    [SerializeField] private bool                               _defending;
-
-    [SerializeField] private List<SkillInfo>                    _skillList;
-
-    [SerializeField] private List<ItemInfo>                     _inventory;
-
-    [SerializeField] private int                                _timesPlayed;
-
-    [SerializeField] private bool                               _checkedPassives;
-
-    [SerializeField] private BattleUI                           _curUI;
-    [SerializeField] private SpriteAnimator                     _curSprite;
 
     [SerializeField] private Dictionary<CharActions, int>       _importanceOfActions;
     [SerializeField] private Dictionary<Skill, int>             _importanceOfSkills;
 
-    #region Original variables (Creation)
-    [SerializeField] protected Dictionary<Stats, int>           _originalStats;
+    private bool                               _AIcontrolled;
+    private Team                               _team;
+    private bool                               _targettable;
+    private bool                               _defending;
+    private int                                _timesPlayed;
+    private bool                               _checkedPassives;
 
-    [SerializeField] protected List<SkillInfo>                  _originalSkillList;
-
-    [SerializeField] protected List<ItemInfo>                   _originalInventory;
-    #endregion
+    private BattleUI                           _curUI;
+    private Texture2D                          _sprite;
+    private SpriteAnimator                     _curSprite;
 
     #region Getters/Setters
     public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
@@ -68,7 +69,7 @@ public class Character
     public string                               name                        { get { return _name; }                     protected set { _name = value; } }
     public Texture2D                            sprite                      { get { return _sprite; }                   protected set { _sprite = value; } }
 
-    public int                                  level                       { get { return _level; }                    protected set { _level = value; } }
+    public LevellingSystem                      level                       { get { return _level; }                    protected set { _level = value; } }
     public Dictionary<Stats, int>               stats                       { get { return _stats; }                    protected set { _stats = value; } }
     public Dictionary<SkillResources, int>      skillResources              { get { return _skillResources; }           protected set { _skillResources = value; } }
 
@@ -100,7 +101,7 @@ public class Character
     protected void InitializeVariables()
     {
         name = "InitializerName";
-        level = 1;
+        level = new LevellingSystem();
         stats = new Dictionary<Stats, int>();
         skillResources = new Dictionary<SkillResources, int>();
         basicAttackFormula = new List<RPGFormula>() { new RPGFormula(Stats.STR, operationActions.Multiply, 1) };
@@ -252,6 +253,10 @@ public class Character
     {
         dead = true;
         curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
+    }
+    public virtual void AddExp              (int exp)                                                                       
+    {
+        level.EXP += exp;
     }
     #endregion
 

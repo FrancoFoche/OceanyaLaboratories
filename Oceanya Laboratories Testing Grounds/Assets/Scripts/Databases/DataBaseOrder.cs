@@ -14,6 +14,7 @@ public class DataBaseOrder : MonoBehaviour
         DBClasses.BuildDatabase();
         DBSkills.BuildDatabase();
         DBItems.BuildDatabase();
+        LevellingSystem.BuildBaseLevelSystem();
         DBPlayerCharacter.BuildDatabase();
         DBEnemies.BuildDatabase();
     }

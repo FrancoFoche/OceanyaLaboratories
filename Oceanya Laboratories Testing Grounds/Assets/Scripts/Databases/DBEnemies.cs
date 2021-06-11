@@ -9,7 +9,7 @@ public class DBEnemies : MonoBehaviour
     {
         enemies = new List<Enemy>()
         {
-            new Enemy(1 , "Motivated Swordmaster" , GameAssetsManager.instance.GetSprite(Sprites.Vergil), 10,
+            new Enemy(1 , "Motivated Swordmaster" , GameAssetsManager.instance.GetSprite(Sprites.Vergil),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 100   },
@@ -57,7 +57,7 @@ public class DBEnemies : MonoBehaviour
                 }
             ),
 
-            new Enemy(2 , "Strategist" ,GameAssetsManager.instance.GetSprite(Sprites.Sasque), 10,
+            new Enemy(2 , "Strategist" ,GameAssetsManager.instance.GetSprite(Sprites.Sasque),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 150 },
@@ -116,7 +116,7 @@ public class DBEnemies : MonoBehaviour
                 }
             ),
 
-            new Enemy(3 , "Kirbo" ,GameAssetsManager.instance.GetSprite(Sprites.Kirbo), 20,
+            new Enemy(3 , "Kirbo" ,GameAssetsManager.instance.GetSprite(Sprites.Kirbo),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 1 },

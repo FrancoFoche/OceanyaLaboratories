@@ -15,6 +15,8 @@ public class BattleUIList : ToggleList
     public Transform enemyParent;
 
     private List<BattleUI> generalList = new List<BattleUI>();
+    private List<BattleUI> allies = new List<BattleUI>();
+    private List<BattleUI> enemies = new List<BattleUI>();
 
     public void SetSides(List<Character> allies, List<Character> enemies)
     {
@@ -38,6 +40,7 @@ public class BattleUIList : ToggleList
 
         toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
         generalList.Add(newCharUI);
+        allies.Add(newCharUI);
 
         newCharUI.LoadChar(character);
 
@@ -51,6 +54,7 @@ public class BattleUIList : ToggleList
     public void                 AddAllAllies    (List<Character> allies)
     {
         ClearList();
+        this.allies.Clear();
         for (int i = 0; i < allies.Count; i++)
         {
             AddAlly(allies[i]);
@@ -70,6 +74,7 @@ public class BattleUIList : ToggleList
 
         toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
         generalList.Add(newCharUI);
+        enemies.Add(newCharUI);
 
         newCharUI.LoadChar(character);
        
@@ -77,6 +82,7 @@ public class BattleUIList : ToggleList
     }
     public void                 AddAllEnemies   (List<Character> enemies)
     {
+        this.enemies.Clear();
         EnemySpawner.instance.SpawnAllEnemies(enemies);
     }
 
@@ -84,7 +90,7 @@ public class BattleUIList : ToggleList
     /// Selects a character from the toggle group
     /// </summary>
     /// <param name="character">Character to select</param>
-    public void                 SelectCharacter (Character character)   
+    public void             SelectCharacter (Character character)   
     {
         TurnToggles(false);
 
@@ -147,5 +153,27 @@ public class BattleUIList : ToggleList
         }
 
         Debug.Log("Set all UI's interactables to " + state);
+    }
+    public List<Character> GetTeam(Team team)
+    {
+        List<Character> list = new List<Character>();
+        switch (team)
+        {
+            case Team.Enemy:
+                for (int i = 0; i < enemies.Count; i++)
+                {
+                    list.Add(enemies[i].loadedChar);
+                }
+                break;
+
+            case Team.Ally:
+                for (int i = 0; i < allies.Count; i++)
+                {
+                    list.Add(allies[i].loadedChar);
+                }
+                break;
+        }
+
+        return list;
     }
 }

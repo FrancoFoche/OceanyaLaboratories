@@ -34,7 +34,7 @@ public class AllyBattleUI : BattleUI
     {
         base.LoadChar(character);
 
-        levelText.text = "LV. " + character.level.ToString();
+        levelText.text = "LV. " + character.level.Level.ToString();
         System.Type type = character.GetType();
 
         if (type == typeof(PlayerCharacter))

@@ -334,15 +334,29 @@ public class BattleManager : MonoBehaviour
                         }
 
                         battleState = BattleState.End;
-                        currentBattleIndex++;
-                        if (currentBattleIndex < battles.Length)
+
+                        int EXPgiven = 0;
+                        List<Character> enemies = uiList.GetTeam(Team.Enemy);
+                        for (int i = 0; i < enemies.Count; i++)
                         {
-                            battleLog.LogCountdown(5, "Next wave starts in _countdown_...", () => StartCombat(battles[currentBattleIndex]));
+                            EXPgiven += Mathf.CeilToInt(enemies[i].stats[Stats.MAXHP]/2);
                         }
-                        else
+
+                        GiveAllyTeamEXP(EXPgiven);
+
+                        DelayAction(5, delegate
                         {
-                            battleLog.LogCountdown(20, "Credits start in _countdown_...", () => SceneLoaderManager.instance.LoadCredits());
-                        }
+                            currentBattleIndex++;
+                            if (currentBattleIndex < battles.Length)
+                            {
+                                battleLog.LogCountdown(5, "Next wave starts in _countdown_...", () => StartCombat(battles[currentBattleIndex]));
+                            }
+                            else
+                            {
+                                battleLog.LogCountdown(10, "Credits start in _countdown_...", () => SceneLoaderManager.instance.LoadCredits());
+                            }
+                        });
+                        
                     }
                     break;
             }
@@ -448,6 +462,23 @@ public class BattleManager : MonoBehaviour
     {
         uiList.SelectCharacter(TeamOrderManager.currentTurn);
         battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
+    }
+    public void                     GiveAllyTeamEXP     (int exp)                   
+    {
+        List<Character> characters = uiList.GetTeam(Team.Ally);
+
+        for (int i = 0; i < characters.Count; i++)
+        {
+            if (!characters[i].dead)
+            {
+                characters[i].AddExp(exp);
+                battleLog.LogBattleEffect(characters[i].name + " gains " + exp + " EXP!");
+            }
+            else
+            {
+                battleLog.LogBattleEffect(characters[i].name + " was dead and could not receive EXP.");
+            }
+        }
     }
 
 

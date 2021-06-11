@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class RPGFormula
 {
     [SerializeField] private Stats _StatToUse;

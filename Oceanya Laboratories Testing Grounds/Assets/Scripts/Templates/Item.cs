@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Item : Activatables
 {
     public enum Type
@@ -136,6 +137,7 @@ public class Item : Activatables
     #endregion
 }
 
+[System.Serializable]
 public class ItemInfo : ActivatableInfo
 {
     public Item item                    { get; private set; }

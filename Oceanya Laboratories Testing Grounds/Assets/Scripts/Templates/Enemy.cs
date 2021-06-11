@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class Enemy : Character
 {
-    public Enemy(int ID, string name, Texture2D sprite, int level, Dictionary<Stats, int> stats, List<Skill> skillList, Dictionary<Item, int> inventory)
+    public Enemy(int ID, string name, Texture2D sprite, Dictionary<Stats, int> startingStats, List<Skill> skillList, Dictionary<Item, int> inventory)
     {
         InitializeVariables();
 
         this.ID = ID;
-        this.level = level;
+        this.level = new LevellingSystem();
         this.name = name;
         
 
         this.sprite = sprite;
 
-        this._originalStats = MakeCopyOfStatsDictionary(stats);
-        this.stats = stats;
+        this._originalStats = MakeCopyOfStatsDictionary(startingStats);
+        this.stats = startingStats;
         
         this.inventory = ConvertItemsToItemInfo(inventory);
         this._originalInventory = MakeCopyOfItemInfo(this.inventory);
@@ -31,7 +31,7 @@ public class Enemy : Character
 
         #region Values
         this.ID = enemy.ID;
-        this.level = enemy.level;
+        this.level = new LevellingSystem();
         this.name = enemy.name;
         #endregion
 

@@ -8,37 +8,68 @@ using UnityEngine.UI;
 /// </summary>
 public class TestingClass : MonoBehaviour
 {
-    public AllyBattleUI test;
-    public Toggle toggle;
-    private bool interactable;
-    private void Update()
+    LevellingSystem levelTest;
+    PlayerCharacter character;
+
+    private void Start()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            interactable = !interactable;
-            test.InteractableUI(interactable);
-            Debug.Log("Interactable = " + interactable);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            toggle.isOn = !toggle.isOn;
-            Debug.Log("IsOn = " + toggle.isOn);
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            //toggle.isOn = !toggle.isOn;
-            //toggle.isOn = !toggle.isOn;
-
-            
-        }
-
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            Debug.Log("Success");
-        }
+        SavesManager.Initialize();
+        DBClasses.BuildDatabase();
+        LevellingSystem.BuildBaseLevelSystem();
+        character = new PlayerCharacter(0, "TestName", 1, GameAssetsManager.instance.GetClass(ClassNames.Vampire.ToString()),
+            new Dictionary<Stats, int>()
+            {
+                { Stats.MAXHP       , 1 },
+                { Stats.CURHP       , 1 },
+                { Stats.STR         , 1 },
+                { Stats.INT         , 1 },
+                { Stats.CHR         , 1 },
+                { Stats.AGI         , 1 },
+                { Stats.MR          , 0 },
+                { Stats.PR          , 0 },
+                { Stats.CON         , 1 },
+                { Stats.HPREGEN     , 0 }
+            },
+            new List<Skill>()
+            , new Dictionary<Item, int>());
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            character.AddExp(20);
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            Debug.Log("Current EXP: " + character.level.EXP + ";");
+            Debug.Log("Current Level: " + character.level.Level + ";");
+            string stats = "Stats: ";
 
+            foreach (var kvp in character.stats)
+            {
+                stats += $"\n {kvp.Key} | {kvp.Value}";
+            }
+
+            Debug.Log(stats);
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            SaveFile file = new SaveFile() { players = new List<PlayerCharacter>() { character } };
+
+            SavesManager.Save(file);
+            Debug.Log("Saved");
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            SaveFile loaded = SavesManager.Load();
+            if(loaded != null)
+            {
+                character = loaded.players[0];
+                Debug.Log("Loaded");
+            }
+            
+        }
+    }
 }

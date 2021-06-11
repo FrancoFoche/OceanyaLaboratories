@@ -98,7 +98,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     { GameAssetsManager.instance.GetItem("Fresh Blood") , 2}
                 }
             ),
-            new PlayerCharacter(5 , "Da Docta" , 9,  GameAssetsManager.instance.GetClass(ClassNames.Doctor.ToString()),
+            new PlayerCharacter(5 , "Da Docta" , 1,  GameAssetsManager.instance.GetClass(ClassNames.Doctor.ToString()),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 83    },
@@ -126,7 +126,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 }
             ),
 
-            new PlayerCharacter(9 , "Archive" , 5,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
+            new PlayerCharacter(9 , "Archive" , 1,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 50    },

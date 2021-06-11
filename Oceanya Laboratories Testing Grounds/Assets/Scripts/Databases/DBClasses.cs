@@ -12,13 +12,21 @@ public class DBClasses : MonoBehaviour
     {
         classes = new List<BaseSkillClass>()
         {
-            new BaseSkillClass(new BaseObjectInfo(ClassNames.Default.ToString(), 01 , "This is the default class, has just skills that haven't been assigned another class yet"), 
+            new BaseSkillClass(new BaseObjectInfo(ClassNames.Default.ToString(), 01 , "This is the default class, has just skills that haven't been assigned another class yet"),
+                new Dictionary<Stats, int>()
+                {
+
+                },
                 new List<Skill>
                 {
                 }
             ),
 
             new BaseSkillClass(new BaseObjectInfo("Testing Class", 0 , "This is the class that has every test skill"),
+                new Dictionary<Stats, int>()
+                {
+
+                },
                 new List<Skill>
                 {
                     new Skill
@@ -176,6 +184,10 @@ public class DBClasses : MonoBehaviour
             ),
 
             new BaseSkillClass(new BaseObjectInfo(ClassNames.SenjutsuMastery.ToString(), 1, ""),
+                new Dictionary<Stats, int>()
+                {
+
+                },
                 new List<Skill>
                 {
                     new Skill //Done
@@ -308,6 +320,10 @@ public class DBClasses : MonoBehaviour
 
             
             new BaseSkillClass(new BaseObjectInfo(SenjutsuSubclasses.WoodStyleSage.ToString(), 101 , "Your body knows balance! You're as beautiful as ever! You now have access to Wood Sage Arts! Your skills will be heavily based on defense! I guess you got a skill TREE. Get it? Cuz wood. and trees? whatever just have your stats .+20%STR +50%HP +25%HP Regeneration"),
+                new Dictionary<Stats, int>()
+                {
+
+                },
                 new List<Skill>
                 {
                     new Skill //Needs a lasts for and an activation requirement
@@ -418,6 +434,10 @@ public class DBClasses : MonoBehaviour
             ),
 
             new BaseSkillClass(new BaseObjectInfo(SenjutsuSubclasses.FrogStyleSage.ToString(), 102 , "Your body knows balance! You're as beautiful as ever! You now have access to Wood Sage Arts! Your skills will be heavily based on defense! I guess you got a skill TREE. Get it? Cuz wood. and trees? whatever just have your stats .+20%STR +50%HP +25%HP Regeneration"),
+                new Dictionary<Stats, int>()
+                {
+
+                },
                 new List<Skill>
                 {
                     new Skill //needs an activation requirement, and a "change base attack formula" behavior, and also make a way for it to activate only when you turn into a frog sage
@@ -515,6 +535,10 @@ public class DBClasses : MonoBehaviour
             ),
 
             new BaseSkillClass(new BaseObjectInfo(ClassNames.Doctor.ToString(), 10 , "As a Doctor, you’re the team’s main healer, your job is to keep the DPS alive as long as possible"),
+                new Dictionary<Stats, int>()
+                {
+                    { Stats.AGI, 50}
+                },
                 new List<Skill>
                 {
                     new Skill
@@ -577,6 +601,10 @@ public class DBClasses : MonoBehaviour
             ),
 
             new BaseSkillClass(new BaseObjectInfo(ClassNames.MasterOfDarkArts.ToString(), 6 , "As a Master of the Dark Arts, your job is to deal Magic DMG to as many targets as possible and utilize your magic to be creative and resourceful"),
+                new Dictionary<Stats, int>()
+                {
+                    { Stats.INT, 50}
+                },
                 new List<Skill>
                 {
                     new Skill
@@ -614,6 +642,10 @@ public class DBClasses : MonoBehaviour
             ),
 
             new BaseSkillClass(new BaseObjectInfo(ClassNames.Vampire.ToString(), 5 , ""),
+                new Dictionary<Stats, int>()
+                {
+                    { Stats.CHR, 50}
+                },
                 new List<Skill>
                 {
                     new Skill

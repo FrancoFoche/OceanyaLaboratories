@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Template for any skill that is created
 /// </summary>
+[System.Serializable]
 public class Skill : Activatables
 {
     /// <summary>
@@ -149,6 +150,7 @@ public class Skill : Activatables
 /// <summary>
 /// The individual skill information that is specific to a character. (CurrentCD, when a player activated the skill, etc)
 /// </summary>
+[System.Serializable]
 public class SkillInfo : ActivatableInfo
 {
     public  Skill           skill               { get; private set; }
