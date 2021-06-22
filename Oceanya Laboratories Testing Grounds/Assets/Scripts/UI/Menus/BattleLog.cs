@@ -16,7 +16,7 @@ public class BattleLog : MonoBehaviour
     public Color battleEffect;
     public Color allyTurn;
     public Color enemyTurn;
-    public Color outOfCombatTurn; 
+    public Color important; 
 
     [SerializeField]
     List<Message> messageList = new List<Message>();
@@ -27,7 +27,7 @@ public class BattleLog : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                SendMessageToChat("GameMaster: " + chatBox.text, Message.MessageType.PlayerMessage);
+                SendMessageToChat("GameMaster: " + chatBox.text, Message.Type.PlayerMessage);
                 chatBox.text = "";
             }
 
@@ -41,7 +41,7 @@ public class BattleLog : MonoBehaviour
         }
     }
 
-    public void SendMessageToChat(string text, Message.MessageType messageType)
+    public void SendMessageToChat(string text, Message.Type messageType)
     {
         if(messageList.Count >= maxMessages)
         {
@@ -63,15 +63,15 @@ public class BattleLog : MonoBehaviour
 
         switch (messageType)
         {
-            case Message.MessageType.AllyTurn:
-            case Message.MessageType.EnemyTurn:
-            case Message.MessageType.BattleStatus:
-            case Message.MessageType.OutOfCombatTurn:
+            case Message.Type.AllyTurn:
+            case Message.Type.EnemyTurn:
+            case Message.Type.BattleStatus:
                 newMessage.textObject.alignment = TextAnchor.MiddleCenter;
                 break;
 
-            case Message.MessageType.BattleEffect:
-            case Message.MessageType.PlayerMessage:
+            case Message.Type.BattleEffect:
+            case Message.Type.PlayerMessage:
+            case Message.Type.Important:
                 newMessage.textObject.alignment = TextAnchor.MiddleLeft;
                 break;
 
@@ -80,33 +80,33 @@ public class BattleLog : MonoBehaviour
         messageList.Add(newMessage);
     }
 
-    Color MessageTypeColor(Message.MessageType messageType)
+    Color MessageTypeColor(Message.Type messageType)
     {
         Color color = battleEffect;
 
         switch (messageType)
         {
-            case Message.MessageType.PlayerMessage:
+            case Message.Type.PlayerMessage:
                 color = playerMessage;
                 break;
 
-            case Message.MessageType.AllyTurn:
+            case Message.Type.AllyTurn:
                 color = allyTurn;
                 break;
 
-            case Message.MessageType.EnemyTurn:
+            case Message.Type.EnemyTurn:
                 color = enemyTurn;
                 break;
 
-            case Message.MessageType.OutOfCombatTurn:
-                color = outOfCombatTurn;
+            case Message.Type.Important:
+                color = important;
                 break;
 
-            case Message.MessageType.BattleStatus:
+            case Message.Type.BattleStatus:
                 color = battleStatus;
                 break;
 
-            case Message.MessageType.BattleEffect:
+            case Message.Type.BattleEffect:
                 color = battleEffect;
                 break;
         }
@@ -116,12 +116,17 @@ public class BattleLog : MonoBehaviour
 
     public void LogBattleStatus(string text)
     {
-        SendMessageToChat("*" + text + "*", Message.MessageType.BattleStatus);
+        SendMessageToChat("*" + text + "*", Message.Type.BattleStatus);
     }
 
     public void LogBattleEffect(string text)
     {
-        SendMessageToChat("BattleLog: " + text, Message.MessageType.BattleEffect);
+        SendMessageToChat("BattleLog: " + text, Message.Type.BattleEffect);
+    }
+
+    public void LogImportant(string text)
+    {
+        SendMessageToChat("BattleLog: " + text, Message.Type.Important);
     }
 
     /// <summary>
@@ -132,7 +137,7 @@ public class BattleLog : MonoBehaviour
     public void LogTurn(Character character, int mode = 1)
     {
         string messageToSend = "";
-        Message.MessageType type = Message.MessageType.AllyTurn;
+        Message.Type type = Message.Type.AllyTurn;
 
         switch (mode)
         {
@@ -153,13 +158,10 @@ public class BattleLog : MonoBehaviour
         switch (character.team)
         {
             case Team.Enemy:
-                type = Message.MessageType.EnemyTurn;
+                type = Message.Type.EnemyTurn;
                 break;
             case Team.Ally:
-                type = Message.MessageType.AllyTurn;
-                break;
-            case Team.OutOfCombat:
-                type = Message.MessageType.OutOfCombatTurn;
+                type = Message.Type.AllyTurn;
                 break;
         }
 
@@ -208,14 +210,14 @@ public class Message
 {
     public string text;
     public Text textObject;
-    public MessageType messageType;
+    public Type messageType;
 
-    public enum MessageType
+    public enum Type
     {
         PlayerMessage,
         AllyTurn,
         EnemyTurn,
-        OutOfCombatTurn,
+        Important,
         BattleStatus,
         BattleEffect
     }

@@ -203,7 +203,7 @@ public class ButtonList : ObjectList
 {
     public List<Button> buttons;
 
-    public void InteractableButtons(bool state)
+    public virtual void InteractableButtons(bool state)
     {
         if (!state)
         {

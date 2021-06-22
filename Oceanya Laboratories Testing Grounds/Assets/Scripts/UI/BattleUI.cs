@@ -37,8 +37,8 @@ public class BattleUI : MonoBehaviour
             charName = loadedChar.name;
             charID = loadedChar.ID;
             curUI = loadedChar.curUI;
-            charHP = loadedChar.stats[Stats.CURHP];
-            charSTR = loadedChar.stats[Stats.STR];
+            charHP = loadedChar.stats.GetStat(Stats.CURHP).value;
+            charSTR = loadedChar.stats.GetStat(Stats.STR).value;
             charHashCode = loadedChar.GetHashCode();
             #endregion
         }
@@ -50,10 +50,10 @@ public class BattleUI : MonoBehaviour
         charID = character.ID;
         nameText.text = character.name;
         hpSlider.minValue = 0;
-        hpSlider.maxValue = character.stats[Stats.MAXHP];
-        hpSlider.value = character.stats[Stats.CURHP];
+        hpSlider.maxValue = character.stats.GetStat(Stats.MAXHP).value;
+        hpSlider.value = character.stats.GetStat(Stats.CURHP).value;
 
-        hpText.text = character.stats[Stats.CURHP] + " / " + character.stats[Stats.MAXHP];
+        hpText.text = character.stats.GetStat(Stats.CURHP).value + " / " + character.stats.GetStat(Stats.MAXHP).value;
 
         statusEffectText.text = "None";
 

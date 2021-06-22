@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using TMPro;
 
 public class UIActionConfirmationPopUp : MonoBehaviour
 {
     public GameObject objToHide;
+    public TextMeshProUGUI confirmationText;
+    public TextMeshProUGUI yesText;
+    public TextMeshProUGUI noText;
     private Action confirmAction;
 
     private void Awake()
@@ -13,31 +17,28 @@ public class UIActionConfirmationPopUp : MonoBehaviour
         Hide();
     }
 
-    public void Show(Action confirmAction, bool affectedByConfirmActionSetting, bool instant)
+    public void Show(Action confirmAction, bool affectedByConfirmActionSetting, string detailText = "Are you sure you want to commit this action?", string yesText = "Yes", string noText = "No")
     {
         this.confirmAction = confirmAction;
 
-        if (instant)
+        confirmationText.text = detailText;
+        this.yesText.text = yesText;
+        this.noText.text = noText;
+
+        if (affectedByConfirmActionSetting)
         {
-            Confirm();
-        }
-        else
-        {
-            if (affectedByConfirmActionSetting)
-            {
-                if (BattleManager.i.confirmMode)
-                {
-                    objToHide.SetActive(true);
-                }
-                else
-                {
-                    Confirm();
-                }
-            }
-            else
+            if (BattleManager.i.confirmMode)
             {
                 objToHide.SetActive(true);
             }
+            else
+            {
+                Confirm();
+            }
+        }
+        else
+        {
+            objToHide.SetActive(true);
         }
     }
     public void Hide()

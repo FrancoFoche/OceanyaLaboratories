@@ -21,7 +21,7 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
         {
             Stats curStat = RuleManager.StatHelper[i];
 
-            characterStats.Append("<size=15><color=green>").Append(curStat.ToString()).Append("</color></size>").Append("  |  ").Append(loadedChar.stats[curStat]).AppendLine();
+            characterStats.Append("<size=15><color=green>").Append(curStat.ToString()).Append("</color></size>").Append("  |  ").Append(loadedChar.stats.GetStat(curStat).value).AppendLine();
         }
 
         characterStats.AppendLine().Append("<size=15><color=green>").Append("Basic Attack: ").Append("</color></size>")

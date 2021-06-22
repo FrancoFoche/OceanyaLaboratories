@@ -13,9 +13,10 @@ public class UICharacterActions : ButtonList
     public Item itemToUse { get; private set; }
 
     public string actionString;
+    public UIActionButton confirmationButton;
+    public Action confirmAction;
 
     public static UICharacterActions instance;
-    public UIActionConfirmationPopUp confirmationPopup;
 
     #region Setters
     public void SetSkillToActivate(Skill skill)
@@ -35,13 +36,19 @@ public class UICharacterActions : ButtonList
     private void Start()
     {
         instance = this;
-        confirmationPopup = FindObjectOfType<UIActionConfirmationPopUp>();
     }
 
     public void AddAction(CharActions action)
     {
         GameObject newEntry = AddObject();
-        newEntry.GetComponent<UIActionButton>().LoadAction(action);
+        UIActionButton component = newEntry.GetComponent<UIActionButton>();
+        component.LoadAction(action);
+
+        if(CharActions.EndTurn == action)
+        {
+            confirmationButton = component;
+        }
+
         buttons.Add(newEntry.GetComponent<Button>());
     }
     public void AddAllActions()
@@ -84,8 +91,8 @@ public class UICharacterActions : ButtonList
             case CharActions.Prepare:
                 result = "(NOT YET IMPLEMENTED) Prepare yourself to be attacked, gain advantage in dodge roll IF you get attacked this turn. However, if a turn passes without being attacked while Ready, you gain DISTRACTED";
                 break;
-            case CharActions.Skip:
-                result = "Just skips your turn without doing anything.";
+            case CharActions.EndTurn:
+                result = "Confirms your action. In case of no action, Skips your turn without doing anything. (You can cancel your action with right click)";
                 break;
         }
 
@@ -117,13 +124,7 @@ public class UICharacterActions : ButtonList
                                 int basicAttackRaw = RPGFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
                                 int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
                                 BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
-                                target[i].GetsDamagedBy(resultDMG);
-
-                                if (target[i].stats[Stats.CURHP] <= 0)
-                                {
-                                    target[i].SetDead(true);
-                                    BattleManager.i.battleLog.LogBattleEffect($"{target[i].name} is now dead as fuck!");
-                                }
+                                target[i].GetsDamagedBy(resultDMG, caster.basicAttackType, caster);
                             }
                             else
                             {
@@ -133,7 +134,6 @@ public class UICharacterActions : ButtonList
                         }
                         else
                         {
-
                             BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks the dead body of {target[i].name}... How rude.");
                         }
                     }
@@ -189,7 +189,7 @@ public class UICharacterActions : ButtonList
                 }
                 break;
 
-            case CharActions.Skip:
+            case CharActions.EndTurn:
                 {
                     BattleManager.i.battleLog.LogBattleEffect($"{caster.name} skips their turn...");
                     TeamOrderManager.EndTurn();
@@ -279,9 +279,16 @@ public class UICharacterActions : ButtonList
                 }
                 break;
 
-            case CharActions.Skip:
+            case CharActions.EndTurn:
                 {
-                    ActionDoesNotRequireTarget(CharActions.Skip);
+                    if(confirmAction == null)
+                    {
+                        BattleManager.i.confirmationPopup.Show(delegate { this.action = CharActions.EndTurn; Act(new ActionData(BattleManager.caster, BattleManager.target)); }, true, "This will skip your turn, are you sure?");
+                    }
+                    else
+                    {
+                        ConfirmAction();
+                    }
                 }
                 break;
         }
@@ -297,5 +304,55 @@ public class UICharacterActions : ButtonList
     {
         this.action = action;
         TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+    }
+
+    public void StartButtonActionConfirmation(Action confirmAction)
+    {
+        this.confirmAction = confirmAction;
+
+        if (BattleManager.i.confirmMode)
+        {
+            InteractableButtons(false);
+            Image image = confirmationButton.colorOverlay;
+            Color newColor = Color.green;
+            confirmationButton.ActivateColorOverlay(new Color(newColor.r, newColor.g, newColor.b, image.color.a));
+            confirmationButton.GetComponent<Button>().interactable = true;
+            BattleManager.i.uiList.InteractableUIs(false);
+            BattleManager.i.uiList.SetTargettingMode(false);
+            BattleManager.i.battleLog.LogImportant("Waiting for confirmation. (Press End Turn, or cancel with right click)");
+        }
+        else
+        {
+            ConfirmAction();
+        }
+    }
+
+    public void ConfirmAction()
+    {
+        confirmationButton.DeactivateColorOverlay();
+        confirmationButton.GetComponent<Button>().interactable = false;
+        confirmAction?.Invoke();
+        confirmAction = null;
+    }
+
+    public void DenyAction()
+    {
+        confirmAction = null;
+        confirmationButton.DeactivateColorOverlay();
+        TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+        BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
+
+        Character character;
+
+        if (BattleManager.i.debugMode)
+        {
+            character = BattleManager.caster;
+        }
+        else
+        {
+            character = TeamOrderManager.currentTurn;
+        }
+
+        BattleManager.i.uiList.SelectCharacter(character);
     }
 }

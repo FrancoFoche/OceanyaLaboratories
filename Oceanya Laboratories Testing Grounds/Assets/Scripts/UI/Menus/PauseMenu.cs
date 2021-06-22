@@ -6,11 +6,13 @@ using UnityEngine.UI;
 public class PauseMenu : MonoBehaviour
 {
     public bool paused;
+    public Utilities_Button_BinarySprite buttonSprite;
     public GameObject pauseRoot;
     public GameObject settingsRoot;
     public Toggle manualMode;
     public Toggle confirmActions;
     public Slider volume;
+    public float volumeSliderValue;
     public GameObject generalRoot;
 
     public void TogglePause()
@@ -23,6 +25,8 @@ public class PauseMenu : MonoBehaviour
         {
             Show();
         }
+
+        buttonSprite.BinaryToggleSprite();
     }
 
     public void Show()
@@ -37,10 +41,13 @@ public class PauseMenu : MonoBehaviour
     {
         paused = false;
         pauseRoot.SetActive(false);
+        BattleManager.i.confirmationPopup.Hide();
+        BattleManager.i.SaveGame();
     }
 
     public void VolumeSlider(float sliderValue)
     {
+        volumeSliderValue = sliderValue;
         GameAssetsManager.instance.SetVolume(sliderValue);
     }
 
@@ -73,14 +80,14 @@ public class PauseMenu : MonoBehaviour
 
     public void Quit()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.Quit, false, false);
+        BattleManager.i.confirmationPopup.Show(SceneLoaderManager.instance.Quit, false, "Are you sure you want to quit?");
     }
     public void MainMenu()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu, false, false);
+        BattleManager.i.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu, false, "Are you sure you want to head to the Main Menu?");
     }
     public void Restart()
     {
-        UICharacterActions.instance.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene, false, false);
+        BattleManager.i.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene, false, "Are you sure you want to restart?");
     }
 }
