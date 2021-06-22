@@ -1,1 +1,0 @@
-{"players":[{"_ID":0,"_name":"TestName","_sprite":{"instanceID":0},"_basicAttackType":2,"_dead":false,"_permadead":false,"_defending":false,"_timesPlayed":0}],"test":1}
