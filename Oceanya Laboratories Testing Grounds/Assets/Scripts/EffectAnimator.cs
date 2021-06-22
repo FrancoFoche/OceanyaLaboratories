@@ -17,11 +17,6 @@ public class EffectAnimator : MonoBehaviour
     public BattleUI ui;
     public Animator animator;
 
-    private void Update()
-    {
-        Testing();
-    }
-
     #region Animator Event Actions
     public void PlayEffect(Effects effect)
     {
@@ -43,41 +38,4 @@ public class EffectAnimator : MonoBehaviour
         ui.UpdateUI();
     }
     #endregion
-
-
-    /// <summary>
-    /// Just a testing function that reads your input
-    /// </summary>
-    public void Testing()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            PlayEffect(Effects.Attack);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            PlayEffect(Effects.Debuff);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            PlayEffect(Effects.Buff);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            PlayEffect(Effects.Heal);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            PlayEffect(Effects.Death);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            PlayEffect(Effects.Revive);
-        }
-    }
 }

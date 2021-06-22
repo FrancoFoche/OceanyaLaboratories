@@ -11,65 +11,33 @@ public class TestingClass : MonoBehaviour
     LevellingSystem levelTest;
     PlayerCharacter character;
 
-    private void Start()
+    private void Awake()
     {
         SavesManager.Initialize();
         DBClasses.BuildDatabase();
         LevellingSystem.BuildBaseLevelSystem();
-        character = new PlayerCharacter(0, "TestName", 1, GameAssetsManager.instance.GetClass(ClassNames.Vampire.ToString()),
-            new Dictionary<Stats, int>()
-            {
-                { Stats.MAXHP       , 1 },
-                { Stats.CURHP       , 1 },
-                { Stats.STR         , 1 },
-                { Stats.INT         , 1 },
-                { Stats.CHR         , 1 },
-                { Stats.AGI         , 1 },
-                { Stats.MR          , 0 },
-                { Stats.PR          , 0 },
-                { Stats.CON         , 1 },
-                { Stats.HPREGEN     , 0 }
-            },
-            new List<Skill>()
-            , new Dictionary<Item, int>());
     }
 
-    private void Update()
+    private void Start()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        
+    }
+    public void PrintChar(PlayerCharacter character)
+    {
+        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        Debug.Log("Current EXP: " + character.level.EXP + ";");
+        Debug.Log("Current Level: " + character.level.Level + ";");
+        string stats = "Stats: ";
+
+
+        for (int i = 0; i < character.stats.Count; i++)
         {
-            character.AddExp(20);
-            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            Debug.Log("Current EXP: " + character.level.EXP + ";");
-            Debug.Log("Current Level: " + character.level.Level + ";");
-            string stats = "Stats: ";
-
-            foreach (var kvp in character.stats)
-            {
-                stats += $"\n {kvp.Key} | {kvp.Value}";
-            }
-
-            Debug.Log(stats);
-            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            Stats curStat = character.stats[i].stat;
+            int curValue = character.stats[i].value;
+            stats += $"\n {curStat} | {curValue}";
         }
 
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            SaveFile file = new SaveFile() { players = new List<PlayerCharacter>() { character } };
-
-            SavesManager.Save(file);
-            Debug.Log("Saved");
-        }
-
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            SaveFile loaded = SavesManager.Load();
-            if(loaded != null)
-            {
-                character = loaded.players[0];
-                Debug.Log("Loaded");
-            }
-            
-        }
+        Debug.Log(stats);
+        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 }

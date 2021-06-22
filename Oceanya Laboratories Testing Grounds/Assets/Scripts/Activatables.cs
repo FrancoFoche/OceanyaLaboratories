@@ -100,6 +100,7 @@ public abstract class Activatables
     public enum Behaviors
     {
         None,
+        CustomAnimation,
         DoesDamage_Formula,
         DoesDamage_Flat,
         HasCooldown,
@@ -220,7 +221,7 @@ public abstract class Activatables
 
                     activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
 
-                    turnActions += delegate { target[i].GetsDamagedBy(finalDMG); };
+                    turnActions += delegate { target[i].GetsDamagedBy(finalDMG, damageType, caster); };
                 }
                 if (behaviors.Contains(Behaviors.DoesDamage_Formula))
                 {
@@ -230,7 +231,7 @@ public abstract class Activatables
 
                     activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
 
-                    turnActions += delegate { target[i].GetsDamagedBy(finalDMG); };
+                    turnActions += delegate { target[i].GetsDamagedBy(finalDMG, damageType, caster); };
                 }
                 if (behaviors.Contains(Behaviors.DoesHeal_Flat))
                 {
@@ -279,6 +280,7 @@ public abstract class Activatables
                 {
                     turnActions += delegate { target[i].ChangeBaseAttack(newBasicAttackFormula, newBasicAttackDamageType); };
                 }
+                
                 if (behaviors.Contains(Behaviors.Revives))
                 {
                     turnActions += delegate

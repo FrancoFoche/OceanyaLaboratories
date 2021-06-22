@@ -14,9 +14,10 @@ public class LevellingSystem
 
     static List<LevelStructure> levels;
     static int maxLevel = 200;
-
+    static bool initialized = false;
     public static void BuildBaseLevelSystem()
     {
+        initialized = true;
         levels = new List<LevelStructure>();
         int lastExpRequirement = 0;
 
@@ -87,27 +88,26 @@ public class LevellingSystem
     }
 
     int _level;
-    int _exp;
+    [SerializeField] int _exp;
 
-    public int Level { get { return _level; } private set { _level = value; } }
-    public int EXP {
-        get 
+    public int Level    { get { UpdateLevelSystem(); return _level; }   private set { _level = value; } }
+    public int EXP      { get { return _exp; }                          set { _exp = value; UpdateLevelSystem(); } }
+
+    public void UpdateLevelSystem()
+    {
+        if (!initialized)
         {
-            return _exp; 
-        } 
+            BuildBaseLevelSystem();
+        }
 
-        set 
-        { 
-            _exp = value;
-            int updatedLevel = GetCurrentLevel(_exp);
+        int updatedLevel = GetCurrentLevel(_exp);
 
-            if(updatedLevel == -1)
-            {
-                Debug.Log("Could not find level of exp amount " + _exp);
-                return;
-            }
+        if (updatedLevel == -1)
+        {
+            Debug.Log("Could not find level of exp amount " + _exp);
+            return;
+        }
 
-            Level = updatedLevel;
-        } 
+        Level = updatedLevel;
     }
 }

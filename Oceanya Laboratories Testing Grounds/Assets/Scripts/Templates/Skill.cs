@@ -12,7 +12,7 @@ public class Skill : Activatables
     /// This is just for testing purposes, any skill that has this boolean as "true" means that it currently works as intended. You can get all skills that are done through the skill database function "GetAllDoneSkills"
     /// </summary>
     public bool done { get; private set; }
-    public BaseSkillClass skillClass;         //RPG Class it's from
+    public int skillClassID;         //RPG Class it's from
 
     #region Constructors
     public Skill(BaseObjectInfo baseInfo, string activationText, ActivatableType skillType, TargetType targetType, int maxTargets = 1)
@@ -28,7 +28,7 @@ public class Skill : Activatables
         done = false;
         cooldown = 0;
         behaviors = new List<Behaviors>();
-        skillClass = null;
+        skillClassID = -1;
     }
     public Skill BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<RPGFormula> damageFormula)
     {

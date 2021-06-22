@@ -25,8 +25,6 @@ public class DBPlayerCharacter : MonoBehaviour
             new PlayerCharacter(0 , "TestDummy" , 1, GameAssetsManager.instance.GetClass(0),
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 100 },
-                    { Stats.CURHP       , 100 },
                     { Stats.STR      , 100 },
                     { Stats.INT      , 100  },
                     { Stats.CHR      , 100 },
@@ -46,15 +44,13 @@ public class DBPlayerCharacter : MonoBehaviour
             new PlayerCharacter(13 , "Vinnie" , 1,  GameAssetsManager.instance.GetClass(ClassNames.Vampire.ToString()) ,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 47 },
-                    { Stats.CURHP       , 47 },
                     { Stats.STR      , 10 },
-                    { Stats.INT      , 20  },
-                    { Stats.CHR      , 30 },
+                    { Stats.INT      , 0  },
+                    { Stats.CHR      , 10 },
                     { Stats.AGI      , 35 },
                     { Stats.MR       , 16 },
                     { Stats.PR       , 15 },
-                    { Stats.CON      , 9  },
+                    { Stats.CON      , 7  },
                     { Stats.HPREGEN  , 0  }
                 },
 
@@ -72,13 +68,13 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                            new BaseObjectInfo("Bat Swarm", 2 , "Call your Bat friends to attack the enemy team for 25% your CHR! 2 Turn CD")
+                            new BaseObjectInfo("Bat Swarm", 2 , "Call your Bat friends to attack the enemy team for 50% your CHR! 2 Turn CD")
                             ,"_caster_'s bat friends come help! _target_ receives _damage_ DMG!"
                             ,ActivatableType.Active
                             ,TargetType.AllEnemies
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<RPGFormula>(){new RPGFormula(Stats.CHR,operationActions.Multiply,0.25f) })
+                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<RPGFormula>(){new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f) })
                     .BehaviorHasCooldown(CDType.Turns,2)
                     ,
                     new Skill
@@ -91,6 +87,17 @@ public class DBPlayerCharacter : MonoBehaviour
                     .BehaviorCostsTurn()
                     .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ { Stats.STR, new List<RPGFormula>{new RPGFormula(Stats.CHR, operationActions.Multiply, 0.5f)} } })
                     .BehaviorHasCooldown(CDType.Other)
+                    ,
+                    new Skill
+                    (
+                            new BaseObjectInfo("Dry their bones", 4 , "You suck the blood out of TWO enemies, leaving them weaker. Their AGI is debuffed by 50% your CHR. You can only use this skill once.")
+                            ,"_caster_ weakens _target_! Their AGI is debuffed by 50% of _caster_'s CHR!"
+                            ,ActivatableType.Active
+                            ,TargetType.Multiple,2
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ { Stats.AGI, new List<RPGFormula>{new RPGFormula(Stats.CHR, operationActions.Multiply, 0.5f)} } })
+                    .BehaviorHasCooldown(CDType.Other)
                 },
                 new Dictionary<Item, int>()
                 {
@@ -101,15 +108,13 @@ public class DBPlayerCharacter : MonoBehaviour
             new PlayerCharacter(5 , "Da Docta" , 1,  GameAssetsManager.instance.GetClass(ClassNames.Doctor.ToString()),
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 83    },
-                    { Stats.CURHP       , 83    },
                     { Stats.STR         , 1     },
-                    { Stats.INT         , 50    },
+                    { Stats.INT         , 30    },
                     { Stats.CHR         , 9     },
                     { Stats.AGI         , 37    },
                     { Stats.MR          , 2     },
                     { Stats.PR          , 3     },
-                    { Stats.CON         , 13    },
+                    { Stats.CON         , 4     },
                     { Stats.HPREGEN     , 0     }
                 },
                 new List<Skill>()
@@ -129,15 +134,13 @@ public class DBPlayerCharacter : MonoBehaviour
             new PlayerCharacter(9 , "Archive" , 1,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.MAXHP       , 50    },
-                    { Stats.CURHP       , 50    },
                     { Stats.STR         , 1     },
-                    { Stats.INT         , 40    },
+                    { Stats.INT         , 20    },
                     { Stats.CHR         , 0     },
                     { Stats.AGI         , 30    },
                     { Stats.MR          , 10    },
                     { Stats.PR          , 5     },
-                    { Stats.CON         , 6     },
+                    { Stats.CON         , 0     },
                     { Stats.HPREGEN     , 0     }
                 },
                 new List<Skill>()
@@ -193,7 +196,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                            new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! You will receive a 50% INT increase at the start of your next 3 turns, BUT you will also receive 20 DIRECT DMG each time.")
+                            new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! For your next 3 turns, you will receive a +50% INT Buff, BUT you will also receive 20 DIRECT DMG each time. Be careful, you can only use this skill once per battle.")
                             ,"_caster_'s body is overflowing with energy! Their INT is buffed by 50%, yet their body takes _damage_ DMG."
                             ,ActivatableType.Active
                             ,TargetType.Self

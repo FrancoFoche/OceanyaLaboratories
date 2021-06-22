@@ -15,8 +15,15 @@ public class Enemy : Character
 
         this.sprite = sprite;
 
-        this._originalStats = MakeCopyOfStatsDictionary(startingStats);
-        this.stats = startingStats;
+        List<Stat> newStats = new List<Stat>();
+
+        foreach (var kvp in startingStats)
+        {
+            newStats.Add(new Stat() { stat = kvp.Key, value = kvp.Value });
+        }
+
+        this._baseStats = newStats.Copy();
+        this.stats = newStats;
         
         this.inventory = ConvertItemsToItemInfo(inventory);
         this._originalInventory = MakeCopyOfItemInfo(this.inventory);
@@ -25,21 +32,21 @@ public class Enemy : Character
         this._originalSkillList = MakeCopyOfSkillInfo(this.skillList);
     }
 
-    public Enemy(Enemy enemy)
+    public Enemy(Enemy enemy, int copyAmount)
     {
         InitializeVariables();
 
         #region Values
         this.ID = enemy.ID;
         this.level = new LevellingSystem();
-        this.name = enemy.name;
+        this.name = copyAmount == 0 ? enemy.name : enemy.name + " (" + copyAmount + ")";
         #endregion
 
         #region References
         this.sprite = enemy.sprite;
 
-        this._originalStats = MakeCopyOfStatsDictionary(enemy.stats);
-        this.stats = MakeCopyOfStatsDictionary(enemy.stats);
+        this._baseStats = enemy._baseStats.Copy();
+        this.stats = enemy.stats.Copy();
 
         this._originalInventory = MakeCopyOfItemInfo(enemy.inventory);
         this.inventory = MakeCopyOfItemInfo(enemy.inventory);

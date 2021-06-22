@@ -21,7 +21,7 @@ public class RPGFormula
     }
 
 
-    public static int ReadAndSumList(List<RPGFormula> formulas, Dictionary<Stats, int> stats)
+    public static int ReadAndSumList(List<RPGFormula> formulas, List<Character.Stat> stats)
     {
         int result = 0;
 
@@ -33,9 +33,9 @@ public class RPGFormula
         return result;
     }
 
-    public static int Read(RPGFormula skillFormula, Dictionary<Stats, int> stats)
+    public static int Read(RPGFormula skillFormula, List<Character.Stat> stats)
     {
-        int stat = stats[skillFormula.StatToUse];
+        int stat = stats.GetStat(skillFormula.StatToUse).value;
         float number = skillFormula.NumberModifier;
         int result = 0;
 

@@ -13,7 +13,6 @@ public class ActivationRequirement
     //add a status one here whenever it's done
     [SerializeField] private int _skillclassID;
     [SerializeField] private int _skillID;
-    [SerializeField] private Skill _skill;
     [SerializeField] private ComparerType _comparer;
     [SerializeField] private int _number;
 
@@ -26,7 +25,6 @@ public class ActivationRequirement
     
     public int                  skillclassID    { get { return _skillclassID; }     private set { _skillclassID = value; } }
     public int                  skillID         { get { return _skillID; }          private set { _skillID = value; } }
-    public Skill                skill           { get { return _skill; }            private set { _skill = value; } }
     public ComparerType         comparer        { get { return _comparer; }         private set { _comparer = value; } }
     public int                  number          { get { return _number; }           private set { _number = value; } }
     #endregion
@@ -96,15 +94,15 @@ public class ActivationRequirement
     public bool CheckRequirement()
     {
         Character caster = BattleManager.caster;
-
+        int statValue = caster.stats.GetStat(stat).value;
         switch (type)
         {
             case RequirementType.Stat:
-                return CheckRequirement(caster.stats[stat]);
+                return CheckRequirement(statValue);
 
             case RequirementType.FormulaStat:
                 this.number = RPGFormula.Read(formula, caster.stats);
-                return CheckRequirement(caster.stats[stat]);
+                return CheckRequirement(statValue);
 
             case RequirementType.Resource:
                 return CheckRequirement(caster.skillResources[resource]);
@@ -114,10 +112,7 @@ public class ActivationRequirement
                 return true;
 
             case RequirementType.SkillIsActive:
-                if (skill == null)
-                {
-                    skill = GameAssetsManager.instance.GetSkill(skillclassID, skillID);
-                }
+                Skill skill = GameAssetsManager.instance.GetSkill(skillclassID, skillID);
                 return caster.GetSkillFromSkillList(skill).currentlyActive;
 
             default:

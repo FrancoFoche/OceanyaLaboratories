@@ -14,7 +14,7 @@ public class DBEnemies : MonoBehaviour
                 {
                     { Stats.MAXHP       , 100   },
                     { Stats.CURHP       , 100   },
-                    { Stats.STR         , 30    },
+                    { Stats.STR         , 15    },
                     { Stats.INT         , 1     },
                     { Stats.CHR         , 1     },
                     { Stats.AGI         , 25    },

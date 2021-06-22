@@ -10,10 +10,31 @@ public class MainMenu : MonoBehaviour
     [Tooltip("The time the script skips to in the timeline")]
     public float time;
 
+    
+    public Toggle actionConfirmationToggle;
     public static bool actionConfirmation = true;
+    public Toggle manualModeToggle;
     public static bool manualMode = false;
-    public static float volumeSlider = 1f;
+    public Slider volumeSlider;
+    public static float volume = 1f;
 
+    private void Start()
+    {
+        DataBaseOrder.i.Initialize();
+        SavesManager.Load();
+        SaveFile loaded = SavesManager.loadedFile;
+        if(loaded != null)
+        {
+            manualMode = loaded.manualMode;
+            actionConfirmation = loaded.actionConfirmation;
+            volume = loaded.volumeSliderValue;
+        }
+
+        manualModeToggle.isOn = manualMode;
+        actionConfirmationToggle.isOn = actionConfirmation;
+        volumeSlider.value = volume;
+        GameAssetsManager.instance.SetVolume(volume);
+    }
     void Update()
     {
         if (Input.anyKeyDown)
@@ -25,19 +46,32 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void UpdateManualMode(Toggle toggle)
+    public void UpdateManualMode()
     {
-        manualMode = toggle.isOn;
+        manualMode = manualModeToggle.isOn;
     }
 
-    public void UpdateActionConfirmation(Toggle toggle)
+    public void UpdateActionConfirmation()
     {
-        actionConfirmation = toggle.isOn;
+        actionConfirmation = actionConfirmationToggle.isOn;
     }
 
-    public void UpdateVolume(Slider slider)
+    public void UpdateVolume()
     {
-        volumeSlider = slider.value;
-        GameAssetsManager.instance.SetVolume(slider.value);
+        volume = volumeSlider.value;
+        GameAssetsManager.instance.SetVolume(volume);
+    }
+
+    public void SaveGameOnMenu()
+    {
+        SaveFile save = new SaveFile() 
+        { 
+            players = DBPlayerCharacter.pCharacters, 
+            actionConfirmation = actionConfirmation, 
+            manualMode = manualMode, 
+            volumeSliderValue = volume,
+            showOrderOfPlay = SavesManager.loadedFile == null ? false : SavesManager.loadedFile.showOrderOfPlay
+        };
+        SavesManager.Save(save);
     }
 }

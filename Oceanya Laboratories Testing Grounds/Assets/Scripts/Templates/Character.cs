@@ -20,44 +20,45 @@ public enum StatModificationTypes
 public class Character
 {
     #region Structs
-    public struct Stat
+    [System.Serializable]
+    public class Stat
     {
-        public Stats stat;
-        public int value;
+        [SerializeField] public Stats stat;
+        [SerializeField] public int value;
     }
     #endregion
-    //Serializable/Saveable variables
+    //SerializeField == Saved variables
     [SerializeField] private int                                _ID;
-    [SerializeField] private string                             _name;
-    [SerializeField] private LevellingSystem                    _level;
-    
-    [SerializeField] private Dictionary<Stats, int>             _stats;
-    [SerializeField] protected Dictionary<Stats, int>           _nonBuffedStats;
-    [SerializeField] protected Dictionary<Stats, int>           _originalStats;
-    
-    [SerializeField] private Dictionary<SkillResources, int>    _skillResources;
-
-    [SerializeField] private List<RPGFormula>                   _basicAttackFormula;
-    [SerializeField] private DamageType                         _basicAttackType;
-
-    [SerializeField] private List<SkillInfo>                    _skillList;
-    [SerializeField] protected List<SkillInfo>                  _originalSkillList;
-
-    [SerializeField] private List<ItemInfo>                     _inventory;
-    [SerializeField] protected List<ItemInfo>                   _originalInventory;
-
-    [SerializeField] private bool                               _dead;
     [SerializeField] private bool                               _permadead;
+    [SerializeField] private LevellingSystem                    _level;
 
-    [SerializeField] private Dictionary<CharActions, int>       _importanceOfActions;
-    [SerializeField] private Dictionary<Skill, int>             _importanceOfSkills;
+    private string                              _name;
+    private List<Stat>                          _stats;
+    protected List<Stat>                        _creationStats;
+    protected List<Stat>                        _baseStats;
+    
+    private Dictionary<SkillResources, int>     _skillResources;
+    
+    private List<RPGFormula>                    _basicAttackFormula;
+    private DamageType                          _basicAttackType;
 
-    private bool                               _AIcontrolled;
-    private Team                               _team;
-    private bool                               _targettable;
-    private bool                               _defending;
-    private int                                _timesPlayed;
-    private bool                               _checkedPassives;
+    private List<SkillInfo>                     _skillList;
+    protected List<SkillInfo>                   _originalSkillList;
+
+    private List<ItemInfo>                      _inventory;
+    protected List<ItemInfo>                    _originalInventory;
+
+    private bool                                _dead;
+
+    private Dictionary<CharActions, int>        _importanceOfActions;
+    private Dictionary<Skill, int>              _importanceOfSkills;
+
+    private bool                                _AIcontrolled;
+    private Team                                _team;
+    private bool                                _targettable;
+    private bool                                _defending;
+    private int                                 _timesPlayed;
+    private bool                                _checkedPassives;
 
     private BattleUI                           _curUI;
     private Texture2D                          _sprite;
@@ -69,8 +70,8 @@ public class Character
     public string                               name                        { get { return _name; }                     protected set { _name = value; } }
     public Texture2D                            sprite                      { get { return _sprite; }                   protected set { _sprite = value; } }
 
-    public LevellingSystem                      level                       { get { return _level; }                    protected set { _level = value; } }
-    public Dictionary<Stats, int>               stats                       { get { return _stats; }                    protected set { _stats = value; } }
+    public LevellingSystem                      level                       { get { return _level; }                    set { _level = value; } }
+    public List<Stat>                           stats                       { get { return _stats; }                    protected set { _stats = value; } }
     public Dictionary<SkillResources, int>      skillResources              { get { return _skillResources; }           protected set { _skillResources = value; } }
 
     public List<RPGFormula>                     basicAttackFormula          { get { return _basicAttackFormula; }       protected set { _basicAttackFormula = value; } }
@@ -102,7 +103,7 @@ public class Character
     {
         name = "InitializerName";
         level = new LevellingSystem();
-        stats = new Dictionary<Stats, int>();
+        stats = new List<Stat>();
         skillResources = new Dictionary<SkillResources, int>();
         basicAttackFormula = new List<RPGFormula>() { new RPGFormula(Stats.STR, operationActions.Multiply, 1) };
         basicAttackType = DamageType.Physical;
@@ -131,35 +132,48 @@ public class Character
     }
 
     #region Character Reactions
-    public void     GetsDamagedBy           (int DamageTaken)                                                               
+    public void     GetsDamagedBy           (int DamageTaken, DamageType damageType, Character caster)                                             
     {
-        if (!checkedPassives)
-        {
-            SetCheckedPassives(true);
-            ActivatePassiveEffects(ActivationTime.WhenAttacked);
-        }
-
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
-        int dmg = DamageTaken;
-
-        if (defending)
-        {
-            dmg = Mathf.FloorToInt(DamageTaken / 2);
-            BattleManager.i.battleLog.LogBattleEffect($"But {name} was defending! Meaning they actually just took {dmg} DMG.");
-            SetDefending(false);
-        }
-
-        int result = stats[Stats.CURHP] - dmg;
-        if (result <= 0)
-        {
-            stats[Stats.CURHP] = 0;
-            Die();
-        }
-
         if (!dead)
         {
-            stats[Stats.CURHP] = result;
+            if (!checkedPassives)
+            {
+                SetCheckedPassives(true);
+                ActivatePassiveEffects(ActivationTime.WhenAttacked);
+            }
+
+            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
+            int dmg = DamageTaken;
+
+            if (defending && damageType != DamageType.Direct)
+            {
+                dmg = Mathf.FloorToInt(DamageTaken / 2);
+                BattleManager.i.battleLog.LogBattleEffect($"But {name} was defending! Meaning they actually just took {dmg} DMG.");
+                SetDefending(false);
+            }
+
+            int result = stats.GetStat(Stats.CURHP).value - dmg;
+            if (result <= 0)
+            {
+                stats.GetStat(Stats.CURHP).value = 0;
+                Die();
+
+                int exp = stats.GetStat(Stats.MAXHP).value / 3;
+                BattleManager.i.battleLog.LogBattleEffect($"{name} is now dead as fuck!");
+                caster.AddExp(exp);
+                BattleManager.i.SaveGame();
+            }
+
+            if (!dead)
+            {
+                stats.GetStat(Stats.CURHP).value = result;
+            }
         }
+        else
+        {
+            BattleManager.i.battleLog.LogBattleEffect($"But {name} was dead as hell... (Can't damage dead characters)");
+        }
+        
     }
     public void     GetsHealedBy            (int HealAmount)                                                                
     {
@@ -167,15 +181,15 @@ public class Character
         {
             curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Heal);
 
-            int result = stats[Stats.CURHP] + HealAmount;
+            int result = stats.GetStat(Stats.CURHP).value + HealAmount;
 
-            if (result > stats[Stats.MAXHP])
+            if (result > stats.GetStat(Stats.MAXHP).value)
             {
-                stats[Stats.CURHP] = stats[Stats.MAXHP];
+                stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
             }
             else
             {
-                stats[Stats.CURHP] = result;
+                stats.GetStat(Stats.CURHP).value = result;
             }
         }
     }
@@ -219,24 +233,26 @@ public class Character
             {
                 if(modificationType == StatModificationTypes.Buff)
                 {
-                    stats[currentStat] += modifiedStats[currentStat];
+                    stats.GetStat(currentStat).value += modifiedStats[currentStat];
                     curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Buff);
                 }
                 else if (modificationType == StatModificationTypes.Debuff)
                 {
-                    int result = stats[currentStat] - modifiedStats[currentStat];
+                    int result = stats.GetStat(currentStat).value - modifiedStats[currentStat];
                     if(result < 1)
                     {
-                        stats[currentStat] = 1;
+                        stats.GetStat(currentStat).value = 1;
                     }
                     else
                     {
-                        stats[currentStat] = result;
+                        stats.GetStat(currentStat).value = result;
                     }
                     curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Debuff);
                 }
             }
         }
+
+        BattleManager.i.UpdateTeamOrder();
     }
     public void     ChangeBaseAttack        (List<RPGFormula> newBaseFormula, DamageType newDamageType)                     
     {
@@ -246,7 +262,7 @@ public class Character
     public void     Revive                  ()                                                                              
     {
         dead = false;
-        stats[Stats.CURHP] = stats[Stats.MAXHP];
+        stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
         curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
     }
     public void     Die                     ()                                                                              
@@ -263,8 +279,8 @@ public class Character
     #region Useful Methods
     public int              CalculateDefenses(int damageRaw, DamageType damageType)
     {
-        int targetMR = stats[Stats.MR];
-        int targetPR = stats[Stats.PR];
+        int targetMR = stats.GetStat(Stats.MR).value;
+        int targetPR = stats.GetStat(Stats.PR).value;
 
         float defensePercentRatio = 0.25f; // Ratio of defense % per point in MR or PR. (Example: with 10 PR you get 2.5% defense against physical types.)
         float resultDefensePercent = 0; //The defense you have against whatever damage type it is.
@@ -339,30 +355,19 @@ public class Character
     }
     public void             ResetToOriginalStatBuffs()
     {
-        Dictionary<Stats, int> dictionary = MakeCopyOfStatsDictionary(_originalStats);
-        dictionary[Stats.CURHP] = stats[Stats.CURHP];
-        stats = dictionary;
+        List<Stat> copy = _baseStats.Copy();
+        copy.GetStat(Stats.CURHP).value = stats.GetStat(Stats.CURHP).value;
+        stats = copy;
     }
     public void             ResetHP()
     {
         dead = false;
         permadead = false;
-        stats[Stats.CURHP] = stats[Stats.MAXHP];
+        stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
     }
     #endregion
 
     #region Make New Instances of variables
-    protected Dictionary<Stats, int> MakeCopyOfStatsDictionary(Dictionary<Stats, int> oldDictionary)
-    {
-        Dictionary<Stats, int> newDictionary = new Dictionary<Stats, int>();
-
-        foreach (var kvp in oldDictionary)
-        {
-            newDictionary.Add(kvp.Key, kvp.Value);
-        }
-
-        return newDictionary;
-    }
     protected Dictionary<SkillResources, int> MakeCopyOfSkillResourcesDictionary(Dictionary<SkillResources, int> oldDictionary)
     {
         Dictionary<SkillResources, int> newDictionary = new Dictionary<SkillResources, int>();
@@ -494,16 +499,16 @@ public class Character
     {
         for (int i = 0; i < skillList.Count; i++)
         {
-            if(skillList[i].skill.skillClass == null || skill.skillClass == null)
+            if(skillList[i].skill.skillClassID == -1 || skill.skillClassID == -1)
             {
-                if (skillList[i].skill.skillClass == null && skill.skillClass == null && skillList[i].skill.ID == skill.ID)
+                if (skillList[i].skill.skillClassID == -1 && skill.skillClassID == -1 && skillList[i].skill.ID == skill.ID)
                 {
                     return skillList[i];
                 }
             }
             else
             {
-                if (skillList[i].skill.skillClass.ID == skill.skillClass.ID && skillList[i].skill.ID == skill.ID)
+                if (skillList[i].skill.skillClassID == skill.skillClassID && skillList[i].skill.ID == skill.ID)
                 {
                     return skillList[i];
                 }
@@ -799,4 +804,24 @@ public class Character
         importanceOfSkills = normalImportance;
     }
     #endregion
+}
+
+public static class CharacterExtensionMethods
+{
+    public static Character.Stat GetStat(this List<Character.Stat> stats, Stats stat)
+    {
+        return stats.Find(returnStat => returnStat.stat == stat);
+    }
+
+    public static List<Character.Stat> Copy(this List<Character.Stat> list)
+    {
+        List<Character.Stat> newList = new List<Character.Stat>();
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            newList.Add(new Character.Stat() { stat = list[i].stat, value = list[i].value }) ;
+        }
+
+        return newList;
+    }
 }

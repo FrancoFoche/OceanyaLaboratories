@@ -600,6 +600,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 328203952}
+        m_MethodName: SaveGameOnMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &235288159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -940,6 +951,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   director: {fileID: 328203950}
   time: 29
+  actionConfirmationToggle: {fileID: 3985488577661228653}
+  manualModeToggle: {fileID: 3985488576966685025}
+  volumeSlider: {fileID: 3985488578189208207}
 --- !u!1 &444780009
 GameObject:
   m_ObjectHideFlags: 0
@@ -3627,10 +3641,10 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 328203952}
         m_MethodName: UpdateManualMode
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 3985488576966685025}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Toggle, UnityEngine.UI
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -3870,10 +3884,10 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 328203952}
         m_MethodName: UpdateActionConfirmation
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 3985488577661228653}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Toggle, UnityEngine.UI
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4273,10 +4287,10 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 328203952}
         m_MethodName: UpdateVolume
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 3985488578189208207}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Slider, UnityEngine.UI
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

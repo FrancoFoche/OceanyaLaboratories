@@ -16,7 +16,7 @@ public class DBSkills : MonoBehaviour
             for (int j = 0; j < currentClass.skillList.Count ; j++)
             {
                 Skill currentSkill = currentClass.skillList[j];
-                currentSkill.skillClass = currentClass;
+                currentSkill.skillClassID = currentClass.ID;
                 skills.Add(currentSkill);
             }
         }

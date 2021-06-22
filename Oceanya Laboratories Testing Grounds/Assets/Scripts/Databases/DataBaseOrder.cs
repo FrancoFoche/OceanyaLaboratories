@@ -7,9 +7,27 @@ using UnityEngine;
 /// </summary>
 public class DataBaseOrder : MonoBehaviour
 {
-    private void Awake()
+    #region Setup
+    private static DataBaseOrder _instance;
+    public static DataBaseOrder i
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = (Instantiate(Resources.Load("Database") as GameObject).GetComponent<DataBaseOrder>());
+                DontDestroyOnLoad(_instance);
+            }
+
+            return _instance;
+        }
+    }
+    #endregion
+
+    public void Initialize()
     {
         Debug.Log("Building Databases");
+        SavesManager.Initialize();
         RuleManager.BuildHelpers();
         DBClasses.BuildDatabase();
         DBSkills.BuildDatabase();

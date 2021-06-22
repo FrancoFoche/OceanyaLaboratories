@@ -119,28 +119,28 @@ public class GameAssetsManager : MonoBehaviour
         Debug.LogError("Could not find the Player Character with name " + name + ".");
         return null;
     }
-    public Enemy            GetEnemy        (int id)                                
+    public Enemy            GetEnemy        (int id, int identificationNumberAddon = 0)                                
     {
         for (int i = 0; i < DBEnemies.enemies.Count; i++)
         {
             Enemy current = DBEnemies.enemies[i];
             if (current.ID == id)
             {
-                return new Enemy(current);
+                return new Enemy(current, identificationNumberAddon);
             }
         }
 
         Debug.LogError("Could not find the enemy with id " + id + ".");
         return null;
     }
-    public Enemy            GetEnemy        (string name)                           
+    public Enemy            GetEnemy        (string name, int identificationNumberAddon = 0)                           
     {
         for (int i = 0; i < DBEnemies.enemies.Count; i++)
         {
             Enemy current = DBEnemies.enemies[i];
             if (current.name == name)
             {
-                return current;
+                return new Enemy(current, identificationNumberAddon);
             }
         }
 
@@ -208,7 +208,7 @@ public class GameAssetsManager : MonoBehaviour
         for (int i = 0; i < DBSkills.skills.Count; i++)
         {
             Skill current = DBSkills.skills[i];
-            if (current.skillClass.ID == classID && current.ID == skillID)
+            if (current.skillClassID == classID && current.ID == skillID)
             {
                 return current;
             }
@@ -222,7 +222,7 @@ public class GameAssetsManager : MonoBehaviour
         for (int i = 0; i < DBSkills.skills.Count; i++)
         {
             Skill current = DBSkills.skills[i];
-            if (current.skillClass.name == className && current.name == skillName)
+            if (GetClass(current.skillClassID).name == className && current.name == skillName)
             {
                 return current;
             }

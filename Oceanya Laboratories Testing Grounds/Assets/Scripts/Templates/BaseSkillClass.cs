@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class BaseSkillClass
 {
     [SerializeField] private string _name;
@@ -9,7 +10,7 @@ public class BaseSkillClass
     [SerializeField] private string _description;
 
     public List<Skill> skillList;
-    public Dictionary<Stats, int> statBoosts = new Dictionary<Stats, int>();
+    public List<Character.Stat> statBoosts = new List<Character.Stat>();
 
     public string       name                { get { return _name; }         protected set { _name = value; } }
     public int          ID                  { get { return _ID; }           protected set { _ID = value; } }
@@ -20,25 +21,43 @@ public class BaseSkillClass
         name = baseInfo.name;
         ID = baseInfo.id;
         description = baseInfo.description;
-        this.statBoosts = statBoosts;
+
+        List<Character.Stat> stats = new List<Character.Stat>();
+
+        foreach (var item in statBoosts)
+        {
+            stats.Add(new Character.Stat() { stat = item.Key, value = item.Value });
+        }
+
+        this.statBoosts = stats;
         this.skillList = skillList;
     }
 
-    public Dictionary<Stats, int> BoostStats(Dictionary<Stats, int> originalStats, int level)
+    public List<Character.Stat> BoostStats(List<Character.Stat> originalStats, int level)
     {
-        Dictionary<Stats, int> boostedStats = new Dictionary<Stats, int>();
+        List<Character.Stat> boostedStats = new List<Character.Stat>();
 
-        foreach(var kvp in originalStats)
+        #region BoostStats
+        level = level - 1;
+        for (int i = 0; i < originalStats.Count; i++)
         {
-            if (statBoosts.ContainsKey(kvp.Key))
+            Stats curStat = originalStats[i].stat;
+            int curValue = originalStats[i].value;
+
+            Character.Stat boostStat = statBoosts.GetStat(curStat);
+            if (boostStat != null)
             {
-                boostedStats.Add(kvp.Key, kvp.Value + (statBoosts[kvp.Key] * level) + level);
+                boostedStats.Add(new Character.Stat() { stat = curStat, value = curValue + (boostStat.value * level) + level });
             }
             else
             {
-                boostedStats.Add(kvp.Key, kvp.Value + level);
+                boostedStats.Add(new Character.Stat() { stat = curStat, value = curValue + level });
             }
         }
+        #endregion
+
+        //Correct any rule breaks that might have happened
+        PlayerCharacter.FixStats(ref boostedStats);
 
         return boostedStats;
     }

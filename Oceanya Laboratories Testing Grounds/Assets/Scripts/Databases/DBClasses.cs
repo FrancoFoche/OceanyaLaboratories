@@ -537,7 +537,9 @@ public class DBClasses : MonoBehaviour
             new BaseSkillClass(new BaseObjectInfo(ClassNames.Doctor.ToString(), 10 , "As a Doctor, you’re the team’s main healer, your job is to keep the DPS alive as long as possible"),
                 new Dictionary<Stats, int>()
                 {
-                    { Stats.AGI, 50}
+                    { Stats.INT, 2 },
+                    { Stats.AGI, 5 },
+                    { Stats.CON, 1 }
                 },
                 new List<Skill>
                 {
@@ -603,7 +605,7 @@ public class DBClasses : MonoBehaviour
             new BaseSkillClass(new BaseObjectInfo(ClassNames.MasterOfDarkArts.ToString(), 6 , "As a Master of the Dark Arts, your job is to deal Magic DMG to as many targets as possible and utilize your magic to be creative and resourceful"),
                 new Dictionary<Stats, int>()
                 {
-                    { Stats.INT, 50}
+                    { Stats.INT, 5 }
                 },
                 new List<Skill>
                 {
@@ -644,7 +646,9 @@ public class DBClasses : MonoBehaviour
             new BaseSkillClass(new BaseObjectInfo(ClassNames.Vampire.ToString(), 5 , ""),
                 new Dictionary<Stats, int>()
                 {
-                    { Stats.CHR, 50}
+                    { Stats.STR, 5 },
+                    { Stats.CHR, 5 },
+                    { Stats.CON, 1 }
                 },
                 new List<Skill>
                 {

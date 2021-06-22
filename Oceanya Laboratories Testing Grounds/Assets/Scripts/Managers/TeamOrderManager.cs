@@ -27,7 +27,7 @@ public static class TeamOrderManager
     public  static  Character           currentTurn;
     public  static  SPDSystem           spdSystem;
 
-    public static void                  BuildTeamOrder  (Battle battle)         
+    public static void                  BuildTeamOrder  (Wave battle)                                           
     {
         allySide = battle.allySide;
         enemySide = battle.enemySide;
@@ -61,17 +61,23 @@ public static class TeamOrderManager
         currentTeamOrderIndex = 0;
         currentTurn = new Character();
 
+        BuildSPDSystem(allySide, enemySide);
+    }
+    public static void                  BuildSPDSystem  (List<Character> allySide, List<Character> enemySide)   
+    {
         spdSystem = new SPDSystem(allySide, enemySide);
         spdSystem.BuildSPDSystem();
+
+        BattleManager.i.teamOrderMenu.LoadTeamOrder(spdSystem.teamOrder, currentTeamOrderIndex);
     }
-    public static void                  SetCurrentTurn  (Character character)   
+    public static void                  SetCurrentTurn  (Character character)                                   
     {
         currentTurn = character;
 
         BattleManager.i.battleLog.LogTurn(currentTurn);
         BattleManager.i.uiList.SelectCharacter(currentTurn);
     }
-    public static void                  SetTurnState    (TurnState state)       
+    public static void                  SetTurnState    (TurnState state)                                       
     {
         if (turnState == state && state != TurnState.NonDefined)
         {
@@ -170,11 +176,12 @@ public static class TeamOrderManager
                         System.Action action = delegate { UICharacterActions.instance.Act(new ActionData(caster, target)); };
                         if (AIturn)
                         {
-                            UICharacterActions.instance.confirmationPopup.Show(action, true, true);
+                            //Activate it immediately
+                            action();
                         }
                         else
                         {
-                            UICharacterActions.instance.confirmationPopup.Show(action, true, false);
+                            UICharacterActions.instance.StartButtonActionConfirmation(action);
                         }
 
                     }
@@ -245,7 +252,7 @@ public static class TeamOrderManager
             }
 
             BattleManager.i.GetCaster();
-
+            BattleManager.i.teamOrderMenu.UpdateTeamOrder(currentTeamOrderIndex);
             SetTurnState(TurnState.Start);
         }
     }
@@ -300,7 +307,7 @@ public class SPDSystem
             for (int j = 0; j < curTeam.Count; j++)
             {
                 Character curCharacter = curTeam[j];
-                int curAGI = curCharacter.stats[Stats.AGI];
+                int curAGI = curCharacter.stats.GetStat(Stats.AGI).value;
 
                 if (curAGI > maxAGIteam)
                 {
@@ -367,7 +374,7 @@ public class SPDSystemInfo
     public SPDSystemInfo                (Character character)   
     {
         this.character = character;
-        AGI = character.stats[Stats.AGI];
+        AGI = character.stats.GetStat(Stats.AGI).value;
         int maxDelay = TeamOrderManager.spdSystem.MaxDelay;
         CounterIncrease = (float)(AGI + (maxDelay * 0.2)) / maxDelay;
         UpdateCurrentCounter();

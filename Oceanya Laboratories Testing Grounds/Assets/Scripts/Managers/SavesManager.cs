@@ -5,15 +5,18 @@ using System.IO;
 
 public static class SavesManager
 {
-    public static readonly string SAVE_FOLDER = Application.dataPath + "/SaveFiles/";
+    public static readonly string SAVE_FOLDER = Application.persistentDataPath + "/SaveFiles/";
     public static string SAVE_NAME = "save.txt";
 
+    public static SaveFile loadedFile;
     public static void Initialize()
     {
         if (!Directory.Exists(SAVE_FOLDER))
         {
             Directory.CreateDirectory(SAVE_FOLDER);
         }
+
+        Load();
     }
 
     public static void Save(SaveFile save)
@@ -22,18 +25,25 @@ public static class SavesManager
         File.WriteAllText(SAVE_FOLDER + SAVE_NAME, json);
     }
 
-    public static SaveFile Load()
+    public static void Load()
     {
         if(File.Exists(SAVE_FOLDER + SAVE_NAME))
         {
             string save = File.ReadAllText(SAVE_FOLDER + SAVE_NAME);
-            SaveFile loaded = JsonUtility.FromJson<SaveFile>(save);
-            return loaded;
+            loadedFile = JsonUtility.FromJson<SaveFile>(save);
         }
         else
         {
             Debug.LogWarning("NO SAVE WAS FOUND");
-            return null;
+            loadedFile = null;
+        }
+    }
+
+    public static void DeleteSave()
+    {
+        if(File.Exists(SAVE_FOLDER + SAVE_NAME))
+        {
+            File.Delete(SAVE_FOLDER + SAVE_NAME);
         }
     }
 }
@@ -41,5 +51,13 @@ public static class SavesManager
 public class SaveFile
 {
     public List<PlayerCharacter> players;
-    public int test = 1;
+    public float volumeSliderValue;
+    public bool actionConfirmation;
+    public bool manualMode;
+    public bool showOrderOfPlay;
+
+    public PlayerCharacter FindPlayer(int id)
+    {
+        return players.Find(returner => returner.ID == id);
+    }
 }

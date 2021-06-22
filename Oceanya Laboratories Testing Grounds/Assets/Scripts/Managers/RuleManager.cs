@@ -127,7 +127,7 @@ public enum CharActions
     Item,
     Rearrange,
     Prepare,
-    Skip
+    EndTurn
 }
 public enum ReplaceStringVariables  
 {
