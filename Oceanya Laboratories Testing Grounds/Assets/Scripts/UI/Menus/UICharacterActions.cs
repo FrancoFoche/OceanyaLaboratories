@@ -6,9 +6,14 @@ using System;
 
 public class UICharacterActions : ButtonList
 {
+    [Header("Colors")]
+    public Color confirmationColor;
+    public Color selectedColor;
+
+    [Header("Other Settings")]
     public int maxTargets;
     public CharActions action;
-
+    public bool waitingForConfirmation;
     public Skill skillToActivate { get; private set; } //in case of using the skill action, this skill will activate after targetting
     public Item itemToUse { get; private set; }
 
@@ -121,10 +126,9 @@ public class UICharacterActions : ButtonList
                         {
                             if (target[i].targettable)
                             {
-                                int basicAttackRaw = RPGFormula.ReadAndSumList(caster.basicAttackFormula, caster.stats);
-                                int resultDMG = target[i].CalculateDefenses(basicAttackRaw, caster.basicAttackType);
-                                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name} for {resultDMG} DMG!");
-                                target[i].GetsDamagedBy(resultDMG, caster.basicAttackType, caster);
+                                int basicAttackRaw = RPGFormula.ReadAndSumList(caster.basicAttack.formula, caster.stats);
+                                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks {target[i].name}!");
+                                target[i].GetsDamagedBy(basicAttackRaw, caster.basicAttack.dmgType, caster.basicAttack.element, caster);
                             }
                             else
                             {
@@ -213,13 +217,13 @@ public class UICharacterActions : ButtonList
         Character caster = BattleManager.caster;
         UISkillContext.instance.Hide();
         UIItemContext.instance.Hide();
-
+        VisualSelectButton(action);
         switch (action)
         {
             case CharActions.Attack:
                 {
                     maxTargets = 1;
-                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks someone! (Choose a target)");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks someone!");
                     ActionRequiresTarget(CharActions.Attack);
                 }
                 break;
@@ -238,9 +242,6 @@ public class UICharacterActions : ButtonList
                     }
                     else
                     {
-                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses a Skill!");
-
-
                         if (!TeamOrderManager.AIturn || BattleManager.i.debugMode)
                         {
                             UISkillContext.instance.Show();
@@ -258,7 +259,6 @@ public class UICharacterActions : ButtonList
                     }
                     else
                     {
-                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} uses an item!");
                         UISkillContext.instance.Hide();
                         UIItemContext.instance.Show();
                     }
@@ -267,7 +267,7 @@ public class UICharacterActions : ButtonList
 
             case CharActions.Rearrange:
                 {
-                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone! (Choose a target)");
+                    BattleManager.i.battleLog.LogBattleEffect($"{caster.name} chooses to swap with someone!");
                     maxTargets = 1;
                     ActionRequiresTarget(CharActions.Rearrange);
                 }
@@ -309,16 +309,19 @@ public class UICharacterActions : ButtonList
     public void StartButtonActionConfirmation(Action confirmAction)
     {
         this.confirmAction = confirmAction;
-
+        TeamOrderManager.turnState = TurnState.WaitingForConfirmation;
+        waitingForConfirmation = true;
         if (BattleManager.i.confirmMode)
         {
             InteractableButtons(false);
             Image image = confirmationButton.colorOverlay;
-            Color newColor = Color.green;
+            Color newColor = confirmationColor;
             confirmationButton.ActivateColorOverlay(new Color(newColor.r, newColor.g, newColor.b, image.color.a));
             confirmationButton.GetComponent<Button>().interactable = true;
             BattleManager.i.uiList.InteractableUIs(false);
             BattleManager.i.uiList.SetTargettingMode(false);
+            UISkillContext.instance.InteractableButtons(false);
+            UIItemContext.instance.InteractableButtons(false);
             BattleManager.i.battleLog.LogImportant("Waiting for confirmation. (Press End Turn, or cancel with right click)");
         }
         else
@@ -329,6 +332,7 @@ public class UICharacterActions : ButtonList
 
     public void ConfirmAction()
     {
+        waitingForConfirmation = false;
         confirmationButton.DeactivateColorOverlay();
         confirmationButton.GetComponent<Button>().interactable = false;
         confirmAction?.Invoke();
@@ -338,6 +342,7 @@ public class UICharacterActions : ButtonList
     public void DenyAction()
     {
         confirmAction = null;
+        waitingForConfirmation = false;
         confirmationButton.DeactivateColorOverlay();
         TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
         BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
@@ -354,5 +359,31 @@ public class UICharacterActions : ButtonList
         }
 
         BattleManager.i.uiList.SelectCharacter(character);
+    }
+
+    public void VisualSelectButton(CharActions action)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            UIActionButton current = list[i].GetComponent<UIActionButton>();
+            if (current.action == action)
+            {
+                current.ActivateColorOverlay(selectedColor);
+            }
+            else
+            {
+                current.DeactivateColorOverlay();
+            }
+        }
+    }
+
+    public void DeactivateVisualSelect()
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            UIActionButton current = list[i].GetComponent<UIActionButton>();
+            
+            current.DeactivateColorOverlay();
+        }
     }
 }

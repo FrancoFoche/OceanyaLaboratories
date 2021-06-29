@@ -14,10 +14,13 @@ public struct StatLine
 public class AllyBattleUI : BattleUI
 {
     [Header("ALLY INFO")]
-    public Text                                    levelText;
+    public Text                                     levelText;
 
-    public Text                                    classText;
+    public Text                                     classText;
 
+    public UILevelProgressBar              levelProgress;
+    private int savedLevel;
+    private bool firstTime = true;
     private void Update()
     {
         if(loadedChar != null)
@@ -35,6 +38,27 @@ public class AllyBattleUI : BattleUI
         base.LoadChar(character);
 
         levelText.text = "LV. " + character.level.Level.ToString();
+        
+        if(character.level.Level != savedLevel)
+        {
+            savedLevel = character.level.Level;
+
+            if(firstTime)
+            {
+                levelProgress.progress.SetRange(LevellingSystem.GetLevel(character.level.Level).expRequirement, LevellingSystem.GetLevel(character.level.Level + 1).expRequirement);
+                levelProgress.progress.SetValue(character.level.EXP);
+            }
+            else
+            {
+                levelProgress.SetNewLevel(character.level.Level, character.level.EXP);
+            }
+        }
+        else
+        {
+            Debug.Log("trigger");
+            levelProgress.progress.SetValue(character.level.EXP);
+        }
+
         System.Type type = character.GetType();
 
         if (type == typeof(PlayerCharacter))
@@ -47,6 +71,8 @@ public class AllyBattleUI : BattleUI
             this.type = CharacterType.Enemy;
             classText.text = "None";
         }
+
+        firstTime = false;
     }
 
     public override void UpdateUI()

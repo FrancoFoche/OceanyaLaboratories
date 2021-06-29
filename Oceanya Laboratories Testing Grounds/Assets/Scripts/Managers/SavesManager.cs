@@ -55,6 +55,8 @@ public class SaveFile
     public bool actionConfirmation;
     public bool manualMode;
     public bool showOrderOfPlay;
+    public bool orderOfPlay_showDead;
+    public bool orderOfPlay_showPast;
 
     public PlayerCharacter FindPlayer(int id)
     {

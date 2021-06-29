@@ -45,10 +45,10 @@ public class PauseMenu : MonoBehaviour
         BattleManager.i.SaveGame();
     }
 
-    public void VolumeSlider(float sliderValue)
+    public void VolumeSlider(Slider volumeSlider)
     {
-        volumeSliderValue = sliderValue;
-        GameAssetsManager.instance.SetVolume(sliderValue);
+        volumeSliderValue = volumeSlider.value;
+        GameAssetsManager.instance.SetVolume(volumeSlider.value);
     }
 
     public void SettingsButton()

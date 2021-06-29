@@ -121,11 +121,10 @@ public class Item : Activatables
         lastsFor = maxActivationTimes;
         return this;
     }
-    public Item BehaviorChangesBasicAttack(List<RPGFormula> newBaseFormula, DamageType newDamageType)
+    public Item BehaviorChangesBasicAttack(List<RPGFormula> newBaseFormula, DamageType newDamageType, ElementType newElement)
     {
         behaviors.Add(Behaviors.ChangesBasicAttack);
-        this.newBasicAttackFormula = newBaseFormula;
-        this.newBasicAttackDamageType = newDamageType;
+        newBasicAttack = new Character.BasicAttack(newBaseFormula, newDamageType, newElement);
         return this;
     }
     public Item BehaviorRevives()

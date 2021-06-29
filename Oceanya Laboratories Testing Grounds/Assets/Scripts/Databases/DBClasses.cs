@@ -165,7 +165,8 @@ public class DBClasses : MonoBehaviour
                     .BehaviorCostsTurn()
                     .BehaviorPassive(ActivationTime.StartOfTurn)
                     .BehaviorDoesHeal(new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)})
-                    .BehaviorLastsFor(2),
+                    .BehaviorLastsFor(2)
+                    .BehaviorHasCooldown(CDType.Turns,2),
 
                     new Skill
                     (
@@ -551,7 +552,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)}, DamageType.Magical),
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)}, DamageType.Magical, ElementType.Dark),
 
                     new Skill
                     (
@@ -617,7 +618,7 @@ public class DBClasses : MonoBehaviour
                         ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical),
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical, ElementType.Dark),
 
                     new Skill
                     (
@@ -660,7 +661,7 @@ public class DBClasses : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f), new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical),
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f), new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical, ElementType.Normal),
 
                     new Skill
                     (

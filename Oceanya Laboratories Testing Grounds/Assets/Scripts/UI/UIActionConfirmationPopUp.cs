@@ -11,6 +11,7 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     public TextMeshProUGUI yesText;
     public TextMeshProUGUI noText;
     private Action confirmAction;
+    public bool waitingForConfirmation;
 
     private void Awake()
     {
@@ -20,7 +21,8 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     public void Show(Action confirmAction, bool affectedByConfirmActionSetting, string detailText = "Are you sure you want to commit this action?", string yesText = "Yes", string noText = "No")
     {
         this.confirmAction = confirmAction;
-
+        waitingForConfirmation = true;
+        TeamOrderManager.turnState = TurnState.WaitingForConfirmation;
         confirmationText.text = detailText;
         this.yesText.text = yesText;
         this.noText.text = noText;
@@ -47,11 +49,13 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     }
     public void Confirm()
     {
+        waitingForConfirmation = false;
         Hide();
         confirmAction();
     }
     public void Deny()
     {
+        waitingForConfirmation = false;
         Hide();
         if(!BattleManager.i.pauseMenu.paused)
         {

@@ -22,15 +22,23 @@ public class UIMenu_TeamOrder : ObjectList
     public RectTransform contentPanel;
     public ScrollRect scroll;
     public Toggle dropdownToggle;
+    public Toggle showPast;
+    public Toggle showDead;
 
     private List<Character> teamOrder;
+    private int lastTurnIndexSaved;
 
     public void LoadTeamOrder(List<Character> teamOrder, int currentTurnIndex)
     {
         ClearList();
         this.teamOrder = teamOrder;
+        lastTurnIndexSaved = currentTurnIndex;
+
+        bool showPast = this.showPast.isOn;
+        bool showDead = this.showDead.isOn;
 
         bool afterCurrentTurn = false;
+        int turnsHidden = 0;
         for (int i = 0; i < teamOrder.Count; i++)
         {
             Character currentCharacter = teamOrder[i];
@@ -44,11 +52,12 @@ public class UIMenu_TeamOrder : ObjectList
             {
                 isCurrentTurn = true;
                 afterCurrentTurn = true;
-                if(i < teamOrder.Count - turnsAfterScroll)
+                int positionInTeamOrder = i - turnsHidden;
+                if(positionInTeamOrder < teamOrder.Count - turnsAfterScroll)
                 {
-                    if (i >= turnsBeforeScroll)
+                    if (positionInTeamOrder >= turnsBeforeScroll)
                     {
-                        ScrollTo(pos.GetComponent<RectTransform>(), i, turnsBeforeScroll);
+                        ScrollTo(pos.GetComponent<RectTransform>(), positionInTeamOrder, turnsBeforeScroll);
                     }
                     else
                     {
@@ -71,6 +80,7 @@ public class UIMenu_TeamOrder : ObjectList
             if (currentCharacter.dead)
             {
                 canvasOpacity = canvasAlphaDead;
+                pos.targetText.fontStyle = TMPro.FontStyles.Strikethrough;
             }
 
             #region Color
@@ -90,13 +100,23 @@ public class UIMenu_TeamOrder : ObjectList
             }
             #endregion
 
-            pos.LoadCharacter(teamOrder[i], i + 1, backgroundColor, alpha, canvasOpacity);
+            pos.LoadCharacter(currentCharacter, i + 1, backgroundColor, alpha, canvasOpacity);
+
+            if(showPast == false && afterCurrentTurn == false || showDead == false && currentCharacter.dead)
+            {
+                Remove(newObj);
+                turnsHidden++;
+            }
         }
     }
 
     public void UpdateTeamOrder(int currentTurnIndex)
     {
         LoadTeamOrder(teamOrder, currentTurnIndex);
+    }
+    public void UpdateTeamOrder()
+    {
+        BattleManager.i.DelayAction(0, delegate { LoadTeamOrder(teamOrder, lastTurnIndexSaved); });
     }
 
     public void CheckOpen(Toggle toggle)

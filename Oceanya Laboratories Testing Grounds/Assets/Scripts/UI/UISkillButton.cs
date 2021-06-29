@@ -10,6 +10,7 @@ public class UISkillButton : MonoBehaviour
     public Skill loadedSkill;
     public TextMeshProUGUI buttonText;
     public Button button;
+    public Image colorOverlay;
 
     public void LoadSkill(Skill skill)
     {
@@ -21,13 +22,17 @@ public class UISkillButton : MonoBehaviour
 
     public void ActivateLoadedSkill()
     {
-        if(loadedSkill.targetType == TargetType.Multiple || loadedSkill.targetType == TargetType.Single)
+        ActivateColorOverlay(UISkillContext.instance.selectedColor);
+
+        if (loadedSkill.targetType == TargetType.Multiple || loadedSkill.targetType == TargetType.Single)
         {
             UICharacterActions.instance.SetSkillToActivate(loadedSkill);
         }
         else
         {
-            UICharacterActions.instance.StartButtonActionConfirmation(() => UICharacterActions.instance.SetSkillToActivate(loadedSkill));
+            UICharacterActions.instance.StartButtonActionConfirmation(delegate { 
+                UICharacterActions.instance.SetSkillToActivate(loadedSkill);
+            });
         }
     }
 
@@ -51,7 +56,22 @@ public class UISkillButton : MonoBehaviour
         {
             if (skillInfo.currentlyActive)
             {
-                result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text).Append("</color>");
+                result.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Color.gray)).Append(">").Append(text);
+
+                if (loadedSkill.behaviors.Contains(Activatables.Behaviors.Passive))
+                {
+                    if(loadedSkill.activatableType == ActivatableType.Passive)
+                    {
+                        result.Append(" (Passive)");
+                    }
+                    else
+                    {
+                        result.Append(" (Active)");
+                    }
+                    
+                }
+
+                result.Append("</color>");
                 button.interactable = false;
             }
             else
@@ -86,5 +106,16 @@ public class UISkillButton : MonoBehaviour
         }
 
         return result.ToString();
+    }
+
+    public void ActivateColorOverlay(Color color)
+    {
+        colorOverlay.color = color;
+        colorOverlay.gameObject.SetActive(true);
+    }
+
+    public void DeactivateColorOverlay()
+    {
+        colorOverlay.gameObject.SetActive(false);
     }
 }

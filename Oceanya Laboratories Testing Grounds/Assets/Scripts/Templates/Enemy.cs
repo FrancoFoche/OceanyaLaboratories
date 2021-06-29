@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class Enemy : Character
 {
-    public Enemy(int ID, string name, Texture2D sprite, Dictionary<Stats, int> startingStats, List<Skill> skillList, Dictionary<Item, int> inventory)
+    public Enemy(int ID, string name, ElementType elementalKind, Texture2D sprite, Dictionary<Stats, int> startingStats, List<Skill> skillList, Dictionary<Item, int> inventory)
     {
         InitializeVariables();
 
         this.ID = ID;
         this.level = new LevellingSystem();
         this.name = name;
-        
+        this.elementalKind = elementalKind;
 
         this.sprite = sprite;
 
@@ -40,6 +40,7 @@ public class Enemy : Character
         this.ID = enemy.ID;
         this.level = new LevellingSystem();
         this.name = copyAmount == 0 ? enemy.name : enemy.name + " (" + copyAmount + ")";
+        this.elementalKind = enemy.elementalKind;
         #endregion
 
         #region References

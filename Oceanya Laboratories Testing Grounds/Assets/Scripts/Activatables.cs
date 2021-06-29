@@ -50,8 +50,7 @@ public abstract class Activatables
     [SerializeField] private List<SkillResources>                   _unlockedResources                  = new List<SkillResources>();
 
 
-    [SerializeField] private List<RPGFormula>                       _newBasicAttackFormula              = new List<RPGFormula>();
-    [SerializeField] private DamageType                             _newBasicAttackDamageType;
+    [SerializeField] private Character.BasicAttack                  _newBasicAttack;
 
     #region Getters/Setters
     public string                                   name                                { get { return _name; }                         protected set { _name = value; } }
@@ -92,8 +91,7 @@ public abstract class Activatables
 
     public List<SkillResources>                     unlockedResources                   { get { return _unlockedResources; }            protected set { _unlockedResources = value; } }
 
-    public List<RPGFormula>                         newBasicAttackFormula               { get { return _newBasicAttackFormula; }        protected set { _newBasicAttackFormula = value; } }
-    public DamageType                               newBasicAttackDamageType            { get { return _newBasicAttackDamageType; }     protected set { _newBasicAttackDamageType = value; } }
+    public Character.BasicAttack                    newBasicAttack                      { get { return _newBasicAttack; }               protected set { _newBasicAttack = value; } }
 
     #endregion
 
@@ -201,64 +199,66 @@ public abstract class Activatables
             info.SetActive();
         }
 
-        for (int i = 0; i < target.Count; i++)
+        Dictionary<ReplaceStringVariables, string> activationText = new Dictionary<ReplaceStringVariables, string>();
+
+
+        activationText.Add(ReplaceStringVariables._caster_, caster.name);
+
+        Dictionary<ReplaceStringVariables, List<string>> replaceArrays = new Dictionary<ReplaceStringVariables, List<string>>();
+        replaceArrays.Add(ReplaceStringVariables._target_, new List<string>());
+        replaceArrays.Add(ReplaceStringVariables._damage_, new List<string>());
+        replaceArrays.Add(ReplaceStringVariables._heal_, new List<string>());
+
+        Dictionary<int, System.Action<int>> turnAction = new Dictionary<int, System.Action<int>>();
+
+        for (int j = 0; j < target.Count; j++)
         {
-            System.Action turnActions = delegate { };
-
-            Dictionary<ReplaceStringVariables, string> activationText = new Dictionary<ReplaceStringVariables, string>();
-
-
-            activationText.Add(ReplaceStringVariables._caster_, caster.name);
-            activationText.Add(ReplaceStringVariables._target_, target[i].name);
-
-            if (target[i].targettable)
+            replaceArrays[ReplaceStringVariables._target_].Add(target[j].name);
+            System.Action<int> turnActions = delegate(int i) { };
+            if (target[j].targettable)
             {
                 if (behaviors.Contains(Behaviors.DoesDamage_Flat))
                 {
                     int rawDMG = damageFlat;
 
-                    int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
+                    replaceArrays[ReplaceStringVariables._damage_].Add(rawDMG.ToString());
 
-                    activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
-
-                    turnActions += delegate { target[i].GetsDamagedBy(finalDMG, damageType, caster); };
+                    turnActions += delegate (int i) { target[i].GetsDamagedBy(rawDMG, damageType, damageElement, caster); };
                 }
                 if (behaviors.Contains(Behaviors.DoesDamage_Formula))
                 {
                     int rawDMG = RPGFormula.ReadAndSumList(damageFormula, caster.stats);
 
-                    int finalDMG = target[i].CalculateDefenses(rawDMG, damageType);
+                    replaceArrays[ReplaceStringVariables._damage_].Add(rawDMG.ToString());
 
-                    activationText.Add(ReplaceStringVariables._damage_, finalDMG.ToString());
-
-                    turnActions += delegate { target[i].GetsDamagedBy(finalDMG, damageType, caster); };
+                    turnActions += delegate (int i) { target[i].GetsDamagedBy(rawDMG, damageType, damageElement, caster); };
                 }
                 if (behaviors.Contains(Behaviors.DoesHeal_Flat))
                 {
                     int healAmount = healFlat;
 
-                    activationText.Add(ReplaceStringVariables._heal_, healAmount.ToString());
+                    replaceArrays[ReplaceStringVariables._heal_].Add(healAmount.ToString());
 
-                    turnActions += delegate { target[i].GetsHealedBy(healAmount); };
+                    turnActions += delegate (int i) { target[i].GetsHealedBy(healAmount); };
                 }
                 if (behaviors.Contains(Behaviors.DoesHeal_Formula))
                 {
                     int healAmount = RPGFormula.ReadAndSumList(healFormula, caster.stats);
 
-                    activationText.Add(ReplaceStringVariables._heal_, healAmount.ToString());
+                    replaceArrays[ReplaceStringVariables._heal_].Add(healAmount.ToString());
 
-                    turnActions += delegate { target[i].GetsHealedBy(healAmount); };
+                    turnActions += delegate (int i) { target[i].GetsHealedBy(healAmount); };
                 }
                 if (behaviors.Contains(Behaviors.ModifiesStat_Flat))
                 {
-                    turnActions += delegate { target[i].ModifyStat(modificationType, flatStatModifiers); };
+                    turnActions += delegate (int i) { target[i].ModifyStat(modificationType, flatStatModifiers); };
                 }
                 if (behaviors.Contains(Behaviors.ModifiesStat_Formula))
                 {
                     Dictionary<Stats, int> resultModifiers = new Dictionary<Stats, int>();
-                    for (int j = 0; j < RuleManager.StatHelper.Length; j++)
+                    for (int k = 0; k < RuleManager.StatHelper.Length; k++)
                     {
-                        Stats currentStat = RuleManager.StatHelper[j];
+                        Stats currentStat = RuleManager.StatHelper[k];
 
                         if (formulaStatModifiers.ContainsKey(currentStat))
                         {
@@ -266,24 +266,26 @@ public abstract class Activatables
                         }
                     }
 
-                    turnActions += delegate { target[i].ModifyStat(modificationType, resultModifiers); };
+                    turnActions += delegate (int i) { target[i].ModifyStat(modificationType, resultModifiers); };
                 }
                 if (behaviors.Contains(Behaviors.UnlocksResource))
                 {
-                    turnActions += delegate { target[i].UnlockResources(unlockedResources); };
+                    turnActions += delegate (int i) { target[i].UnlockResources(unlockedResources); };
                 }
                 if (behaviors.Contains(Behaviors.ModifiesResource))
                 {
-                    turnActions += delegate { target[i].ModifyResource(resourceModifiers); };
+                    turnActions += delegate (int i) { target[i].ModifyResource(resourceModifiers); };
                 }
                 if (behaviors.Contains(Behaviors.ChangesBasicAttack))
                 {
-                    turnActions += delegate { target[i].ChangeBaseAttack(newBasicAttackFormula, newBasicAttackDamageType); };
+                    turnActions += delegate (int i) { 
+                        target[i].ChangeBaseAttack(newBasicAttack); 
+                    };
                 }
                 
                 if (behaviors.Contains(Behaviors.Revives))
                 {
-                    turnActions += delegate
+                    turnActions += delegate (int i)
                     {
                         if (target[i].dead)
                         {
@@ -316,11 +318,42 @@ public abstract class Activatables
                 turnActions += delegate { BattleManager.i.battleLog.LogBattleEffect("Target wasn't targettable, smh"); };
             }
 
-            BattleManager.i.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
-
-            turnActions();
+            turnAction.Add(j, turnActions);
         }
 
+        foreach(var kvp in replaceArrays)
+        {
+            ReplaceStringVariables curReplace = kvp.Key;
+            List<string> curList = kvp.Value;
+            string resultString = "";
+
+            for (int i = 0; i < curList.Count; i++)
+            {
+                if(i == 0)
+                {
+                    resultString += curList[i];
+                }
+                else if(i < curList.Count - 1)
+                {
+                    resultString += ", ";
+                    resultString += curList[i];
+                }
+                else if(i == curList.Count - 1)
+                {
+                    resultString += " and ";
+                    resultString += curList[i];
+                }
+            }
+
+            activationText.Add(curReplace, resultString);
+        }
+
+        BattleManager.i.battleLog.LogBattleEffect(ReplaceActivationText(activationText));
+        foreach(var kvp in turnAction)
+        {
+            kvp.Value(kvp.Key);
+        }
+        
 
         if (activatableType != ActivatableType.Passive && !behaviors.Contains(Behaviors.Passive))
         {

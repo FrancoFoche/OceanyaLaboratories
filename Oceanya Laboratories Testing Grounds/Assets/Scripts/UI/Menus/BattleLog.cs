@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class BattleLog : MonoBehaviour
 {
@@ -56,7 +57,7 @@ public class BattleLog : MonoBehaviour
 
         GameObject newText = Instantiate(textObject, chatPanel.transform);
 
-        newMessage.textObject = newText.GetComponent<Text>();
+        newMessage.textObject = newText.GetComponent<TextMeshProUGUI>();
 
         newMessage.textObject.text = newMessage.text;
         newMessage.textObject.color = MessageTypeColor(messageType);
@@ -66,13 +67,13 @@ public class BattleLog : MonoBehaviour
             case Message.Type.AllyTurn:
             case Message.Type.EnemyTurn:
             case Message.Type.BattleStatus:
-                newMessage.textObject.alignment = TextAnchor.MiddleCenter;
+                newMessage.textObject.alignment = TextAlignmentOptions.Center;
                 break;
 
             case Message.Type.BattleEffect:
             case Message.Type.PlayerMessage:
             case Message.Type.Important:
-                newMessage.textObject.alignment = TextAnchor.MiddleLeft;
+                newMessage.textObject.alignment = TextAlignmentOptions.MidlineLeft;
                 break;
 
         }
@@ -209,7 +210,7 @@ public class BattleLog : MonoBehaviour
 public class Message
 {
     public string text;
-    public Text textObject;
+    public TextMeshProUGUI textObject;
     public Type messageType;
 
     public enum Type

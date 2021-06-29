@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class UIItemContext : ButtonList
 {
+    public Color selectedColor;
     static Character loadedCharacter;
     public static UIItemContext instance;
 
@@ -36,11 +37,80 @@ public class UIItemContext : ButtonList
     {
         Character character = BattleManager.caster;
         LoadItems(character);
+        DeactivateVisualSelect();
         gameObject.SetActive(true);
     }
     public void Hide()
     {
         BattleManager.i.tooltipPopup.HideInfo();
         gameObject.SetActive(false);
+    }
+
+    public override void InteractableButtons(bool state)
+    {
+        base.InteractableButtons(state);
+
+        if (state && gameObject.activeSelf)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i].GetComponent<UIItemButton>().UpdateFormat();
+            }
+        }
+    }
+
+    public void VisualSelectButton(Item item)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            UIItemButton current = list[i].GetComponent<UIItemButton>();
+            if (current.loadedItem == item)
+            {
+                current.ActivateColorOverlay(selectedColor);
+            }
+            else
+            {
+                current.DeactivateColorOverlay();
+            }
+        }
+    }
+
+    public void DeactivateVisualSelect()
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            UIItemButton current = list[i].GetComponent<UIItemButton>();
+
+            current.DeactivateColorOverlay();
+        }
+    }
+
+    public UIItemButton GetSkillButton(Item item)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            UIItemButton current = list[i].GetComponent<UIItemButton>();
+            if (current.loadedItem == item)
+            {
+                return current;
+            }
+        }
+
+        throw new System.Exception("Skill button of " + item.name + " skill could not be found.");
+    }
+    public void ActivateButtonInPosition(int position)
+    {
+        int index = position - 1;
+        if(index < list.Count)
+        {
+            Character caster = BattleManager.caster;
+            UIItemButton current = list[index].GetComponent<UIItemButton>();
+            ActivatableInfo info = caster.GetItemFromInventory(current.loadedItem);
+
+            if (info.activatable && !current.loadedItem.behaviors.Contains(Activatables.Behaviors.Passive))
+            {
+                current.ActivateLoadedItem();
+            }
+        }
     }
 }

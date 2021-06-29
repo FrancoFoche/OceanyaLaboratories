@@ -9,7 +9,7 @@ public class DBEnemies : MonoBehaviour
     {
         enemies = new List<Enemy>()
         {
-            new Enemy(1 , "Motivated Swordmaster" , GameAssetsManager.instance.GetSprite(Sprites.Vergil),
+            new Enemy(1 , "Motivated Swordmaster" , ElementType.Dark, GameAssetsManager.instance.GetSprite(Sprites.Vergil),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 100   },
@@ -26,25 +26,25 @@ public class DBEnemies : MonoBehaviour
                 new List<Skill>()
                 {
                     new Skill(new BaseObjectInfo("Great Sword Slash", 1, "You swing your sword precisely and smoothly, dealing 150% STR to a single target")
-                    ,"_caster_ activates Great Sword Slash! They swing their sword precisely and stylishly at _target_! _caster_ receives _damage_ DMG."
+                    ,"_caster_ activates Great Sword Slash! They swing their sword precisely and stylishly at _target_, creating a fire whirlwind in the process!"
                     ,ActivatableType.Active
                     ,TargetType.Single)
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Dark, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,1.5f)})
+                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Fire, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,1.5f)})
                     .BehaviorHasCooldown(CDType.Turns, 1),
 
                     new Skill(new BaseObjectInfo("Now i'm a little MOTIVATED!", 2, "You realize this fight is finally starting to be worth your time. You stab yourself for 50% your current HP in order to gain +100% STR (This skill can only be activated when below 50% HP)")
-                    ,"_caster_ looks at their wounds, they're finally starting to feel MOTIVATED! They stab themselves for _damage_ DMG and receive a 100% STR buff from their sword's power!"
+                    ,"_caster_ looks at their wounds, they're finally starting to feel MOTIVATED! They stab themselves and receive a 100% STR buff from their sword's power!"
                     ,ActivatableType.Active
                     ,TargetType.Self)
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Dark, new List<RPGFormula>(){ new RPGFormula(Stats.CURHP,operationActions.Multiply,0.5f)})
+                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.CURHP,operationActions.Multiply,0.5f)})
                     .BehaviorHasCooldown(CDType.Other)
                     .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, List<RPGFormula>>(){ { Stats.STR, new List<RPGFormula>(){new RPGFormula(Stats.STR, operationActions.Multiply, 1f) } } })
                     .BehaviorActivationRequirement(new List<ActivationRequirement>(){new ActivationRequirement(Stats.CURHP, ActivationRequirement.ComparerType.LessThan, new RPGFormula(Stats.MAXHP,operationActions.Multiply, 0.5f))}),
 
                     new Skill(new BaseObjectInfo("Death Sentence", 3, "You point your sword at two unlucky foes. They will get slashed for 100% your STR")
-                    ,"_caster_ points their sword at _target_, oh no. Shortly after, they receive _damage_ DMG from DEATH SENTENCE."
+                    ,"_caster_ points their sword at _target_, oh no. Shortly after, they get cut by DEATH SENTENCE."
                     ,ActivatableType.Active
                     ,TargetType.Multiple, 2)
                     .BehaviorCostsTurn()
@@ -57,7 +57,7 @@ public class DBEnemies : MonoBehaviour
                 }
             ),
 
-            new Enemy(2 , "Strategist" ,GameAssetsManager.instance.GetSprite(Sprites.Sasque),
+            new Enemy(2 , "Strategist" , ElementType.Holy, GameAssetsManager.instance.GetSprite(Sprites.Sasque),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 150 },
@@ -116,7 +116,7 @@ public class DBEnemies : MonoBehaviour
                 }
             ),
 
-            new Enemy(3 , "Kirbo" ,GameAssetsManager.instance.GetSprite(Sprites.Kirbo),
+            new Enemy(3 , "Kirbo" , ElementType.Holy,GameAssetsManager.instance.GetSprite(Sprites.Kirbo),
                 new Dictionary<Stats, int>
                 {
                     { Stats.MAXHP       , 1 },
@@ -136,7 +136,7 @@ public class DBEnemies : MonoBehaviour
                     ,"Poyo! (Kirbo exploded, making _target_ receive _damage_ DMG, huh.)"
                     ,ActivatableType.Passive
                     ,TargetType.Bounce)
-                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Dark, 30)
+                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Fire, 30)
                     .BehaviorPassive(ActivationTime.WhenAttacked)
                 },
                 new Dictionary<Item, int>()

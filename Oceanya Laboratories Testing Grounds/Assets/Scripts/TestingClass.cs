@@ -8,36 +8,50 @@ using UnityEngine.UI;
 /// </summary>
 public class TestingClass : MonoBehaviour
 {
-    LevellingSystem levelTest;
-    PlayerCharacter character;
+    public float time;
+    public float start;
+    public float end;
 
-    private void Awake()
+    public float cur;
+
+    public bool ongoing;
+    private void Update()
     {
-        SavesManager.Initialize();
-        DBClasses.BuildDatabase();
-        LevellingSystem.BuildBaseLevelSystem();
-    }
-
-    private void Start()
-    {
-        
-    }
-    public void PrintChar(PlayerCharacter character)
-    {
-        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        Debug.Log("Current EXP: " + character.level.EXP + ";");
-        Debug.Log("Current Level: " + character.level.Level + ";");
-        string stats = "Stats: ";
-
-
-        for (int i = 0; i < character.stats.Count; i++)
+        if (Input.GetKeyDown(KeyCode.Return))
         {
-            Stats curStat = character.stats[i].stat;
-            int curValue = character.stats[i].value;
-            stats += $"\n {curStat} | {curValue}";
+            ongoing = true;
+            cur = start;
         }
 
-        Debug.Log(stats);
-        Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        if (ongoing)
+        {
+            if(cur < end)
+            {
+                if (cur >= end - 0.1f)
+                {
+                    cur = end;
+                    ongoing = false;
+                }
+                else
+                {
+                    cur = Mathf.Lerp(cur, end, time * Time.deltaTime);
+                    Debug.Log(cur);
+                }
+            }
+            else
+            {
+                if (cur <= end + 0.1f)
+                {
+                    cur = end;
+                    ongoing = false;
+                }
+                else
+                {
+                    cur = Mathf.Lerp(cur, end, time * Time.deltaTime);
+                    Debug.Log(cur);
+                }
+            }
+            
+        }
     }
 }

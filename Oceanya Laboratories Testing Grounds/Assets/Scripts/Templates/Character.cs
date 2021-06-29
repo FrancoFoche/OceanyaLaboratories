@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -26,6 +26,20 @@ public class Character
         [SerializeField] public Stats stat;
         [SerializeField] public int value;
     }
+
+    public class BasicAttack
+    {
+        public List<RPGFormula> formula;
+        public DamageType       dmgType;
+        public ElementType      element;
+
+        public BasicAttack(List<RPGFormula> formula, DamageType dmgType, ElementType element)
+        {
+            this.formula = formula;
+            this.dmgType = dmgType;
+            this.element = element;
+        }
+    }
     #endregion
     //SerializeField == Saved variables
     [SerializeField] private int                                _ID;
@@ -36,11 +50,11 @@ public class Character
     private List<Stat>                          _stats;
     protected List<Stat>                        _creationStats;
     protected List<Stat>                        _baseStats;
+    private ElementType                         _elementalKind;
     
     private Dictionary<SkillResources, int>     _skillResources;
     
-    private List<RPGFormula>                    _basicAttackFormula;
-    private DamageType                          _basicAttackType;
+    private BasicAttack                         _basicAttack;
 
     private List<SkillInfo>                     _skillList;
     protected List<SkillInfo>                   _originalSkillList;
@@ -72,10 +86,10 @@ public class Character
 
     public LevellingSystem                      level                       { get { return _level; }                    set { _level = value; } }
     public List<Stat>                           stats                       { get { return _stats; }                    protected set { _stats = value; } }
+    public ElementType                          elementalKind               { get { return _elementalKind; }            protected set { _elementalKind = value; } }
     public Dictionary<SkillResources, int>      skillResources              { get { return _skillResources; }           protected set { _skillResources = value; } }
 
-    public List<RPGFormula>                     basicAttackFormula          { get { return _basicAttackFormula; }       protected set { _basicAttackFormula = value; } }
-    public DamageType                           basicAttackType             { get { return _basicAttackType; }          protected set { _basicAttackType = value; } }
+    public BasicAttack                          basicAttack                 { get { return _basicAttack; }              protected set { _basicAttack = value; } }
 
     public Team                                 team                        { get { return _team; }                     protected set { _team = value; } }
     public bool                                 targettable                 { get { return _targettable; }              protected set { _targettable = value; } }
@@ -105,8 +119,7 @@ public class Character
         level = new LevellingSystem();
         stats = new List<Stat>();
         skillResources = new Dictionary<SkillResources, int>();
-        basicAttackFormula = new List<RPGFormula>() { new RPGFormula(Stats.STR, operationActions.Multiply, 1) };
-        basicAttackType = DamageType.Physical;
+        basicAttack = new BasicAttack(new List<RPGFormula>() { new RPGFormula(Stats.STR, operationActions.Multiply, 1) }, DamageType.Physical, ElementType.Normal);
 
         team = Team.Ally;
         targettable = true;
@@ -132,7 +145,7 @@ public class Character
     }
 
     #region Character Reactions
-    public void     GetsDamagedBy           (int DamageTaken, DamageType damageType, Character caster)                                             
+    public void     GetsDamagedBy           (int rawDamage, DamageType damageType, ElementType element, Character caster)                                             
     {
         if (!dead)
         {
@@ -143,14 +156,54 @@ public class Character
             }
 
             curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
-            int dmg = DamageTaken;
+            float multiplier = ElementSystem.GetMultiplier(element, _elementalKind);
+            int originalDMG = CalculateDefenses(Mathf.CeilToInt(rawDamage * multiplier), damageType);
+            int dmg = originalDMG;
+            
 
+            bool wasDefending = false;
             if (defending && damageType != DamageType.Direct)
             {
-                dmg = Mathf.FloorToInt(DamageTaken / 2);
-                BattleManager.i.battleLog.LogBattleEffect($"But {name} was defending! Meaning they actually just took {dmg} DMG.");
-                SetDefending(false);
+                dmg = Mathf.CeilToInt(originalDMG / 2);
+                wasDefending = true;
             }
+
+            string attackLog = $"{name} receives {dmg} DMG!";
+            #region MultiplierCheck
+            switch (multiplier)
+            {
+                case ElementSystem.Useless:
+                    attackLog += $" The attack was {ElementSystem.i.ColorizeTextWithMultiplier("USELESS")}. (x{ElementSystem.Useless} multiplier)";
+                    break;
+
+                case ElementSystem.NotEffective:
+                    attackLog += $" The attack was {ElementSystem.i.ColorizeTextWithMultiplier("Not Effective")} (x{ElementSystem.NotEffective} multiplier)";
+                    break;
+
+                case ElementSystem.Normal:
+                    break;
+
+                case ElementSystem.Effective:
+                    attackLog += $" The attack was {ElementSystem.i.ColorizeTextWithMultiplier("Effective")}! (x{ElementSystem.Effective} multiplier)";
+                    break;
+
+                case ElementSystem.VeryEffective:
+                    attackLog += $" The attack was {ElementSystem.i.ColorizeTextWithMultiplier("VERY Effective")}! (x{ElementSystem.VeryEffective} multiplier)";
+                    break;
+
+                case ElementSystem.Devastating:
+                    attackLog += $" The attack was {ElementSystem.i.ColorizeTextWithMultiplier("DEVASTATING")}! (x{ElementSystem.Devastating} multiplier)";
+                    break;
+
+            }
+            #endregion
+            Action order = delegate { BattleManager.i.battleLog.LogBattleEffect(attackLog); };
+            if (wasDefending)
+            {
+                attackLog += $" ({name}'s defense blocked {originalDMG - dmg} DMG.)";
+                order += delegate { SetDefending(false); };
+            }
+            order();
 
             int result = stats.GetStat(Stats.CURHP).value - dmg;
             if (result <= 0)
@@ -175,7 +228,7 @@ public class Character
         }
         
     }
-    public void     GetsHealedBy            (int HealAmount)                                                                
+    public void     GetsHealedBy            (int HealAmount)                                                                        
     {
         if (!dead)
         {
@@ -193,7 +246,7 @@ public class Character
             }
         }
     }
-    public void     UnlockResources         (List<SkillResources> resourcesUnlocked)                                        
+    public void     UnlockResources         (List<SkillResources> resourcesUnlocked)                                                
     {
         for (int i = 0; i < resourcesUnlocked.Count; i++)
         {
@@ -204,7 +257,7 @@ public class Character
             
         }
     }
-    public void     ModifyResource          (Dictionary<SkillResources, int> resources)                                     
+    public void     ModifyResource          (Dictionary<SkillResources, int> resources)                                             
     {
         for (int i = 0; i < RuleManager.SkillResourceHelper.Length; i++)
         {
@@ -223,7 +276,7 @@ public class Character
             }
         }
     }
-    public void     ModifyStat              (StatModificationTypes modificationType, Dictionary<Stats, int> modifiedStats)  
+    public void     ModifyStat              (StatModificationTypes modificationType, Dictionary<Stats, int> modifiedStats)          
     {
         for (int i = 0; i < RuleManager.StatHelper.Length; i++)
         {
@@ -254,23 +307,22 @@ public class Character
 
         BattleManager.i.UpdateTeamOrder();
     }
-    public void     ChangeBaseAttack        (List<RPGFormula> newBaseFormula, DamageType newDamageType)                     
+    public void     ChangeBaseAttack        (BasicAttack newBasicAttack)     
     {
-        basicAttackFormula = newBaseFormula;
-        basicAttackType = newDamageType;
+        basicAttack = newBasicAttack; 
     }
-    public void     Revive                  ()                                                                              
+    public void     Revive                  ()                                                                                      
     {
         dead = false;
         stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
         curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
     }
-    public void     Die                     ()                                                                              
+    public void     Die                     ()                                                                                      
     {
         dead = true;
         curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
     }
-    public virtual void AddExp              (int exp)                                                                       
+    public virtual void AddExp              (int exp)                                                                               
     {
         level.EXP += exp;
     }
@@ -629,7 +681,7 @@ public class Character
                 }
             }
 
-            int randomActionIndex = Random.Range(0, importanceList.Count);
+            int randomActionIndex = UnityEngine.Random.Range(0, importanceList.Count);
             Debug.Log($"{name}'s random action index: {randomActionIndex}.");
             CharActions actionChosen = importanceList[randomActionIndex];
             Debug.Log($"{name}'s random action: {actionChosen}.");
@@ -743,7 +795,7 @@ public class Character
 
     public Character PickRandomAliveTargetFromList(List<Character> listToChooseFrom)
     {
-        int randomTargetIndex = Random.Range(0, TeamOrderManager.allySide.Count);
+        int randomTargetIndex = UnityEngine.Random.Range(0, TeamOrderManager.allySide.Count);
         Debug.Log($"{name}'s random target index chosen: {randomTargetIndex}.");
 
         Character targetChosen = TeamOrderManager.allySide[randomTargetIndex];
@@ -761,7 +813,7 @@ public class Character
     }
     public Skill     PickRandomSkillFromList(List<Skill> listToChooseFrom)
     {
-        int randomSkillIndex = Random.Range(0, listToChooseFrom.Count);
+        int randomSkillIndex = UnityEngine.Random.Range(0, listToChooseFrom.Count);
         Debug.Log($"{name}'s random skill index chosen: {randomSkillIndex}.");
 
 

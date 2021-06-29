@@ -120,11 +120,10 @@ public class Skill : Activatables
         lastsFor = maxActivationTimes;
         return this;
     }
-    public Skill BehaviorChangesBasicAttack(List<RPGFormula> newBaseFormula, DamageType newDamageType)
+    public Skill BehaviorChangesBasicAttack(List<RPGFormula> newBaseFormula, DamageType newDamageType, ElementType newElement)
     {
         behaviors.Add(Behaviors.ChangesBasicAttack);
-        this.newBasicAttackFormula = newBaseFormula;
-        this.newBasicAttackDamageType = newDamageType;
+        newBasicAttack = new Character.BasicAttack(newBaseFormula, newDamageType, newElement);
         return this;
     }
     public Skill BehaviorRevives()
@@ -180,6 +179,11 @@ public class SkillInfo : ActivatableInfo
     {
         base.SetDeactivated();
         cdStartedAt = character.timesPlayed;
+
+        if(TeamOrderManager.turnState == TurnState.Start)
+        {
+            cdStartedAt -= 1;
+        }
 
         if (skill.behaviors.Contains(Activatables.Behaviors.Passive))
         {

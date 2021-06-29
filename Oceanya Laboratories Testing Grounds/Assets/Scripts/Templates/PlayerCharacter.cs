@@ -8,13 +8,13 @@ public class PlayerCharacter : Character
     private BaseSkillClass _rpgClass;
     public BaseSkillClass rpgClass { get { return _rpgClass; } set { _rpgClass = value; } }
 
-    public PlayerCharacter(int ID, string name, int startingLevel, BaseSkillClass rpgClass, Dictionary<Stats, int> stats, List<Skill> skillList, Dictionary<Item, int> inventory)
+    public PlayerCharacter(int ID, string name, int startingLevel, ElementType elementalKind ,BaseSkillClass rpgClass, Dictionary<Stats, int> stats, List<Skill> skillList, Dictionary<Item, int> inventory)
     {
         InitializeVariables();
 
         this.ID = ID;
         this.level = new LevellingSystem().SetStartingLevel(startingLevel);
-
+        this.elementalKind = elementalKind;
         if (SavesManager.loadedFile != null)
         {
             PlayerCharacter loaded = SavesManager.loadedFile.FindPlayer(ID);

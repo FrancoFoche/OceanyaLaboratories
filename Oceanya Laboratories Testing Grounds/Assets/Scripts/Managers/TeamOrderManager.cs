@@ -21,7 +21,7 @@ public static class TeamOrderManager
     public  static  List<Character>     allySide                        { get; private set; }
     public  static  List<Character>     enemySide                       { get; private set; }
     public  static  List<Character>     totalCharList                   { get; private set; }
-    public  static  TurnState           turnState                       { get; private set; }
+    public  static  TurnState           turnState                       { get; set; }
     public  static  bool                AIturn                          { get; private set; }
     public  static  int                 currentTeamOrderIndex           { get; private set; }
     public  static  Character           currentTurn;
@@ -120,7 +120,7 @@ public static class TeamOrderManager
                         {
                             AIturn = true;
                             UICharacterActions.instance.InteractableButtons(false);
-                            UISkillContext.instance.InteractableUIButtons(false);
+                            UISkillContext.instance.InteractableButtons(false);
                             UIItemContext.instance.InteractableButtons(false);
                             BattleManager.i.uiList.InteractableUIs(false);
                             BattleManager.i.uiList.SetTargettingMode(false);
@@ -133,10 +133,23 @@ public static class TeamOrderManager
                 case TurnState.WaitingForAction:
                     {
                         UICharacterActions.instance.InteractableButtons(true);
-                        UISkillContext.instance.InteractableUIButtons(true);
+                        UISkillContext.instance.InteractableButtons(true);
                         UIItemContext.instance.InteractableButtons(true);
                         BattleManager.i.uiList.TurnToggleGroup(true);
                         BattleManager.i.uiList.SetTargettingMode(false);
+
+                        if(UISkillContext.instance.gameObject.activeSelf)
+                        {
+                            UISkillContext.instance.DeactivateVisualSelect();
+                        }
+                        else if (UIItemContext.instance.gameObject.activeSelf)
+                        {
+                            UIItemContext.instance.DeactivateVisualSelect();
+                        }
+                        else
+                        {
+                            UICharacterActions.instance.DeactivateVisualSelect();
+                        }
 
                         if (BattleManager.i.debugMode)
                         {
@@ -154,7 +167,7 @@ public static class TeamOrderManager
                 case TurnState.WaitingForTarget:
                     {
                         UICharacterActions.instance.InteractableButtons(false);
-                        UISkillContext.instance.InteractableUIButtons(false);
+                        UISkillContext.instance.InteractableButtons(false);
                         UIItemContext.instance.InteractableButtons(false);
                         BattleManager.i.uiList.TurnToggleGroup(false);
                         BattleManager.i.uiList.InteractableUIs(true);
@@ -162,6 +175,7 @@ public static class TeamOrderManager
 
                         if (!AIturn)
                         {
+                            BattleManager.i.battleLog.LogBattleEffect($"Choose a target! (Use Space to confirm targets midway.)");
                             BattleManager.i.uiList.SetTargettingMode(true);
                         }
 
@@ -172,7 +186,6 @@ public static class TeamOrderManager
 
                 case TurnState.WaitingForConfirmation:
                     {
-                        turnState = TurnState.WaitingForConfirmation;
                         System.Action action = delegate { UICharacterActions.instance.Act(new ActionData(caster, target)); };
                         if (AIturn)
                         {
@@ -183,7 +196,6 @@ public static class TeamOrderManager
                         {
                             UICharacterActions.instance.StartButtonActionConfirmation(action);
                         }
-
                     }
                     break;
 

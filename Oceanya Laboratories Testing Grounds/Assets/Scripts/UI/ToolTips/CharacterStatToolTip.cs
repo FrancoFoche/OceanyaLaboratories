@@ -15,7 +15,8 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
         loadedChar = character;
         characterStats = new StringBuilder();
 
-        characterStats.Append("<size=15><color=green>").Append(character.name).Append("</color></size>").AppendLine().AppendLine();
+        characterStats.Append("<size=15>").Append(ElementSystem.i.ColorizeTextWithElement(character.elementalKind, character.name)).Append("</size>").AppendLine();
+        characterStats.Append("<size=10><color=green>Element: </color>").Append(ElementSystem.i.ColorizeTextWithElement(character.elementalKind,character.elementalKind.ToString())).Append("</size>").AppendLine().AppendLine();
 
         for (int i = 0; i < RuleManager.StatHelper.Length; i++)
         {
@@ -25,7 +26,8 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
         }
 
         characterStats.AppendLine().Append("<size=15><color=green>").Append("Basic Attack: ").Append("</color></size>")
-            .Append(RPGFormula.FormulaListToString(character.basicAttackFormula)).Append(" (").Append(character.basicAttackType.ToString()).Append(" DMG)").AppendLine();
+            .Append(RPGFormula.FormulaListToString(character.basicAttack.formula))
+            .Append(" (").Append(ElementSystem.i.ColorizeTextWithElement(character.basicAttack.element, character.basicAttack.element + " Element")).Append(" as ").Append(character.basicAttack.dmgType.ToString()).Append(" DMG)").AppendLine();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

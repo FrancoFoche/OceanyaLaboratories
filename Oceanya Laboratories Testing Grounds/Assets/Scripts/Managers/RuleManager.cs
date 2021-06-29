@@ -56,7 +56,7 @@ public enum DamageType
     Magical,
     Physical
 }
-public enum ElementType             
+public enum ElementType
 {
     Normal,
     Water,

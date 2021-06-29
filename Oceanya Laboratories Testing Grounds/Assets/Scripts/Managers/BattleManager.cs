@@ -74,15 +74,21 @@ public class BattleManager : MonoBehaviour
         {
             debugMode = MainMenu.manualMode;
             confirmMode = MainMenu.actionConfirmation;
+            pauseMenu.volumeSliderValue = MainMenu.volume;
             pauseMenu.volume.value = MainMenu.volume;
-            teamOrderMenu.dropdownToggle.isOn = false;
+            teamOrderMenu.dropdownToggle.isOn = true;
+            teamOrderMenu.showDead.isOn = true;
+            teamOrderMenu.showPast.isOn = true;
         }
         else
         {
             debugMode = loaded.manualMode;
             confirmMode = loaded.actionConfirmation;
+            pauseMenu.volumeSliderValue = loaded.volumeSliderValue;
             pauseMenu.volume.value = loaded.volumeSliderValue;
             teamOrderMenu.dropdownToggle.isOn = loaded.showOrderOfPlay;
+            teamOrderMenu.showDead.isOn = loaded.orderOfPlay_showDead;
+            teamOrderMenu.showPast.isOn = loaded.orderOfPlay_showPast;
         }
 
         pauseMenu.manualMode.isOn = debugMode;
@@ -114,9 +120,17 @@ public class BattleManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (confirmationPopup.objToHide.activeSelf)
+            if (TeamOrderManager.turnState == TurnState.WaitingForConfirmation || TeamOrderManager.turnState == TurnState.WaitingForTarget)
             {
-                confirmationPopup.Hide();
+                if (confirmationPopup.waitingForConfirmation)
+                {
+                    confirmationPopup.Deny();
+                }
+
+                if (UICharacterActions.instance.waitingForConfirmation)
+                {
+                    UICharacterActions.instance.DenyAction();
+                }
             }
             else
             {
@@ -139,6 +153,43 @@ public class BattleManager : MonoBehaviour
             curHold = 0;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (confirmationPopup.waitingForConfirmation)
+            {
+                confirmationPopup.Confirm();
+            }
+            else
+            {
+                if (!TeamOrderManager.AIturn)
+                {
+                    switch (TeamOrderManager.turnState)
+                    {
+                        case TurnState.WaitingForAction:
+                        case TurnState.WaitingForConfirmation:
+                            UICharacterActions.instance.ButtonAction(CharActions.EndTurn);
+                            break;
+
+                        case TurnState.WaitingForTarget:
+                            Action temp = delegate {
+                                Debug.Log("Targetting done.");
+                                TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+                            };
+
+                            if(target.Count == 0)
+                            {
+                                confirmationPopup.Show(temp, true, "You have selected no targets, are you sure you want to confirm your action?");
+                            }
+                            else
+                            {
+                                temp();
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
         if (!pauseMenu.paused)
         {
             if (Input.GetKeyDown(KeyCode.Tab))
@@ -146,9 +197,9 @@ public class BattleManager : MonoBehaviour
                 teamOrderMenu.ToggleVisibility();
             }
 
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
             {
-                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift))
+                if (Input.GetKey(KeyCode.LeftShift))
                 {
                     confirmationPopup.Show(delegate { SavesManager.DeleteSave(); SceneLoaderManager.instance.ReloadScene(); }, false, "Are you ABSOLUTELY sure that you want to delete your save file?");
                 }
@@ -164,59 +215,203 @@ public class BattleManager : MonoBehaviour
                 ToggleDebugMode();
             }
 
-            if (TeamOrderManager.turnState == TurnState.WaitingForTarget || TeamOrderManager.turnState == TurnState.WaitingForConfirmation)
+            if (TeamOrderManager.turnState != TurnState.End && TeamOrderManager.turnState != TurnState.Start && TeamOrderManager.turnState != TurnState.NonDefined)
             {
-                if (TeamOrderManager.turnState != TurnState.WaitingForConfirmation)
+                if (TeamOrderManager.turnState == TurnState.WaitingForTarget || TeamOrderManager.turnState == TurnState.WaitingForConfirmation)
                 {
-                    if (Input.GetKeyDown(KeyCode.Return) || target.Count == UICharacterActions.instance.maxTargets)
+                    if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
                     {
-                        Debug.Log("Targetting done.");
-                        TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
-                    }
-                    else
-                    {
-                        if (caster.team == Team.Ally || debugMode)
+                        if (target.Count == UICharacterActions.instance.maxTargets)
                         {
-                            SetTargets(uiList.CheckTargets());
+                            Debug.Log("Targetting done.");
+                            TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+                        }
+                        else
+                        {
+                            if (caster.team == Team.Ally || debugMode)
+                            {
+                                SetTargets(uiList.CheckTargets());
+                            }
+                        }
+                    }
+
+                    if (!TeamOrderManager.AIturn)
+                    {
+                        if (Input.GetMouseButtonDown(1))
+                        {
+                            UICharacterActions.instance.DenyAction();
                         }
                     }
                 }
-
-                if (Input.GetMouseButtonDown(1) && !TeamOrderManager.AIturn)
+                else if (TeamOrderManager.turnState == TurnState.WaitingForAction)
                 {
-                    UICharacterActions.instance.DenyAction();
-                }
-            }
-            else
-            {
-                if (debugMode)
-                {
-                    uiList.CheckCurrentSelection();
-                    bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
-                    if (togglesOn && uiList.different)
+                    if (!confirmationPopup.waitingForConfirmation)
                     {
-                        uiList.UpdateSelected();
-                        GetCaster();
-                        UISkillContext.instance.Hide();
-                        UIItemContext.instance.Hide();
+                        if (Input.GetKeyDown(KeyCode.Q))
+                        {
+                            UICharacterActions.instance.ButtonAction(CharActions.Attack);
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.W))
+                        {
+                            UICharacterActions.instance.ButtonAction(CharActions.Defend);
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.E))
+                        {
+                            UICharacterActions.instance.ButtonAction(CharActions.Skill);
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.R))
+                        {
+                            UICharacterActions.instance.ButtonAction(CharActions.Item);
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.T))
+                        {
+                            UICharacterActions.instance.ButtonAction(CharActions.Rearrange);
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.Y))
+                        {
+                            UICharacterActions.instance.ButtonAction(CharActions.Prepare);
+                        }
+
+                        if (UISkillContext.instance.gameObject.activeSelf)
+                        {
+                            if (Input.GetKeyDown(KeyCode.Alpha1))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(1);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha2))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(2);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha3))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(3);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha4))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(4);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha5))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(5);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha6))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(6);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha7))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(7);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha8))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(8);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha9))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(9);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha0))
+                            {
+                                UISkillContext.instance.ActivateButtonInPosition(10);
+                            }
+                        }
+
+                        if (UIItemContext.instance.gameObject.activeSelf)
+                        {
+                            if (Input.GetKeyDown(KeyCode.Alpha1))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(1);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha2))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(2);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha3))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(3);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha4))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(4);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha5))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(5);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha6))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(6);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha7))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(7);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha8))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(8);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha9))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(9);
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha0))
+                            {
+                                UIItemContext.instance.ActivateButtonInPosition(10);
+                            }
+                        }
                     }
 
-                    #region Debug Features
-                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn)
+                    if (debugMode)
                     {
-                        battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
-                        ReselectOriginalTurn();
-                    }
-                    #endregion
-                }
-                else
-                {
-                    if (BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
-                    {
-                        Debug.LogWarning("The half-assed bugfix patch was triggered.");
-                        uiList.SelectCharacter(TeamOrderManager.currentTurn);
-                    }
+                        uiList.CheckCurrentSelection();
+                        bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
+                        if (togglesOn && uiList.different)
+                        {
+                            uiList.UpdateSelected();
+                            GetCaster();
+                            UISkillContext.instance.Hide();
+                            UIItemContext.instance.Hide();
+                        }
 
+                        #region Debug Features
+                        if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn)
+                        {
+                            battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
+                            ReselectOriginalTurn();
+                        }
+                        #endregion
+                    }
+                    else
+                    {
+                        if (BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
+                        {
+                            Debug.LogWarning("The half-assed bugfix patch was triggered.");
+                            uiList.SelectCharacter(TeamOrderManager.currentTurn);
+                        }
+                    }
                 }
             }
         }
@@ -536,7 +731,9 @@ public class BattleManager : MonoBehaviour
             actionConfirmation = confirmMode,
             manualMode = debugMode,
             volumeSliderValue = pauseMenu.volumeSliderValue,
-            showOrderOfPlay = teamOrderMenu.dropdownToggle.isOn
+            showOrderOfPlay = teamOrderMenu.dropdownToggle.isOn,
+            orderOfPlay_showDead = teamOrderMenu.showDead.isOn,
+            orderOfPlay_showPast = teamOrderMenu.showPast.isOn
         };
         SavesManager.Save(save);
     }

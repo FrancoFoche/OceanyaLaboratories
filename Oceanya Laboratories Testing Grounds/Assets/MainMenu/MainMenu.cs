@@ -70,7 +70,9 @@ public class MainMenu : MonoBehaviour
             actionConfirmation = actionConfirmation, 
             manualMode = manualMode, 
             volumeSliderValue = volume,
-            showOrderOfPlay = SavesManager.loadedFile == null ? false : SavesManager.loadedFile.showOrderOfPlay
+            showOrderOfPlay = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.showOrderOfPlay,
+            orderOfPlay_showDead = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.orderOfPlay_showDead,
+            orderOfPlay_showPast = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.orderOfPlay_showPast,
         };
         SavesManager.Save(save);
     }

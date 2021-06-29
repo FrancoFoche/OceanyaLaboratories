@@ -77,6 +77,15 @@ public class ObjectList : MonoBehaviour
         return newObject;
     }
 
+    public virtual void Remove(GameObject obj)
+    {
+        if (list.Contains(obj))
+        {
+            list.Remove(obj);
+            Destroy(obj);
+        }
+    }
+
     public virtual void ClearList()
     {
         for (int i = 0; i < list.Count; i++)

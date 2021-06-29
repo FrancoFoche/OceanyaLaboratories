@@ -22,7 +22,7 @@ public class DBPlayerCharacter : MonoBehaviour
         pCharacters = new List<PlayerCharacter>()
         {
 
-            new PlayerCharacter(0 , "TestDummy" , 1, GameAssetsManager.instance.GetClass(0),
+            new PlayerCharacter(0 , "TestDummy" , 1, ElementType.Normal, GameAssetsManager.instance.GetClass(0),
                 new Dictionary<Stats, int>
                 {
                     { Stats.STR      , 100 },
@@ -41,7 +41,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 }
             ),
 
-            new PlayerCharacter(13 , "Vinnie" , 1,  GameAssetsManager.instance.GetClass(ClassNames.Vampire.ToString()) ,
+            new PlayerCharacter(13 , "Vinnie" , 1, ElementType.Dark,  GameAssetsManager.instance.GetClass(ClassNames.Vampire.ToString()) ,
                 new Dictionary<Stats, int>
                 {
                     { Stats.STR      , 10 },
@@ -64,12 +64,12 @@ public class DBPlayerCharacter : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f), new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical)
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f), new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical, ElementType.Normal)
                     ,
                     new Skill
                     (
                             new BaseObjectInfo("Bat Swarm", 2 , "Call your Bat friends to attack the enemy team for 50% your CHR! 2 Turn CD")
-                            ,"_caster_'s bat friends come help! _target_ receives _damage_ DMG!"
+                            ,"_caster_'s bat friends come help, attacking _target_!"
                             ,ActivatableType.Active
                             ,TargetType.AllEnemies
                     )
@@ -105,7 +105,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     { GameAssetsManager.instance.GetItem("Fresh Blood") , 2}
                 }
             ),
-            new PlayerCharacter(5 , "Da Docta" , 1,  GameAssetsManager.instance.GetClass(ClassNames.Doctor.ToString()),
+            new PlayerCharacter(5 , "Da Docta" , 1, ElementType.Normal, GameAssetsManager.instance.GetClass(ClassNames.Doctor.ToString()),
                 new Dictionary<Stats, int>
                 {
                     { Stats.STR         , 1     },
@@ -131,7 +131,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 }
             ),
 
-            new PlayerCharacter(9 , "Archive" , 1,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
+            new PlayerCharacter(9 , "Archive" , 1, ElementType.Thunder,  GameAssetsManager.instance.GetClass(ClassNames.MasterOfDarkArts.ToString()) ,
                 new Dictionary<Stats, int>
                 {
                     { Stats.STR         , 1     },
@@ -153,12 +153,12 @@ public class DBPlayerCharacter : MonoBehaviour
                         ,TargetType.Self
                     )
                     .BehaviorPassive(ActivationTime.StartOfBattle)
-                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical)
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical, ElementType.Ice)
                     ,
                     new Skill //needs an activation requirement, needs an applies status effect, needs a lasts for
                     (
                         new BaseObjectInfo("Triple Threat", 2 , "You cast three elements and deal 200% your INT as Magic Damage! (2 Turn CD)")
-                        ,"_caster_ casts three elements, all meant to fuck _target_ up! _damage_ DMG"
+                        ,"_caster_ casts three elements, all meant to fuck _target_ up!"
                         ,ActivatableType.Active
                         ,TargetType.Single
                     )
@@ -175,7 +175,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     new Skill
                     (
                         new BaseObjectInfo("White Dragon Breath", 3 , "You channel the energy of the great white dragon (not necessarily one with blue eyes) to unleash a powerful ice barrage! All enemies get hit with 75% your INT.")
-                        ,"_caster_ channels the energy of the great white dragon! _target_ gets hit by _damage_!"
+                        ,"_caster_ channels the energy of the great white dragon! They target _target_!"
                         ,ActivatableType.Active
                         ,TargetType.AllEnemies
                     )
@@ -186,18 +186,18 @@ public class DBPlayerCharacter : MonoBehaviour
                     new Skill
                     (
                         new BaseObjectInfo("Soul Spear", 4 , "You materialize your soul's will into a powerful Spear that strikes through your enemy's soul! It deals 150% INT")
-                        ,"_caster_ manifests a Soul Spear! _target_ receives _damage_ DMG!"
+                        ,"_caster_ manifests a Soul Spear and throws it at _target_!"
                         ,ActivatableType.Active
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,1.5f)})
+                    .BehaviorDoesDamage(DamageType.Magical,ElementType.Holy, new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,1.5f)})
                     .BehaviorHasCooldown(CDType.Turns,2)
                     ,
                     new Skill
                     (
                             new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! For your next 3 turns, you will receive a +50% INT Buff, BUT you will also receive 20 DIRECT DMG each time. Be careful, you can only use this skill once per battle.")
-                            ,"_caster_'s body is overflowing with energy! Their INT is buffed by 50%, yet their body takes _damage_ DMG."
+                            ,"_caster_'s body is overflowing with energy! Their INT is buffed by 50%, yet their body takes damage as consequence."
                             ,ActivatableType.Active
                             ,TargetType.Self
                     )

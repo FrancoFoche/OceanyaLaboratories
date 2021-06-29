@@ -13,6 +13,7 @@ public class UIItemButton : MonoBehaviour
     public TextMeshProUGUI itemName;
     public Image itemIcon;
     public TextMeshProUGUI itemAmount;
+    public Image colorOverlay;
 
     public void LoadItem(Item item, int amount)
     {
@@ -23,6 +24,8 @@ public class UIItemButton : MonoBehaviour
     }
     public void ActivateLoadedItem()
     {
+        ActivateColorOverlay(UIItemContext.instance.selectedColor);
+
         if (loadedItem.targetType == TargetType.Multiple || loadedItem.targetType == TargetType.Single)
         {
             UICharacterActions.instance.SetItemToActivate(loadedItem);
@@ -37,5 +40,16 @@ public class UIItemButton : MonoBehaviour
         ItemInfo info = BattleManager.caster.GetItemFromInventory(loadedItem);
         itemName.text = info.item.name;
         itemAmount.text = "x" + info.amount.ToString();
+    }
+
+    public void ActivateColorOverlay(Color color)
+    {
+        colorOverlay.color = color;
+        colorOverlay.gameObject.SetActive(true);
+    }
+
+    public void DeactivateColorOverlay()
+    {
+        colorOverlay.gameObject.SetActive(false);
     }
 }
