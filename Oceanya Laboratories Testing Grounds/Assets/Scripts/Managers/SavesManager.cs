@@ -57,6 +57,7 @@ public class SaveFile
     public bool showOrderOfPlay;
     public bool orderOfPlay_showDead;
     public bool orderOfPlay_showPast;
+    public int  lastLevelCleared;
 
     public PlayerCharacter FindPlayer(int id)
     {

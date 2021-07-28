@@ -95,23 +95,7 @@ public class BattleManager : MonoBehaviour
         pauseMenu.confirmActions.isOn = confirmMode;
         #endregion
 
-        waves = new Wave[4];
-        waves[0] = new Wave(
-            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
-            new List<Character>() { GameAssetsManager.instance.GetEnemy(1) }
-            );
-        waves[1] = new Wave(
-            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
-            new List<Character>() { GameAssetsManager.instance.GetEnemy(3) }
-            );
-        waves[2] = new Wave(
-            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
-            new List<Character>() { GameAssetsManager.instance.GetEnemy(1,1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1,2) }
-            );
-        waves[3] = new Wave(
-            new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
-            new List<Character>() { GameAssetsManager.instance.GetEnemy(3,1), GameAssetsManager.instance.GetEnemy(1,1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1,2), GameAssetsManager.instance.GetEnemy(3,2) }
-            );
+        waves = LevelManager.GetLevelWaves(LevelManager.currentLevel);
 
         StartCombat(waves[0]);
     }
@@ -458,7 +442,7 @@ public class BattleManager : MonoBehaviour
             battleLog.LogBattleEffect("Action confirmation disabled.");
         }
     }
-    public void                     StartCombat         (Wave combat)             
+    public void                     StartCombat         (Wave combat)               
     {
         easteregg.gameObject.SetActive(false);
         UISkillContext.instance.Hide();
@@ -592,7 +576,13 @@ public class BattleManager : MonoBehaviour
                             }
                             else
                             {
-                                battleLog.LogCountdown(10, "Credits start in _countdown_...", () => SceneLoaderManager.instance.LoadCredits());
+                                if(LevelManager.lastClearedLevel < LevelManager.currentLevel)
+                                {
+                                    LevelManager.lastClearedLevel = LevelManager.currentLevel;
+                                }
+                                    
+                                battleLog.LogCountdown(5, "Going back to Main Menu in _countdown_...", () => SceneLoaderManager.instance.LoadMainMenu());
+                                //battleLog.LogCountdown(10, "Credits start in _countdown_...", () => SceneLoaderManager.instance.LoadCredits());
                             }
                         });
 
@@ -723,17 +713,18 @@ public class BattleManager : MonoBehaviour
     {
         TeamOrderManager.BuildSPDSystem(TeamOrderManager.allySide, TeamOrderManager.enemySide);
     }
-    public void                     SaveGame()
+    public void                     SaveGame            ()                          
     {
         SaveFile save = new SaveFile()
-        { 
+        {
             players = DBPlayerCharacter.pCharacters,
             actionConfirmation = confirmMode,
             manualMode = debugMode,
             volumeSliderValue = pauseMenu.volumeSliderValue,
             showOrderOfPlay = teamOrderMenu.dropdownToggle.isOn,
             orderOfPlay_showDead = teamOrderMenu.showDead.isOn,
-            orderOfPlay_showPast = teamOrderMenu.showPast.isOn
+            orderOfPlay_showPast = teamOrderMenu.showPast.isOn,
+            lastLevelCleared = LevelManager.lastClearedLevel
         };
         SavesManager.Save(save);
     }

@@ -28,7 +28,11 @@ public class BattleLog : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                SendMessageToChat("GameMaster: " + chatBox.text, Message.Type.PlayerMessage);
+                if(CommandCheck(chatBox.text) == false)
+                {
+                    SendMessageToChat("GameMaster: " + chatBox.text, Message.Type.PlayerMessage);
+                }
+                
                 chatBox.text = "";
             }
 
@@ -42,6 +46,28 @@ public class BattleLog : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Just a bunch of cheatcodes for easier debug.
+    /// Returns true if the string is a command (and runs the code for it), returns false if it wasn't a command
+    /// </summary>
+    /// <returns></returns>
+    public bool CommandCheck(string str)
+    {
+        switch (str)
+        {
+            case "/giveup":
+                LogImportant("Player tries to give up.");
+                BattleManager.i.confirmationPopup.Show(delegate { BattleManager.i.SetBattleState(BattleState.Lost); }, false, "Are you sure you want to give up?");
+                return true;
+
+            case "/win":
+                LogImportant("Player cheats and wins.");
+                BattleManager.i.confirmationPopup.Show(delegate { BattleManager.i.SetBattleState(BattleState.Won); }, false, "Are you sure you want to skip this battle?");
+                return true;
+        }
+
+        return false;
+    }
     public void SendMessageToChat(string text, Message.Type messageType)
     {
         if(messageList.Count >= maxMessages)
