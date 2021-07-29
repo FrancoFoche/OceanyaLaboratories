@@ -137,7 +137,8 @@ public class DBEnemies : MonoBehaviour
                     ,ActivatableType.Passive
                     ,TargetType.Bounce)
                     .BehaviorDoesDamage(DamageType.Physical, ElementType.Fire, 30)
-                    .BehaviorPassive(ActivationTime.WhenAttacked)
+                    .BehaviorPassive(ActivationTime_General.WhenAttacked)
+                    .BehaviorHasExtraAnimationEffect(EffectAnimator.Effects.Explosion,ActivationTime_Action.StartOfAction)
                 },
                 new Dictionary<Item, int>()
                 {

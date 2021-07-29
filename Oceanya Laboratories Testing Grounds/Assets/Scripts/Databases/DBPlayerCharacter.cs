@@ -63,7 +63,7 @@ public class DBPlayerCharacter : MonoBehaviour
                             ,ActivatableType.Passive
                             ,TargetType.Self
                     )
-                    .BehaviorPassive(ActivationTime.StartOfBattle)
+                    .BehaviorPassive(ActivationTime_General.StartOfBattle)
                     .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f), new RPGFormula(Stats.CHR,operationActions.Multiply,0.5f)}, DamageType.Physical, ElementType.Normal)
                     ,
                     new Skill
@@ -152,7 +152,7 @@ public class DBPlayerCharacter : MonoBehaviour
                         ,ActivatableType.Passive
                         ,TargetType.Self
                     )
-                    .BehaviorPassive(ActivationTime.StartOfBattle)
+                    .BehaviorPassive(ActivationTime_General.StartOfBattle)
                     .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical, ElementType.Ice)
                     ,
                     new Skill //needs an activation requirement, needs an applies status effect, needs a lasts for
@@ -202,7 +202,7 @@ public class DBPlayerCharacter : MonoBehaviour
                             ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
-                    .BehaviorPassive(ActivationTime.StartOfTurn)
+                    .BehaviorPassive(ActivationTime_General.StartOfTurn)
                     .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){{ Stats.INT, new List<RPGFormula>() { new RPGFormula(Stats.INT, operationActions.Multiply,0.5f)} } })
                     .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, 20)
                     .BehaviorLastsFor(3)

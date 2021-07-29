@@ -102,6 +102,8 @@ public class LevelManager : ButtonList
 
     public void LoadLevels()
     {
+        ClearList();
+
         for (int i = 0; i < levels.Length; i++)
         {
             AddLevel(levels[i]);

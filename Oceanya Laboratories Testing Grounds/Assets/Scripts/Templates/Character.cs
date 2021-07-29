@@ -152,7 +152,7 @@ public class Character
             if (!checkedPassives)
             {
                 SetCheckedPassives(true);
-                ActivatePassiveEffects(ActivationTime.WhenAttacked);
+                ActivatePassiveEffects(ActivationTime_General.WhenAttacked);
             }
 
             curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
@@ -461,7 +461,7 @@ public class Character
     /// </summary>
     /// <param name="character"></param>
     /// <param name="activationType"></param>
-    public void             ActivatePassiveEffects(ActivationTime activationType)
+    public void             ActivatePassiveEffects(ActivationTime_General activationType)
     {
         Character character = this;
 

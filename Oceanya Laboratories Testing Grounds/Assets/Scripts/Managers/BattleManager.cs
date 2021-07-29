@@ -493,7 +493,7 @@ public class BattleManager : MonoBehaviour
                         for (int i = 0; i < TeamOrderManager.totalCharList.Count; i++)
                         {
                             TeamOrderManager.totalCharList[i].CheckPassives();
-                            TeamOrderManager.totalCharList[i].ActivatePassiveEffects(ActivationTime.StartOfBattle);
+                            TeamOrderManager.totalCharList[i].ActivatePassiveEffects(ActivationTime_General.StartOfBattle);
                         }
 
                         MusicManager.PlayMusic(Music.Combat);

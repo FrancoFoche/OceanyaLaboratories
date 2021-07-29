@@ -73,6 +73,7 @@ public class MainMenu : MonoBehaviour
             showOrderOfPlay = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.showOrderOfPlay,
             orderOfPlay_showDead = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.orderOfPlay_showDead,
             orderOfPlay_showPast = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.orderOfPlay_showPast,
+            lastLevelCleared = SavesManager.loadedFile == null ? -1 : SavesManager.loadedFile.lastLevelCleared,
         };
         SavesManager.Save(save);
     }

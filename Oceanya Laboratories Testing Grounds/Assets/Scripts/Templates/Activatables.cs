@@ -17,7 +17,7 @@ public abstract class Activatables
     [SerializeField] private List<ActivationRequirement>            _activationRequirements             = new List<ActivationRequirement>();
 
 
-    [SerializeField] private ActivationTime                         _passiveActivationType;
+    [SerializeField] private ActivationTime_General                         _passiveActivationType;
 
 
     [SerializeField] private int                                    _lastsFor;
@@ -52,6 +52,9 @@ public abstract class Activatables
 
     [SerializeField] private Character.BasicAttack                  _newBasicAttack;
 
+    [SerializeField] private EffectAnimator.Effects                 _extraEffect;
+    [SerializeField] private ActivationTime_Action                  _extraEffectTiming;
+
     #region Getters/Setters
     public string                                   name                                { get { return _name; }                         protected set { _name = value; } }
     public int                                      ID                                  { get { return _ID; }                           protected set { _ID = value; } }
@@ -64,7 +67,7 @@ public abstract class Activatables
 
     public List<ActivationRequirement>              activationRequirements              { get { return _activationRequirements; }       protected set { _activationRequirements = value; } }
 
-    public ActivationTime                           passiveActivationType               { get { return _passiveActivationType; }        protected set { _passiveActivationType = value; } }
+    public ActivationTime_General                   passiveActivationType               { get { return _passiveActivationType; }        protected set { _passiveActivationType = value; } }
 
     public int                                      lastsFor                            { get { return _lastsFor; }                     protected set { _lastsFor = value; } }
 
@@ -93,6 +96,9 @@ public abstract class Activatables
 
     public Character.BasicAttack                    newBasicAttack                      { get { return _newBasicAttack; }               protected set { _newBasicAttack = value; } }
 
+    public EffectAnimator.Effects                   extraEffect                         { get { return _extraEffect; }                  protected set { _extraEffect = value; } }
+    public ActivationTime_Action                    extraEffectTiming                   { get { return _extraEffectTiming; }            protected set { _extraEffectTiming = value; } }
+
     #endregion
 
     public enum Behaviors
@@ -116,7 +122,8 @@ public abstract class Activatables
         Revives,
         AppliesStatusEffects,
         DoesSummon,
-        DoesShield
+        DoesShield,
+        HasExtraAnimationEffect
     }
 
     public void             Activate                    (Character caster, ActivatableInfo info)                                                                            
@@ -217,6 +224,11 @@ public abstract class Activatables
             System.Action<int> turnActions = delegate(int i) { };
             if (target[j].targettable)
             {
+                if (behaviors.Contains(Behaviors.HasExtraAnimationEffect) && extraEffectTiming == ActivationTime_Action.StartOfAction)
+                {
+                    turnActions += delegate (int i) { target[i].curUI.effectAnimator.PlayEffect(extraEffect); };
+                }
+
                 if (behaviors.Contains(Behaviors.DoesDamage_Flat))
                 {
                     int rawDMG = damageFlat;
@@ -311,6 +323,11 @@ public abstract class Activatables
                 if (behaviors.Contains(Behaviors.DoesShield))
                 {
 
+                }
+
+                if (behaviors.Contains(Behaviors.HasExtraAnimationEffect) && extraEffectTiming == ActivationTime_Action.EndOfAction)
+                {
+                    turnActions += delegate (int i) { target[i].curUI.effectAnimator.PlayEffect(extraEffect); };
                 }
             }
             else

@@ -98,7 +98,7 @@ public class Item : Activatables
         this.unlockedResources = unlockedResources;
         return this;
     }
-    public Item BehaviorPassive(ActivationTime activationType)
+    public Item BehaviorPassive(ActivationTime_General activationType)
     {
         behaviors.Add(Behaviors.Passive);
         this.passiveActivationType = activationType;
@@ -130,6 +130,13 @@ public class Item : Activatables
     public Item BehaviorRevives()
     {
         behaviors.Add(Behaviors.Revives);
+        return this;
+    }
+    public Item BehaviorHasExtraAnimationEffect(EffectAnimator.Effects effect, ActivationTime_Action timing)
+    {
+        behaviors.Add(Behaviors.HasExtraAnimationEffect);
+        extraEffect = effect;
+        extraEffectTiming = timing;
         return this;
     }
 

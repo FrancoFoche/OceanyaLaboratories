@@ -97,7 +97,7 @@ public class Skill : Activatables
         this.unlockedResources = unlockedResources;
         return this;
     }
-    public Skill BehaviorPassive(ActivationTime activationType)
+    public Skill BehaviorPassive(ActivationTime_General activationType)
     {
         behaviors.Add(Behaviors.Passive);
         this.passiveActivationType = activationType;
@@ -131,7 +131,13 @@ public class Skill : Activatables
         behaviors.Add(Behaviors.Revives);
         return this;
     }
-
+    public Skill BehaviorHasExtraAnimationEffect(EffectAnimator.Effects effect, ActivationTime_Action timing)
+    {
+        behaviors.Add(Behaviors.HasExtraAnimationEffect);
+        extraEffect = effect;
+        extraEffectTiming = timing;
+        return this;
+    }
 
     /// <summary>
     /// just marks the skill as done, this is just for development purposes

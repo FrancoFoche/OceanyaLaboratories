@@ -101,7 +101,7 @@ public static class TeamOrderManager
 
                         if (!caster.dead)
                         {
-                            caster.ActivatePassiveEffects(ActivationTime.StartOfTurn);
+                            caster.ActivatePassiveEffects(ActivationTime_General.StartOfTurn);
 
                             if (caster.dead)
                             {
@@ -205,7 +205,7 @@ public static class TeamOrderManager
 
                         if (!caster.dead)
                         {
-                            caster.ActivatePassiveEffects(ActivationTime.EndOfTurn);
+                            caster.ActivatePassiveEffects(ActivationTime_General.EndOfTurn);
                         }
                     }
                     break;

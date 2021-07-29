@@ -79,7 +79,7 @@ public enum CooldownStates
     OnCooldown,
     Used
 }
-public enum ActivationTime          
+public enum ActivationTime_General          
 {
     StartOfBattle,
     StartOfTurn,
@@ -88,6 +88,11 @@ public enum ActivationTime
     EndOfTurn,
     Once,
     Instant
+}
+public enum ActivationTime_Action
+{
+    StartOfAction,
+    EndOfAction
 }
 public enum ClassNames              
 {
