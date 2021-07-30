@@ -93,7 +93,8 @@ public static class TeamOrderManager
                 case TurnState.Start:
                     {
                         turnState = TurnState.Start;
-
+                        UISkillContext.instance.Hide();
+                        UIItemContext.instance.Hide();
                         if (caster.defending)
                         {
                             caster.SetDefending(false);

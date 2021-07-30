@@ -194,7 +194,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 5623245082519167227}
         m_MethodName: ActivateLoadedSkill
         m_Mode: 1
         m_Arguments:
@@ -240,6 +240,8 @@ MonoBehaviour:
     _modificationType: 0
     _unlocksResource: 0
     _unlockedResources: 
+    _extraEffect: 0
+    _extraEffectTiming: 0
     skillClassID: 0
 --- !u!114 &5623245082519167227
 MonoBehaviour:
@@ -276,6 +278,8 @@ MonoBehaviour:
     _modificationType: 0
     _unlocksResource: 0
     _unlockedResources: 
+    _extraEffect: 0
+    _extraEffectTiming: 0
     skillClassID: 0
   buttonText: {fileID: 5194224977629476860}
   button: {fileID: 9156986804808859406}

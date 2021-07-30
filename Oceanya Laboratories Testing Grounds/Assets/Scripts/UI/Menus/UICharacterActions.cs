@@ -111,9 +111,6 @@ public class UICharacterActions : ButtonList
     {
         Character caster = data.caster;
         List<Character> target = data.targets;
-
-        UISkillContext.instance.Hide();
-        UIItemContext.instance.Hide();
         BattleManager.i.uiList.SetTargettingMode(false);
 
         switch (action)
@@ -215,8 +212,7 @@ public class UICharacterActions : ButtonList
     {
         Debug.Log("ButtonAction called, with action: " + action);
         Character caster = BattleManager.caster;
-        UISkillContext.instance.Hide();
-        UIItemContext.instance.Hide();
+
         VisualSelectButton(action);
         switch (action)
         {

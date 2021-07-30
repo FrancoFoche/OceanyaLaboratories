@@ -109,9 +109,6 @@ public class BattleUIList : ToggleList
                 break;
             }
         }
-
-        //UISkillContext.instance.Hide();
-        //UIItemContext.instance.Hide();
     }
 
     public List<Character>  CheckTargets    ()                      

@@ -376,8 +376,6 @@ public class BattleManager : MonoBehaviour
                         {
                             uiList.UpdateSelected();
                             GetCaster();
-                            UISkillContext.instance.Hide();
-                            UIItemContext.instance.Hide();
                         }
 
                         #region Debug Features
@@ -445,8 +443,6 @@ public class BattleManager : MonoBehaviour
     public void                     StartCombat         (Wave combat)               
     {
         easteregg.gameObject.SetActive(false);
-        UISkillContext.instance.Hide();
-        UIItemContext.instance.Hide();
 
         enemyTeamDeath = false;
         allyTeamDeath = false;

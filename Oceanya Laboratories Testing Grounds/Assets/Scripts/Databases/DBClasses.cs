@@ -318,7 +318,6 @@ public class DBClasses : MonoBehaviour
                 }
                     
             ),
-
             
             new BaseSkillClass(new BaseObjectInfo(SenjutsuSubclasses.WoodStyleSage.ToString(), 101 , "Your body knows balance! You're as beautiful as ever! You now have access to Wood Sage Arts! Your skills will be heavily based on defense! I guess you got a skill TREE. Get it? Cuz wood. and trees? whatever just have your stats .+20%STR +50%HP +25%HP Regeneration"),
                 new Dictionary<Stats, int>()
@@ -684,6 +683,18 @@ public class DBClasses : MonoBehaviour
                     .BehaviorCostsTurn()
                     .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ { Stats.STR, new List<RPGFormula>{new RPGFormula(Stats.CHR, operationActions.Multiply, 0.5f)} } })
                     .BehaviorHasCooldown(CDType.Other)
+                }
+            ),
+
+            new BaseSkillClass(new BaseObjectInfo(ClassNames.FrostGiant.ToString(), 23 , ""),
+                new Dictionary<Stats, int>()
+                {
+                    {Stats.STR, 2},
+                    {Stats.CON, 3},
+                    {Stats.HPREGEN, 6 }
+                },
+                new List<Skill>
+                {
                 }
             ),
         };

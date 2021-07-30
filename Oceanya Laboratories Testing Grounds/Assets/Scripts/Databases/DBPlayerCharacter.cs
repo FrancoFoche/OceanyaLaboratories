@@ -53,7 +53,6 @@ public class DBPlayerCharacter : MonoBehaviour
                     { Stats.CON      , 7  },
                     { Stats.HPREGEN  , 0  }
                 },
-
                 new List<Skill>()
                 {
                     new Skill
@@ -207,6 +206,74 @@ public class DBPlayerCharacter : MonoBehaviour
                     .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, 20)
                     .BehaviorLastsFor(3)
                     .BehaviorHasCooldown(CDType.Other)
+                },
+                new Dictionary<Item, int>()
+                {
+                    { GameAssetsManager.instance.GetItem("HP Pot") , 2},
+                    { GameAssetsManager.instance.GetItem("Strength Potion") , 2}
+                }
+            ),
+
+            new PlayerCharacter(101 , "Nue" , 1, ElementType.Thunder,  GameAssetsManager.instance.GetClass(ClassNames.FrostGiant.ToString()) ,
+                new Dictionary<Stats, int>
+                {
+                    { Stats.STR         , 5     },
+                    { Stats.INT         , 0     },
+                    { Stats.CHR         , 0     },
+                    { Stats.AGI         , 20     },
+                    { Stats.MR          , 50    },
+                    { Stats.PR          , 50    },
+                    { Stats.CON         , 10    },
+                    { Stats.HPREGEN     , 0     }
+                },
+                new List<Skill>()
+                {
+                    new Skill
+                    (
+                        new BaseObjectInfo("Shield BASH", 1 , "You use your shield to hit the enemy, and put your whole body into it! You deal 20% of your MAX HP as physical damage!")
+                        ,"_caster_ uses SHIELD BASH on _target_!"
+                        ,ActivatableType.Active
+                        ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Turns,2)
+                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<RPGFormula>(){new RPGFormula(Stats.MAXHP,operationActions.Multiply,0.2f)})
+                    ,
+                    new Skill
+                    (
+                        new BaseObjectInfo("Empower Defense", 2 , "Shield your teammate, and buff their PHYSICAL resistance by an amount equal to yours! (PR Stat)")
+                        ,"_caster_ shields _target_! Their physical defense gets buffed!"
+                        ,ActivatableType.Active
+                        ,TargetType.Single
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Turns,2)
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, List<RPGFormula>>(){ {Stats.PR, new List<RPGFormula>() { new RPGFormula(Stats.PR,operationActions.Multiply,1)} } })
+                    ,
+                    new Skill
+                    (
+                        new BaseObjectInfo("Full Heal", 3 , "You regenerate your own HP back to max at the cost of your entire STR stat.")
+                        ,"_caster_ sacrifices their strength in order to regenerate! -100% STR"
+                        ,ActivatableType.Active
+                        ,TargetType.Self
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesHeal(new List<RPGFormula>(){new RPGFormula(Stats.MAXHP,operationActions.Multiply,1)})
+                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ {Stats.STR, new List<RPGFormula>() { new RPGFormula(Stats.STR,operationActions.Multiply,1)} } })
+                    .BehaviorHasCooldown(CDType.Other)
+                    ,
+                    new Skill
+                    (
+                        new BaseObjectInfo("Unbreakable Will", 4 , "You receive 75% of your MAXHP as damage in order to buff your PHYSICAL resistance by 200")
+                        ,"_caster_ gives their life to damage _target_ as much as they can!"
+                        ,ActivatableType.Active
+                        ,TargetType.Self
+                    )
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, new List<RPGFormula>() { new RPGFormula(Stats.MAXHP, operationActions.Multiply,0.75f)})
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, int>(){ {Stats.PR, 200} })
+                    .BehaviorHasCooldown(CDType.Other)
+                    ,
                 },
                 new Dictionary<Item, int>()
                 {

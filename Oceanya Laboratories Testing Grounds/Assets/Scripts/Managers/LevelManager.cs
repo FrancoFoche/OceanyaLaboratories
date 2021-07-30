@@ -20,7 +20,7 @@ public class LevelManager : ButtonList
     public Color level_AlreadyPassed;
     public Color level_Locked;
 
-    private void Awake()
+    private static void CreateLevels()
     {
         levels =
         new BattleLevel[]
@@ -34,15 +34,15 @@ public class LevelManager : ButtonList
                 new Wave[]
                 {
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(1) }
                             ),
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(3) }
                             ),
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(2) }
                             )
                 }
@@ -56,11 +56,11 @@ public class LevelManager : ButtonList
                 new Wave[]
                 {
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2) }
                             ),
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(3, 1), GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2), GameAssetsManager.instance.GetEnemy(3, 2) }
                             )
                 }
@@ -74,11 +74,11 @@ public class LevelManager : ButtonList
                 new Wave[]
                 {
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2) }
                             ),
                     new Wave(
-                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9) },
+                        new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         new List<Character>() { GameAssetsManager.instance.GetEnemy(3, 1), GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2), GameAssetsManager.instance.GetEnemy(3, 2) }
                             )
                 }
@@ -102,6 +102,8 @@ public class LevelManager : ButtonList
 
     public void LoadLevels()
     {
+        CreateLevels();
+
         ClearList();
 
         for (int i = 0; i < levels.Length; i++)
@@ -131,6 +133,7 @@ public class LevelManager : ButtonList
 
     public static Wave[] GetLevelWaves(int levelNumber)
     {
+        CreateLevels();
         for (int i = 0; i < levels.Length; i++)
         {
             if(levelNumber == levels[i].levelNumber)
