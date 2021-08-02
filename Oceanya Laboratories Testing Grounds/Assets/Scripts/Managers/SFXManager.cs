@@ -23,17 +23,29 @@ public static class MusicManager
 {
     public static GameObject musicObj;
     public static AudioSource source;
+    public static AudioClip currentMusic;
     public static void PlayMusic(Music music)
     {
         if (musicObj == null)
         {
             musicObj = new GameObject("Music");
+            Object.DontDestroyOnLoad(musicObj);
             source = musicObj.AddComponent<AudioSource>();
             source.loop = true;
             source.outputAudioMixerGroup = GameAssetsManager.instance.mixerMasterGroup;
         }
 
-        source.clip = GameAssetsManager.instance.GetMusic(music);
-        source.Play();
+        AudioClip newMusic = GameAssetsManager.instance.GetMusic(music);
+
+        if(newMusic != currentMusic)
+        {
+            currentMusic = newMusic;
+            source.clip = newMusic;
+            source.Play();
+        }
+        else
+        {
+            Debug.LogWarning("Music was the same as the one before.");
+        }
     }
 }

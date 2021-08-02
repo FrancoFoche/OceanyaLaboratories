@@ -700,7 +700,7 @@ public class Character
                         Skill curSkill = curskillInfo.skill;
                         curskillInfo.UpdateActivatable(curSkill);
 
-                        if (curskillInfo.activatable && !curskillInfo.currentlyActive)
+                        if (curskillInfo.activatable && !curskillInfo.currentlyActive && curskillInfo.cooldownState != CooldownStates.Used)
                         {
                             cleanList.Add(curSkill);
                         }
@@ -830,7 +830,6 @@ public class Character
         Dictionary<CharActions, int> normalImportance = new Dictionary<CharActions, int>()
         {
             { CharActions.Attack, 1 },
-            { CharActions.Defend, 1 },
             { CharActions.Skill , 3 },
         };
 

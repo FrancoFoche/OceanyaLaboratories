@@ -146,7 +146,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 {
                     new Skill
                     (
-                        new BaseObjectInfo("Mind Over Body", 1 , "Your attacks are INT based instead of STR based, Masters of Dark Arts have this by default.")
+                        new BaseObjectInfo("Mind Over Body", 5 , "Your attacks are INT based instead of STR based, Masters of Dark Arts have this by default.")
                         ,"_caster_'s mind is more powerful than their body. Their base attacks now deal 100% INT as magic damage!"
                         ,ActivatableType.Passive
                         ,TargetType.Self
@@ -156,7 +156,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill //needs an activation requirement, needs an applies status effect, needs a lasts for
                     (
-                        new BaseObjectInfo("Triple Threat", 2 , "You cast three elements and deal 200% your INT as Magic Damage! (2 Turn CD)")
+                        new BaseObjectInfo("Triple Threat", 6 , "You cast three elements and deal 200% your INT as Magic Damage! (2 Turn CD)")
                         ,"_caster_ casts three elements, all meant to fuck _target_ up!"
                         ,ActivatableType.Active
                         ,TargetType.Single
@@ -173,7 +173,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                        new BaseObjectInfo("White Dragon Breath", 3 , "You channel the energy of the great white dragon (not necessarily one with blue eyes) to unleash a powerful ice barrage! All enemies get hit with 75% your INT.")
+                        new BaseObjectInfo("White Dragon Breath", 7 , "You channel the energy of the great white dragon (not necessarily one with blue eyes) to unleash a powerful ice barrage! All enemies get hit with 75% your INT.")
                         ,"_caster_ channels the energy of the great white dragon! They target _target_!"
                         ,ActivatableType.Active
                         ,TargetType.AllEnemies
@@ -184,7 +184,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                        new BaseObjectInfo("Soul Spear", 4 , "You materialize your soul's will into a powerful Spear that strikes through your enemy's soul! It deals 150% INT")
+                        new BaseObjectInfo("Soul Spear", 8 , "You materialize your soul's will into a powerful Spear that strikes through your enemy's soul! It deals 150% INT")
                         ,"_caster_ manifests a Soul Spear and throws it at _target_!"
                         ,ActivatableType.Active
                         ,TargetType.Single
@@ -195,7 +195,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                            new BaseObjectInfo("Arcane Overflow", 12 , "You purposefully take your body to its magic limits! For your next 3 turns, you will receive a +50% INT Buff, BUT you will also receive 20 DIRECT DMG each time. Be careful, you can only use this skill once per battle.")
+                            new BaseObjectInfo("Arcane Overflow", 9 , "You purposefully take your body to its magic limits! For your next 3 turns, you will receive a +50% INT Buff, BUT you will also receive 20 DIRECT DMG each time. Be careful, you can only use this skill once per battle.")
                             ,"_caster_'s body is overflowing with energy! Their INT is buffed by 50%, yet their body takes damage as consequence."
                             ,ActivatableType.Active
                             ,TargetType.Self
@@ -217,10 +217,10 @@ public class DBPlayerCharacter : MonoBehaviour
             new PlayerCharacter(101 , "Nue" , 1, ElementType.Thunder,  GameAssetsManager.instance.GetClass(ClassNames.FrostGiant.ToString()) ,
                 new Dictionary<Stats, int>
                 {
-                    { Stats.STR         , 5     },
+                    { Stats.STR         , 10    },
                     { Stats.INT         , 0     },
                     { Stats.CHR         , 0     },
-                    { Stats.AGI         , 20     },
+                    { Stats.AGI         , 20    },
                     { Stats.MR          , 50    },
                     { Stats.PR          , 50    },
                     { Stats.CON         , 10    },
@@ -230,7 +230,7 @@ public class DBPlayerCharacter : MonoBehaviour
                 {
                     new Skill
                     (
-                        new BaseObjectInfo("Shield BASH", 1 , "You use your shield to hit the enemy, and put your whole body into it! You deal 20% of your MAX HP as physical damage!")
+                        new BaseObjectInfo("Shield BASH", 10 , "You use your shield to hit the enemy, and put your whole body into it! You deal 20% of your MAX HP as physical damage!")
                         ,"_caster_ uses SHIELD BASH on _target_!"
                         ,ActivatableType.Active
                         ,TargetType.Single
@@ -241,7 +241,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                        new BaseObjectInfo("Empower Defense", 2 , "Shield your teammate, and buff their PHYSICAL resistance by an amount equal to yours! (PR Stat)")
+                        new BaseObjectInfo("Empower Defense", 11 , "Shield your teammate, and buff their PHYSICAL resistance by an amount equal to yours! (PR Stat)")
                         ,"_caster_ shields _target_! Their physical defense gets buffed!"
                         ,ActivatableType.Active
                         ,TargetType.Single
@@ -252,26 +252,26 @@ public class DBPlayerCharacter : MonoBehaviour
                     ,
                     new Skill
                     (
-                        new BaseObjectInfo("Full Heal", 3 , "You regenerate your own HP back to max at the cost of your entire STR stat.")
-                        ,"_caster_ sacrifices their strength in order to regenerate! -100% STR"
+                        new BaseObjectInfo("Full Heal", 12 , "You regenerate your own HP back to max at the cost of your entire PR stat.")
+                        ,"_caster_ sacrifices their strength in order to regenerate! -100% PR"
                         ,ActivatableType.Active
                         ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
                     .BehaviorDoesHeal(new List<RPGFormula>(){new RPGFormula(Stats.MAXHP,operationActions.Multiply,1)})
-                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ {Stats.STR, new List<RPGFormula>() { new RPGFormula(Stats.STR,operationActions.Multiply,1)} } })
+                    .BehaviorModifiesStat(StatModificationTypes.Debuff,new Dictionary<Stats, List<RPGFormula>>(){ {Stats.PR, new List<RPGFormula>() { new RPGFormula(Stats.PR,operationActions.Multiply,1)} } })
                     .BehaviorHasCooldown(CDType.Other)
                     ,
                     new Skill
                     (
-                        new BaseObjectInfo("Unbreakable Will", 4 , "You receive 75% of your MAXHP as damage in order to buff your PHYSICAL resistance by 200")
+                        new BaseObjectInfo("Unbreakable Will", 13 , "You receive 75% of your MAXHP as damage in order to buff your PHYSICAL resistance by 100")
                         ,"_caster_ gives their life to damage _target_ as much as they can!"
                         ,ActivatableType.Active
                         ,TargetType.Self
                     )
                     .BehaviorCostsTurn()
                     .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, new List<RPGFormula>() { new RPGFormula(Stats.MAXHP, operationActions.Multiply,0.75f)})
-                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, int>(){ {Stats.PR, 200} })
+                    .BehaviorModifiesStat(StatModificationTypes.Buff,new Dictionary<Stats, int>(){ {Stats.PR, 100} })
                     .BehaviorHasCooldown(CDType.Other)
                     ,
                 },

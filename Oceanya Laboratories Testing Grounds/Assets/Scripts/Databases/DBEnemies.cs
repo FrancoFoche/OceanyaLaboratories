@@ -145,6 +145,78 @@ public class DBEnemies : MonoBehaviour
 
                 }
             ),
+
+            new Enemy(666 , "Legendary Knight" , ElementType.Thunder, GameAssetsManager.instance.GetSprite(Sprites.Saber),
+                new Dictionary<Stats, int>
+                {
+                    { Stats.MAXHP       , 1000 },
+                    { Stats.CURHP       , 1000 },
+                    { Stats.STR         , 30   },
+                    { Stats.INT         , 50   },
+                    { Stats.CHR         , 20   },
+                    { Stats.AGI         , 50   },
+                    { Stats.MR          , 0 },
+                    { Stats.PR          , 0 },
+                    { Stats.CON         , 300 },
+                    { Stats.HPREGEN     , 0 }
+                },
+                new List<Skill>()
+                {
+                    new Skill(new BaseObjectInfo("Double Slash", 1, "You swing your sword twice, dealing 100% STR to two targets")
+                    ,"_caster_ swings their sword with killer intent!"
+                    ,ActivatableType.Active
+                    ,TargetType.Multiple
+                    ,2)
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Fire, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,1f)})
+                    .BehaviorHasCooldown(CDType.Turns, 1),
+
+                    new Skill(new BaseObjectInfo("Triple Slash", 2, "You swing your sword three times, dealing 100% STR to three targets")
+                    ,"_caster_ swings their sword with killer intent!"
+                    ,ActivatableType.Active
+                    ,TargetType.Multiple
+                    ,3)
+                    .BehaviorCostsTurn()
+                    .BehaviorDoesDamage(DamageType.Physical, ElementType.Fire, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,1f)})
+                    .BehaviorHasCooldown(CDType.Turns, 2),
+
+                    new Skill(new BaseObjectInfo("Shielded Giant", 3, "Your Armor becomes stronger, +100 PR +100 MR")
+                    ,"_caster_'s armor becomes stronger. +100 PR, +100 MR"
+                    ,ActivatableType.Active
+                    ,TargetType.Self)
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Other)
+                    .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.PR, 100 },{ Stats.MR, 100 } }),
+
+                    new Skill(new BaseObjectInfo("Weaken their Will.", 4 , "Changes base attack of opposing team to STR * 0.5")
+                    ,"_caster_ casts a spell that changes everyone's BASE ATTACKS! Their will weakens, and their power lessens! NEW BASE ATTACK: STR * 0.5"
+                    ,ActivatableType.Active
+                    ,TargetType.AllEnemies)
+                    .BehaviorCostsTurn()
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f)}, DamageType.Physical, ElementType.Normal)
+                    .BehaviorHasCooldown(CDType.Other),
+
+                    new Skill(new BaseObjectInfo("Break their defenses.", 5 , "-100 PR to enemy team.")
+                    ,"_caster_ casts a spell, and everyone's defenses wither! -100 PR"
+                    ,ActivatableType.Active
+                    ,TargetType.AllEnemies)
+                    .BehaviorCostsTurn()
+                    .BehaviorHasCooldown(CDType.Other)
+                    .BehaviorModifiesStat(StatModificationTypes.Debuff, new Dictionary<Stats, int>(){ { Stats.PR, 100 } }),
+
+                    new Skill(new BaseObjectInfo("Strategy over Might.", 6 , "Changes base attack of caster to INT * 1")
+                    ,"_caster_ casts a spell on their sword. Their base attack changes to INT * 1."
+                    ,ActivatableType.Active
+                    ,TargetType.Self)
+                    .BehaviorCostsTurn()
+                    .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical, ElementType.Normal)
+                    .BehaviorHasCooldown(CDType.Other),
+                },
+                new Dictionary<Item, int>()
+                {
+
+                }
+            ),
         };
     }
 }

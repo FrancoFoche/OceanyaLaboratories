@@ -41,7 +41,7 @@ public class DBItems : MonoBehaviour
             TargetType.Single
             )
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 10} })
-            .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 20)
+            .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 10)
             .BehaviorCostsTurn()
             ,
             new Item(new BaseObjectInfo("Intelligence Potion", 4, "+10 INT to a single target, but they also receive 20 DIRECT DMG"),
@@ -52,17 +52,17 @@ public class DBItems : MonoBehaviour
             TargetType.Single
             )
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.INT, 10} })
-            .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 20)
+            .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 10)
             .BehaviorCostsTurn()
             ,
-            new Item(new BaseObjectInfo("Fresh Blood", 5, "Drink this blood, and become stronger. At a cost. (+20 STR, +30 CHR. 40% of your Max HP is dealt as damage.) (Can only be used on Self)"),
+            new Item(new BaseObjectInfo("Fresh Blood", 5, "Drink this blood, and become stronger. At a cost. (+20 STR, +20 CHR. 40% of your Max HP is dealt as damage.) (Can only be used on Self)"),
             "_caster_ throws an INT pot at _target_, they feel themselves getting more powerful, +10 INT!",
             Item.Type.Consumable,
             GameAssetsManager.instance.GetItemIcon(ItemIcon.Liquid_red),
             ActivatableType.Active,
             TargetType.Self
             )
-            .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 20},{ Stats.CHR, 30} })
+            .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 20},{ Stats.CHR, 20} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.4f)})
             .BehaviorCostsTurn()
         };

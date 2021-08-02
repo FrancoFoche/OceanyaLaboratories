@@ -52,6 +52,12 @@ public class UISkillButton : MonoBehaviour
 
         skillInfo.UpdateActivatable(loadedSkill);
 
+
+        if (loadedSkill.ID == 12)
+        {
+            Debug.Log("Thing");
+        }
+
         if (skillInfo.activatable)
         {
             if (skillInfo.currentlyActive)

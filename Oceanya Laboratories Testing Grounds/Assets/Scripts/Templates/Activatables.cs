@@ -201,7 +201,7 @@ public abstract class Activatables
     {
         bool firstActivation = !info.currentlyActive;
 
-        if ((targetType == TargetType.Single || targetType == TargetType.Multiple) && firstActivation)
+        if (firstActivation)
         {
             info.SetActive();
         }

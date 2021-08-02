@@ -19,7 +19,10 @@ public enum Music
     Combat,
     Win,
     Lose,
-    Credits
+    Credits,
+    GarouTheme,
+    GenosTheme,
+    None
 }
 
 public enum Sprites
@@ -28,7 +31,8 @@ public enum Sprites
     Sasque,
     Vergil,
     Obama,
-    Kirbo
+    Kirbo,
+    Saber
 }
 
 public enum ItemIcon

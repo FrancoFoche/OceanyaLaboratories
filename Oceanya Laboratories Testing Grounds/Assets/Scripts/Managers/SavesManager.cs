@@ -44,6 +44,7 @@ public static class SavesManager
         if(File.Exists(SAVE_FOLDER + SAVE_NAME))
         {
             File.Delete(SAVE_FOLDER + SAVE_NAME);
+            LevelManager.lastClearedLevel = -1;
         }
     }
 }

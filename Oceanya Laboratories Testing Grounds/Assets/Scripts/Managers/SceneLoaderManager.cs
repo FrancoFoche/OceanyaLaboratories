@@ -49,27 +49,35 @@ public class SceneLoaderManager : MonoBehaviour
 
     public void LoadScene(Scenes scene)
     {
-        SceneManager.LoadScene((int)scene);
+        int newBuildIndex = (int)scene;
+
+        if (SceneManager.GetActiveScene().buildIndex != newBuildIndex)
+        {
+            Destroy(MusicManager.musicObj);
+            MusicManager.musicObj = null;
+        }
+
+        SceneManager.LoadScene(newBuildIndex);
     }
 
     public void LoadMainMenu()
     {
-        SceneManager.LoadScene((int)Scenes.MainMenu);
+        LoadScene(Scenes.MainMenu);
     }
 
     public void LoadCredits()
     {
-        SceneManager.LoadScene((int)Scenes.Credits);
+        LoadScene(Scenes.Credits);
     }
 
     public void LoadPlay()
     {
-        SceneManager.LoadScene((int)Scenes.Combat);
+        LoadScene(Scenes.Combat);
     }
 
     public void LoadInstructions()
     {
-        SceneManager.LoadScene((int)Scenes.Instructions);
+        LoadScene(Scenes.Instructions);
     }
 
     public void ReloadScene()
