@@ -20,6 +20,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Single
             )
+            .SetCost(50)
             .BehaviorDoesHeal(15)
             .BehaviorCostsTurn()
             ,
@@ -30,6 +31,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Single
             )
+            .SetCost(120)
             .BehaviorDoesHeal(30)
             .BehaviorCostsTurn()
             ,
@@ -40,6 +42,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Single
             )
+            .SetCost(50)
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 10} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 10)
             .BehaviorCostsTurn()
@@ -51,6 +54,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Single
             )
+            .SetCost(50)
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.INT, 10} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 10)
             .BehaviorCostsTurn()
@@ -62,6 +66,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Self
             )
+            .SetCost(200)
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 20},{ Stats.CHR, 20} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.4f)})
             .BehaviorCostsTurn()

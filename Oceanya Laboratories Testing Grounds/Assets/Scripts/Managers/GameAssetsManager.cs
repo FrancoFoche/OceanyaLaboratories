@@ -10,7 +10,8 @@ public enum Sounds
     Debuff,
     Heal,
     Death,
-    Explosion
+    Explosion,
+    Special
 }
 
 public enum Music

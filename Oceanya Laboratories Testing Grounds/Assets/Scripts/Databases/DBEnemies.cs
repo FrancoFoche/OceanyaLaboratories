@@ -31,7 +31,8 @@ public class DBEnemies : MonoBehaviour
                     ,TargetType.Single)
                     .BehaviorCostsTurn()
                     .BehaviorDoesDamage(DamageType.Physical, ElementType.Fire, new List<RPGFormula>(){ new RPGFormula(Stats.STR,operationActions.Multiply,1.5f)})
-                    .BehaviorHasCooldown(CDType.Turns, 1),
+                    .BehaviorHasCooldown(CDType.Turns, 1)
+                    ,
 
                     new Skill(new BaseObjectInfo("Now i'm a little MOTIVATED!", 2, "You realize this fight is finally starting to be worth your time. You stab yourself for 50% your current HP in order to gain +100% STR (This skill can only be activated when below 50% HP)")
                     ,"_caster_ looks at their wounds, they're finally starting to feel MOTIVATED! They stab themselves and receive a 100% STR buff from their sword's power!"
@@ -194,7 +195,8 @@ public class DBEnemies : MonoBehaviour
                     ,TargetType.AllEnemies)
                     .BehaviorCostsTurn()
                     .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.STR,operationActions.Multiply,0.5f)}, DamageType.Physical, ElementType.Normal)
-                    .BehaviorHasCooldown(CDType.Other),
+                    .BehaviorHasCooldown(CDType.Other)
+                    .BehaviorHasExtraAnimationEffect(EffectAnimator.Effects.Special, ActivationTime_Action.StartOfAction),
 
                     new Skill(new BaseObjectInfo("Break their defenses.", 5 , "-100 PR to enemy team.")
                     ,"_caster_ casts a spell, and everyone's defenses wither! -100 PR"
@@ -210,7 +212,8 @@ public class DBEnemies : MonoBehaviour
                     ,TargetType.Self)
                     .BehaviorCostsTurn()
                     .BehaviorChangesBasicAttack(new List<RPGFormula>(){new RPGFormula(Stats.INT,operationActions.Multiply,1f)}, DamageType.Magical, ElementType.Normal)
-                    .BehaviorHasCooldown(CDType.Other),
+                    .BehaviorHasCooldown(CDType.Other)
+                    .BehaviorHasExtraAnimationEffect(EffectAnimator.Effects.Special, ActivationTime_Action.StartOfAction),
                 },
                 new Dictionary<Item, int>()
                 {

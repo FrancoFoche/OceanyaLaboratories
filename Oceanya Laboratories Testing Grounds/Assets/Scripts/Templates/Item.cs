@@ -11,6 +11,7 @@ public class Item : Activatables
         Equippable
     }
 
+    public int cost = -1;
     public Type type;
     public Sprite icon;
 
@@ -30,6 +31,11 @@ public class Item : Activatables
 
         cooldown = 0;
         behaviors = new List<Behaviors>();
+    }
+    public Item SetCost(int cost)
+    {
+        this.cost = cost;
+        return this;
     }
     public Item BehaviorDoesDamage(DamageType damageType, ElementType damageElement, List<RPGFormula> damageFormula)
     {

@@ -12,7 +12,8 @@ public class EffectAnimator : MonoBehaviour
         Heal,
         Death,
         Revive,
-        Explosion
+        Explosion,
+        Special
     }
 
     public BattleUI ui;

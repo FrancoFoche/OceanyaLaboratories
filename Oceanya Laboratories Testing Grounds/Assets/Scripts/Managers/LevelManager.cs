@@ -82,7 +82,7 @@ public class LevelManager : ButtonList
                 name = "Oceanya's Champion",
                 description = "One fight, One enemy. One you. Good luck.",
                 levelMusic = Music.Combat,
-                winningScene = SceneLoaderManager.Scenes.MainMenu,
+                winningScene = SceneLoaderManager.Scenes.Credits,
                 waves =
                 new Wave[]
                 {
