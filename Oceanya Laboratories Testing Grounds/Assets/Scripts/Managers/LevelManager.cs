@@ -191,8 +191,6 @@ public class LevelManager : ButtonList
         GameObject newEntry = AddObject();
         UILevelButton script = newEntry.GetComponent<UILevelButton>();
         script.LoadLevel(level);
-        Button newButton = newEntry.GetComponent<Button>();
-        buttons.Add(newButton);
 
         if(level.levelNumber <= lastClearedLevel)
         {
@@ -200,7 +198,7 @@ public class LevelManager : ButtonList
         }
         else if (level.levelNumber > lastClearedLevel + 1)
         {
-            newButton.interactable = false;
+            newEntry.GetComponent<Button>().interactable = false;
             script.ActivateColorOverlay(level_Locked);
         }
     }

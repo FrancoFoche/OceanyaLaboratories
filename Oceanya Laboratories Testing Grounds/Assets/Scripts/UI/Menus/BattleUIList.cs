@@ -32,13 +32,10 @@ public class BattleUIList : ToggleList
     public AllyBattleUI         AddAlly         (Character character)   
     {
         GameObject newCharObject = AddObject();
-        newCharObject.GetComponentInChildren<Toggle>().group = toggleGroup;
-
 
         AllyBattleUI newCharUI = newCharObject.GetComponent<AllyBattleUI>();
         character.curUI = newCharUI;
 
-        toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
         generalList.Add(newCharUI);
         allies.Add(newCharUI);
 
@@ -66,13 +63,10 @@ public class BattleUIList : ToggleList
         Vector3 newPos = Camera.main.WorldToScreenPoint(uiPosition.position);
 
         GameObject newCharObject = AddObject(enemyUI, newPos, new Quaternion(0,0,0,0), enemyParent);
-        newCharObject.GetComponentInChildren<Toggle>().group = toggleGroup;
-
 
         EnemyBattleUI newCharUI = newCharObject.GetComponent<EnemyBattleUI>();
         character.curUI = newCharUI;
 
-        toggles.Add(newCharUI.GetComponentInChildren<Toggle>());
         generalList.Add(newCharUI);
         enemies.Add(newCharUI);
 

@@ -53,8 +53,6 @@ public class UICharacterActions : ButtonList
         {
             confirmationButton = component;
         }
-
-        buttons.Add(newEntry.GetComponent<Button>());
     }
     public void AddAllActions()
     {

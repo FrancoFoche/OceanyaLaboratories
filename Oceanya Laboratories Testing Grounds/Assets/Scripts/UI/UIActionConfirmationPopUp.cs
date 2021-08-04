@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class UIActionConfirmationPopUp : MonoBehaviour
 {
@@ -57,6 +58,7 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     {
         waitingForConfirmation = false;
         Hide();
+
         if(!BattleManager.i.pauseMenu.paused)
         {
             BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");

@@ -585,6 +585,28 @@ public class Character
         return null;
     }
 
+    public void GiveItem(Item item, int amount)
+    {
+        ItemInfo itemCheck = null;
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            if (inventory[i].item.ID == item.ID)
+            {
+                itemCheck = inventory[i];
+                break;
+            }
+        }
+
+        if (itemCheck == null)
+        {
+            inventory.Add(ConvertItemToItemInfo(item, amount));
+        }
+        else
+        {
+            itemCheck.SetAmount(itemCheck.amount + amount);
+        }
+    }
+
     #endregion
 
     #region Setters

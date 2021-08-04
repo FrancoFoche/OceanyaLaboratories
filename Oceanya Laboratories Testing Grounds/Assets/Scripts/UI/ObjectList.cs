@@ -12,7 +12,7 @@ public class ObjectList : MonoBehaviour
 
     public List<GameObject> list = new List<GameObject>();
 
-    public GameObject AddObject()
+    public virtual GameObject AddObject()
     {
         if (list.Count >= maxListCount)
         {
@@ -28,7 +28,7 @@ public class ObjectList : MonoBehaviour
         return newObject;
     }
 
-    public GameObject AddObject(Vector3 pos, Quaternion rot)
+    public virtual GameObject AddObject(Vector3 pos, Quaternion rot)
     {
         if (list.Count >= maxListCount)
         {
@@ -45,7 +45,7 @@ public class ObjectList : MonoBehaviour
         return newObject;
     }
 
-    public GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
+    public virtual GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
     {
         if (list.Count >= maxListCount)
         {
@@ -61,7 +61,7 @@ public class ObjectList : MonoBehaviour
         return newObject;
     }
 
-    public GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
+    public virtual GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
     {
         if (list.Count >= maxListCount)
         {
@@ -140,6 +140,39 @@ public class ToggleList : ObjectList
         }
     }
 
+    #region AddObject Overrides
+    public override GameObject AddObject()
+    {
+        GameObject obj = base.AddObject();
+        ToggleAddToList(obj);
+        return obj;
+    }
+    public override GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
+    {
+        GameObject obj = base.AddObject(objToInstance, pos, rot, parent);
+        ToggleAddToList(obj);
+        return obj;
+    }
+    public override GameObject AddObject(Vector3 pos, Quaternion rot)
+    {
+        GameObject obj = base.AddObject(pos, rot);
+        ToggleAddToList(obj);
+        return obj;
+    }
+    public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
+    {
+        GameObject obj = base.AddObject(pos, rot, parent);
+        ToggleAddToList(obj);
+        return obj;
+    }
+    void ToggleAddToList(GameObject obj)
+    {
+        Toggle toggle = obj.GetComponent<Toggle>();
+        toggle.group = toggleGroup == null ? null : toggleGroup;
+        toggles.Add(toggle);
+    }
+    #endregion
+
     /// <summary>
     /// Selects an object from the toggle group
     /// </summary>
@@ -211,6 +244,38 @@ public class ToggleList : ObjectList
 public class ButtonList : ObjectList
 {
     public List<Button> buttons;
+
+    #region AddObject Overrides
+    public override GameObject AddObject()
+    {
+        GameObject obj = base.AddObject();
+        ToggleAddToList(obj);
+        return obj;
+    }
+    public override GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
+    {
+        GameObject obj = base.AddObject(objToInstance, pos, rot, parent);
+        ToggleAddToList(obj);
+        return obj;
+    }
+    public override GameObject AddObject(Vector3 pos, Quaternion rot)
+    {
+        GameObject obj = base.AddObject(pos, rot);
+        ToggleAddToList(obj);
+        return obj;
+    }
+    public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
+    {
+        GameObject obj = base.AddObject(pos, rot, parent);
+        ToggleAddToList(obj);
+        return obj;
+    }
+    void ToggleAddToList(GameObject obj)
+    {
+        Button button = obj.GetComponent<Button>();
+        buttons.Add(button);
+    }
+    #endregion
 
     public virtual void InteractableButtons(bool state)
     {

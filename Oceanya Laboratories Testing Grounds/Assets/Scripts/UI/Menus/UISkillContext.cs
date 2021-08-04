@@ -29,7 +29,6 @@ public class UISkillContext : ButtonList
     public void AddSkill(Skill skill)
     {
         GameObject newEntry = AddObject();
-        buttons.Add(newEntry.GetComponent<Button>());
 
         UISkillButton newButton = newEntry.GetComponent<UISkillButton>();
         uiList.Add(newButton);
