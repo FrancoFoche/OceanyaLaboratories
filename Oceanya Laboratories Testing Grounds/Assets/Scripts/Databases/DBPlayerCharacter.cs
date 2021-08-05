@@ -206,6 +206,7 @@ public class DBPlayerCharacter : MonoBehaviour
                     .BehaviorDoesDamage(DamageType.Direct,ElementType.Normal, 20)
                     .BehaviorLastsFor(3)
                     .BehaviorHasCooldown(CDType.Other)
+                    .BehaviorHasExtraAnimationEffect(EffectAnimator.Effects.Special,ActivationTime_Action.OnlyFirstTime)
                 },
                 new Dictionary<Item, int>()
                 {

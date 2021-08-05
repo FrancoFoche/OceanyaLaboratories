@@ -168,6 +168,12 @@ public class ToggleList : ObjectList
     void ToggleAddToList(GameObject obj)
     {
         Toggle toggle = obj.GetComponent<Toggle>();
+
+        if(toggle == null)
+        {
+            toggle = obj.GetComponentInChildren<Toggle>();
+        }
+
         toggle.group = toggleGroup == null ? null : toggleGroup;
         toggles.Add(toggle);
     }

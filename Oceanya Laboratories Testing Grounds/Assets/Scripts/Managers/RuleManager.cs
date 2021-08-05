@@ -92,7 +92,8 @@ public enum ActivationTime_General
 public enum ActivationTime_Action
 {
     StartOfAction,
-    EndOfAction
+    EndOfAction,
+    OnlyFirstTime
 }
 public enum ClassNames              
 {

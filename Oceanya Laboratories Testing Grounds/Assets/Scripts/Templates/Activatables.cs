@@ -136,6 +136,11 @@ public abstract class Activatables
 
             if (activatableType == ActivatableType.Active && firstActivation && behaviors.Contains(Behaviors.Passive))
             {
+                if (behaviors.Contains(Behaviors.HasExtraAnimationEffect) && extraEffectTiming == ActivationTime_Action.OnlyFirstTime)
+                {
+                    caster.curUI.effectAnimator.PlayEffect(extraEffect);
+                }
+
                 BattleManager.i.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
                 info.SetActive();
 

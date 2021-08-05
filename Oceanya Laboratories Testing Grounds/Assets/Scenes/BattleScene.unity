@@ -591,7 +591,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 260507130}
   m_HandleRect: {fileID: 260507129}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3370,7 +3370,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 556390498}
   m_HandleRect: {fileID: 556390497}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4313,7 +4313,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1796353072}
   m_HandleRect: {fileID: 1796353071}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4480,7 +4480,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08ae4cecc851cde4dbbdde6cd54d0a56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxMessages: 20
+  maxMessages: 100
   chatPanel: {fileID: 1988511669}
   textObject: {fileID: 8117718832661967131, guid: 4e05cd416a64fb848b1f87ebd9475f93,
     type: 3}
@@ -4646,7 +4646,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 322664055}
   m_HandleRect: {fileID: 322664054}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4884,8 +4884,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 974053963}
   m_HandleRect: {fileID: 974053962}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5683,7 +5683,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1592979449}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8014,7 +8014,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 790648032}
   m_HandleRect: {fileID: 790648031}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

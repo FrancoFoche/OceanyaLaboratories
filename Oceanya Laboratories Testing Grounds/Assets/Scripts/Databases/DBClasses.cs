@@ -166,7 +166,8 @@ public class DBClasses : MonoBehaviour
                     .BehaviorPassive(ActivationTime_General.StartOfTurn)
                     .BehaviorDoesHeal(new List<RPGFormula>(){ new RPGFormula(Stats.INT,operationActions.Multiply,0.5f)})
                     .BehaviorLastsFor(2)
-                    .BehaviorHasCooldown(CDType.Turns,2),
+                    .BehaviorHasCooldown(CDType.Turns,2)
+                    .BehaviorHasExtraAnimationEffect(EffectAnimator.Effects.Special,ActivationTime_Action.OnlyFirstTime),
 
                     new Skill
                     (

@@ -18,6 +18,7 @@ public class UICharacterActions : ButtonList
     public Item itemToUse { get; private set; }
 
     public string actionString;
+    public List<UIActionButton> actionButtons ;
     public UIActionButton confirmationButton;
     public Action confirmAction;
 
@@ -48,6 +49,7 @@ public class UICharacterActions : ButtonList
         GameObject newEntry = AddObject();
         UIActionButton component = newEntry.GetComponent<UIActionButton>();
         component.LoadAction(action);
+        actionButtons.Add(component);
 
         if(CharActions.EndTurn == action)
         {
@@ -57,7 +59,7 @@ public class UICharacterActions : ButtonList
     public void AddAllActions()
     {
         ClearList();
-        buttons = new List<Button>();
+        actionButtons = new List<UIActionButton>();
 
         for (int i = 0; i < RuleManager.CharActionsHelper.Length; i++)
         {
@@ -338,8 +340,11 @@ public class UICharacterActions : ButtonList
         confirmAction = null;
         waitingForConfirmation = false;
         confirmationButton.DeactivateColorOverlay();
+        DeactivateVisualSelect();
         TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
         BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
+        UIItemContext.instance.Hide();
+        UISkillContext.instance.Hide();
 
         Character character;
 
@@ -357,9 +362,9 @@ public class UICharacterActions : ButtonList
 
     public void VisualSelectButton(CharActions action)
     {
-        for (int i = 0; i < list.Count; i++)
+        for (int i = 0; i < actionButtons.Count; i++)
         {
-            UIActionButton current = list[i].GetComponent<UIActionButton>();
+            UIActionButton current = actionButtons[i];
             if (current.action == action)
             {
                 current.ActivateColorOverlay(selectedColor);
@@ -373,9 +378,9 @@ public class UICharacterActions : ButtonList
 
     public void DeactivateVisualSelect()
     {
-        for (int i = 0; i < list.Count; i++)
+        for (int i = 0; i < actionButtons.Count; i++)
         {
-            UIActionButton current = list[i].GetComponent<UIActionButton>();
+            UIActionButton current = actionButtons[i];
             
             current.DeactivateColorOverlay();
         }
