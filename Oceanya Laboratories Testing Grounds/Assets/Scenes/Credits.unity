@@ -7658,7 +7658,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetToggle: {fileID: 1792881997}
   targetText: {fileID: 1792881995}
-  onText: Skipping >
+  onText: Skipping >>
   offText: Skip Credits >
 --- !u!82 &1792881999
 AudioSource:

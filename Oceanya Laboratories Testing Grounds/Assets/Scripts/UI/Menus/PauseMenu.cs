@@ -12,7 +12,6 @@ public class PauseMenu : MonoBehaviour
     public Toggle manualMode;
     public Toggle confirmActions;
     public Slider volume;
-    public float volumeSliderValue;
     public GameObject generalRoot;
 
     public void TogglePause()
@@ -32,6 +31,8 @@ public class PauseMenu : MonoBehaviour
     public void Show()
     {
         paused = true;
+        SettingsManager.LoadSettings(SavesManager.loadedFile);
+        LoadSettings();
         settingsRoot.SetActive(false);
         generalRoot.SetActive(true);
         pauseRoot.SetActive(true);
@@ -41,20 +42,19 @@ public class PauseMenu : MonoBehaviour
     {
         paused = false;
         pauseRoot.SetActive(false);
-        BattleManager.i.confirmationPopup.Hide();
-        BattleManager.i.SaveGame();
+        UIActionConfirmationPopUp.i?.Hide();
+        SettingsManager.SaveSettings();
     }
 
     public void VolumeSlider(Slider volumeSlider)
     {
-        volumeSliderValue = volumeSlider.value;
+        SettingsManager.volume = volumeSlider.value;
         GameAssetsManager.instance.SetVolume(volumeSlider.value);
     }
 
     public void SettingsButton()
     {
         settingsRoot.SetActive(true);
-        UpdateValues();
         generalRoot.SetActive(false);
     }
 
@@ -62,32 +62,42 @@ public class PauseMenu : MonoBehaviour
     {
         settingsRoot.SetActive(false);
         generalRoot.SetActive(true);
+        SettingsManager.SaveSettings();
     }
 
-    public void UpdateValues()
+    public void SaveSettings()
     {
-        manualMode.isOn = BattleManager.i.debugMode;
-        confirmActions.isOn = BattleManager.i.confirmMode;
+        SettingsManager.manualMode = manualMode.isOn;
+        SettingsManager.actionConfirmation = confirmActions.isOn;
+        SettingsManager.volume = volume.value;
+
+        SettingsManager.SaveSettings();
+    }
+    public void LoadSettings()
+    {
+        manualMode.isOn = SettingsManager.manualMode;
+        confirmActions.isOn = SettingsManager.actionConfirmation;
+        volume.value = SettingsManager.volume;
     }
     public void SetDebugMode()
     {
-        BattleManager.i.SetDebugMode(manualMode.isOn);
+        SettingsManager.SetDebugMode(manualMode.isOn);
     }
     public void SetConfirmMode()
     {
-        BattleManager.i.SetConfirmMode(confirmActions.isOn);
+        SettingsManager.SetConfirmMode(confirmActions.isOn);
     }
 
     public void Quit()
     {
-        BattleManager.i.confirmationPopup.Show(SceneLoaderManager.instance.Quit, false, "Are you sure you want to quit?");
+        UIActionConfirmationPopUp.i.Show(SceneLoaderManager.instance.Quit, false, "Are you sure you want to quit?");
     }
     public void MainMenu()
     {
-        BattleManager.i.confirmationPopup.Show(SceneLoaderManager.instance.LoadMainMenu, false, "Are you sure you want to head to the Main Menu?");
+        UIActionConfirmationPopUp.i.Show(SceneLoaderManager.instance.LoadMainMenu, false, "Are you sure you want to head to the Main Menu?");
     }
     public void Restart()
     {
-        BattleManager.i.confirmationPopup.Show(SceneLoaderManager.instance.ReloadScene, false, "Are you sure you want to restart?");
+        UIActionConfirmationPopUp.i.Show(SceneLoaderManager.instance.ReloadScene, false, "Are you sure you want to restart?");
     }
 }

@@ -13,7 +13,8 @@ public class SceneLoaderManager : MonoBehaviour
         MainMenu = 0,
         Combat = 1,
         Credits = 2,
-        Instructions = 3
+        Instructions = 3,
+        Shop = 4
     }
 
     #region Setup
@@ -64,15 +65,17 @@ public class SceneLoaderManager : MonoBehaviour
     {
         LoadScene(Scenes.MainMenu);
     }
-
     public void LoadCredits()
     {
         LoadScene(Scenes.Credits);
     }
-
     public void LoadPlay()
     {
         LoadScene(Scenes.Combat);
+    }
+    public void LoadShop()
+    {
+        LoadScene(Scenes.Shop);
     }
 
     public void LoadInstructions()

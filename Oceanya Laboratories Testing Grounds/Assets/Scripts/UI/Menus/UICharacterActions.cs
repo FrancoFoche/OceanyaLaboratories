@@ -172,12 +172,27 @@ public class UICharacterActions : ButtonList
                     }
                     else
                     {
-                        TeamOrderManager.spdSystem.Swap(caster, target[0]);
-                        BattleManager.i.battleLog.LogBattleEffect($"{caster.name} swaps places with {target[0].name} to delay their turn!");
-                        TeamOrderManager.SetTurnState(TurnState.Start);
-                        TeamOrderManager.SetCurrentTurn(target[0]);
-                        BattleManager.i.battleLog.LogBattleEffect($"{target[0].name}'s turn is skipped due to being swapped!");
-                        TeamOrderManager.Continue();
+                        if(caster.team == target[0].team)
+                        {
+                            bool success = TeamOrderManager.spdSystem.Swap(caster, target[0]);
+
+                            if (success)
+                            {
+                                BattleManager.i.battleLog.LogBattleEffect($"{caster.name} swaps places with {target[0].name} to delay their turn!");
+                                BattleManager.i.battleLog.LogBattleEffect($"{target[0].name}'s turn is skipped due to being swapped!");
+                            }
+                            else
+                            {
+                                BattleManager.i.battleLog.LogBattleEffect($"Can't swap with {target[0].name} because they don't have a turn left in this round!");
+                            }
+                        }
+                        else
+                        {
+                            BattleManager.i.battleLog.LogBattleEffect($"Can't swap with {target[0].name} because they aren't from the same team as {caster.name}.");
+                        }
+
+                        TeamOrderManager.EndTurn();
+                        BattleManager.i.teamOrderMenu.UpdateTeamOrder();
                     }
                 }
                 break;
@@ -238,7 +253,7 @@ public class UICharacterActions : ButtonList
                     }
                     else
                     {
-                        if (!TeamOrderManager.AIturn || BattleManager.i.debugMode)
+                        if (!TeamOrderManager.AIturn || SettingsManager.manualMode)
                         {
                             UISkillContext.instance.Show();
                             UIItemContext.instance.Hide();
@@ -279,7 +294,7 @@ public class UICharacterActions : ButtonList
                 {
                     if(confirmAction == null)
                     {
-                        BattleManager.i.confirmationPopup.Show(delegate { this.action = CharActions.EndTurn; Act(new ActionData(BattleManager.caster, BattleManager.target)); }, true, "This will skip your turn, are you sure?");
+                        UIActionConfirmationPopUp.i.Show(delegate { this.action = CharActions.EndTurn; Act(new ActionData(BattleManager.caster, BattleManager.target)); }, true, "This will skip your turn, are you sure?");
                     }
                     else
                     {
@@ -307,7 +322,7 @@ public class UICharacterActions : ButtonList
         this.confirmAction = confirmAction;
         TeamOrderManager.turnState = TurnState.WaitingForConfirmation;
         waitingForConfirmation = true;
-        if (BattleManager.i.confirmMode)
+        if (SettingsManager.actionConfirmation)
         {
             InteractableButtons(false);
             Image image = confirmationButton.colorOverlay;
@@ -348,7 +363,7 @@ public class UICharacterActions : ButtonList
 
         Character character;
 
-        if (BattleManager.i.debugMode)
+        if (SettingsManager.manualMode)
         {
             character = BattleManager.caster;
         }

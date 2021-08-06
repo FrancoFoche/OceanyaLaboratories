@@ -112,7 +112,7 @@ public static class TeamOrderManager
                             }
                         }
 
-                        if (!caster.AIcontrolled || BattleManager.i.debugMode)
+                        if (!caster.AIcontrolled || SettingsManager.manualMode)
                         {
                             AIturn = false;
                             SetTurnState(TurnState.WaitingForAction);
@@ -152,7 +152,7 @@ public static class TeamOrderManager
                             UICharacterActions.instance.DeactivateVisualSelect();
                         }
 
-                        if (BattleManager.i.debugMode)
+                        if (SettingsManager.manualMode)
                         {
                             BattleManager.i.uiList.InteractableUIs(true);
                         }
@@ -364,15 +364,28 @@ public class SPDSystem
 
         teamOrder = newteamOrder;
     }
-    public void         Swap                (Character character, Character swapWith)   
+
+    /// <summary>
+    /// Swaps two characters in team order, returns success.
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="swapWith"></param>
+    /// <returns></returns>
+    public bool         Swap                (Character character, Character swapWith)   
     {
         int index1 = teamOrder.IndexOf(character, TeamOrderManager.currentTeamOrderIndex);
         int swapIndex = teamOrder.IndexOf(swapWith, TeamOrderManager.currentTeamOrderIndex);
 
-        Character temp = teamOrder[swapIndex];
+        if (index1 != -1 && swapIndex != -1)
+        {
+            Character temp = teamOrder[swapIndex];
 
-        teamOrder[swapIndex] = teamOrder[index1];
-        teamOrder[index1] = temp;
+            teamOrder[swapIndex] = teamOrder[index1];
+            teamOrder[index1] = temp;
+            return true;
+        }
+
+        return false;
     }
 }
 

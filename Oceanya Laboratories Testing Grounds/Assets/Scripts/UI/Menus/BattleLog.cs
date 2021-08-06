@@ -57,17 +57,21 @@ public class BattleLog : MonoBehaviour
         {
             case "/giveup":
                 LogImportant("Player tries to give up.");
-                BattleManager.i.confirmationPopup.Show(delegate { BattleManager.i.SetBattleState(BattleState.Lost); }, false, "Are you sure you want to give up?");
+                UIActionConfirmationPopUp.i.Show(delegate { BattleManager.i.SetBattleState(BattleState.Lost); }, false, "Are you sure you want to give up?");
                 return true;
 
             case "/win":
                 LogImportant("Player cheats and wins.");
-                BattleManager.i.confirmationPopup.Show(delegate { BattleManager.i.SetBattleState(BattleState.Won); }, false, "Are you sure you want to skip this battle?");
+                UIActionConfirmationPopUp.i.Show(delegate { BattleManager.i.SetBattleState(BattleState.Won); }, false, "Are you sure you want to skip this battle?");
                 return true;
 
             case "/skiplevel":
                 LogImportant("Player cheats and wins the entire level.");
-                BattleManager.i.confirmationPopup.Show(delegate { BattleManager.i.SetBattleIndexToMax(); BattleManager.i.SetBattleState(BattleState.Won); }, false, "Are you sure you want to skip this battle?");
+                UIActionConfirmationPopUp.i.Show(delegate { BattleManager.i.SetBattleIndexToMax(); BattleManager.i.SetBattleState(BattleState.Won); }, false, "Are you sure you want to skip this battle?");
+                return true;
+
+            case "/togglemanual":
+                SettingsManager.ToggleDebugMode();
                 return true;
         }
 

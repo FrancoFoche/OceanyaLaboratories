@@ -214,7 +214,7 @@ public class Character
                 int exp = stats.GetStat(Stats.MAXHP).value / 3;
                 BattleManager.i.battleLog.LogBattleEffect($"{name} is now dead as fuck!");
                 caster.AddExp(exp);
-                BattleManager.i.SaveGame();
+                SettingsManager.SaveSettings();
             }
 
             if (!dead)
@@ -278,6 +278,9 @@ public class Character
     }
     public void     ModifyStat              (StatModificationTypes modificationType, Dictionary<Stats, int> modifiedStats)          
     {
+        int PRandMRMAX = 200;
+        int StatMinimum = 1;
+
         for (int i = 0; i < RuleManager.StatHelper.Length; i++)
         {
             Stats currentStat = RuleManager.StatHelper[i];
@@ -286,15 +289,32 @@ public class Character
             {
                 if(modificationType == StatModificationTypes.Buff)
                 {
-                    stats.GetStat(currentStat).value += modifiedStats[currentStat];
+                    int result = stats.GetStat(currentStat).value + modifiedStats[currentStat];
+
+                    if(currentStat != Stats.PR && currentStat != Stats.MR)
+                    {
+                        stats.GetStat(currentStat).value = result;
+                    }
+                    else
+                    {
+                        if(result > PRandMRMAX)
+                        {
+                            stats.GetStat(currentStat).value = PRandMRMAX;
+                        }
+                        else
+                        {
+                            stats.GetStat(currentStat).value = result;
+                        }
+                    }
+
                     curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Buff);
                 }
                 else if (modificationType == StatModificationTypes.Debuff)
                 {
                     int result = stats.GetStat(currentStat).value - modifiedStats[currentStat];
-                    if(result < 1)
+                    if(result < StatMinimum)
                     {
-                        stats.GetStat(currentStat).value = 1;
+                        stats.GetStat(currentStat).value = StatMinimum;
                     }
                     else
                     {

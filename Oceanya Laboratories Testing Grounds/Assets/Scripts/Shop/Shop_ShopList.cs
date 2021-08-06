@@ -8,6 +8,8 @@ namespace Kam.Shop
 {
     public class Shop_ShopList : ButtonList
     {
+        public TextMeshProUGUI headerText;
+
         private void Start()
         {
             DataBaseOrder.i.Initialize();
@@ -25,6 +27,16 @@ namespace Kam.Shop
 
                 newScript.LoadShopItem(current);
             }
+        }
+
+        public void UpdateGoldAmount()
+        {
+            headerText.text = $"Shop (Current Gold: {SettingsManager.groupGold}G)";
+        }
+
+        public void ErrorAnimation()
+        {
+
         }
     }
 }

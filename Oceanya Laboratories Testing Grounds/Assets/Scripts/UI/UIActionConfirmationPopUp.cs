@@ -7,6 +7,23 @@ using UnityEngine.SceneManagement;
 
 public class UIActionConfirmationPopUp : MonoBehaviour
 {
+    private static UIActionConfirmationPopUp _instance;
+    public static UIActionConfirmationPopUp i 
+    { 
+        get 
+        { 
+            if (_instance == null) 
+            { 
+                _instance = FindObjectOfType<UIActionConfirmationPopUp>(); 
+            } 
+            return _instance; 
+        } 
+        private set 
+        { 
+            _instance = value; 
+        } 
+    }
+
     public GameObject objToHide;
     public TextMeshProUGUI confirmationText;
     public TextMeshProUGUI yesText;
@@ -30,7 +47,7 @@ public class UIActionConfirmationPopUp : MonoBehaviour
 
         if (affectedByConfirmActionSetting)
         {
-            if (BattleManager.i.confirmMode)
+            if (SettingsManager.actionConfirmation)
             {
                 objToHide.SetActive(true);
             }
@@ -59,23 +76,26 @@ public class UIActionConfirmationPopUp : MonoBehaviour
         waitingForConfirmation = false;
         Hide();
 
-        if(!BattleManager.i.pauseMenu.paused)
+        if(BattleManager.i != null)
         {
-            BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
-            TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
-
-            Character character;
-
-            if (BattleManager.i.debugMode)
+            if (!BattleManager.i.pauseMenu.paused)
             {
-                character = BattleManager.caster;
-            }
-            else
-            {
-                character = TeamOrderManager.currentTurn;
-            }
+                BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
+                TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
 
-            BattleManager.i.uiList.SelectCharacter(character);
+                Character character;
+
+                if (SettingsManager.manualMode)
+                {
+                    character = BattleManager.caster;
+                }
+                else
+                {
+                    character = TeamOrderManager.currentTurn;
+                }
+
+                BattleManager.i.uiList.SelectCharacter(character);
+            }
         }
     }
 }

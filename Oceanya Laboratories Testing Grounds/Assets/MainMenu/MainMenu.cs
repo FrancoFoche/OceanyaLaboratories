@@ -12,28 +12,20 @@ public class MainMenu : MonoBehaviour
 
     
     public Toggle actionConfirmationToggle;
-    public static bool actionConfirmation = true;
     public Toggle manualModeToggle;
-    public static bool manualMode = false;
     public Slider volumeSlider;
-    public static float volume = 1f;
 
     private void Start()
     {
         DataBaseOrder.i.Initialize();
         SavesManager.Load();
         SaveFile loaded = SavesManager.loadedFile;
-        if(loaded != null)
-        {
-            manualMode = loaded.manualMode;
-            actionConfirmation = loaded.actionConfirmation;
-            volume = loaded.volumeSliderValue;
-        }
+        SettingsManager.LoadSettings(loaded);
 
-        manualModeToggle.isOn = manualMode;
-        actionConfirmationToggle.isOn = actionConfirmation;
-        volumeSlider.value = volume;
-        GameAssetsManager.instance.SetVolume(volume);
+        manualModeToggle.isOn = SettingsManager.manualMode;
+        actionConfirmationToggle.isOn = SettingsManager.actionConfirmation;
+        volumeSlider.value = SettingsManager.volume;
+        GameAssetsManager.instance.SetVolume(SettingsManager.volume);
     }
     void Update()
     {
@@ -48,33 +40,22 @@ public class MainMenu : MonoBehaviour
 
     public void UpdateManualMode()
     {
-        manualMode = manualModeToggle.isOn;
+        SettingsManager.manualMode = manualModeToggle.isOn;
     }
 
     public void UpdateActionConfirmation()
     {
-        actionConfirmation = actionConfirmationToggle.isOn;
+        SettingsManager.actionConfirmation = actionConfirmationToggle.isOn;
     }
 
     public void UpdateVolume()
     {
-        volume = volumeSlider.value;
-        GameAssetsManager.instance.SetVolume(volume);
+        SettingsManager.volume = volumeSlider.value;
+        GameAssetsManager.instance.SetVolume(SettingsManager.volume);
     }
 
     public void SaveGameOnMenu()
     {
-        SaveFile save = new SaveFile() 
-        { 
-            players = DBPlayerCharacter.pCharacters, 
-            actionConfirmation = actionConfirmation, 
-            manualMode = manualMode, 
-            volumeSliderValue = volume,
-            showOrderOfPlay = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.showOrderOfPlay,
-            orderOfPlay_showDead = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.orderOfPlay_showDead,
-            orderOfPlay_showPast = SavesManager.loadedFile == null ? true : SavesManager.loadedFile.orderOfPlay_showPast,
-            lastLevelCleared = SavesManager.loadedFile == null ? -1 : SavesManager.loadedFile.lastLevelCleared,
-        };
-        SavesManager.Save(save);
+        SettingsManager.SaveSettings();
     }
 }

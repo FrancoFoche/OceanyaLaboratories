@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 namespace Kam.Shop
 {
     public class Shop_CharacterList : ToggleList
     {
         public static Shop_CharacterList i;
+        public TextMeshProUGUI headerText;
         public Shop_InventoryList inventory;
+        public Shop_ShopList shop;
 
         public static PlayerCharacter currentlySelected;
 
@@ -19,7 +22,6 @@ namespace Kam.Shop
 
         private void Start()
         {
-            DataBaseOrder.i.Initialize();
             LoadList(DBPlayerCharacter.pCharacters);
         }
 
@@ -57,6 +59,29 @@ namespace Kam.Shop
         public void UpdateInventory()
         {
             inventory.LoadItems(currentlySelected);
+        }
+
+        public void ErrorAnimation()
+        {
+            string originalText = headerText.text;
+            Color originalColor = headerText.color;
+
+            headerText.text = "Select a \n character first!";
+            headerText.color = Color.red;
+
+            DelayAction(1, delegate { headerText.color = originalColor; headerText.text = originalText; });
+        }
+
+        public void DelayAction(float secondsToDelay, Action delayedAction)
+        {
+            StartCoroutine(Delay(secondsToDelay, delayedAction));
+        }
+
+        IEnumerator Delay(float secondsToDelay, Action delayedAction)
+        {
+            yield return new WaitForSeconds(secondsToDelay);
+
+            delayedAction.Invoke();
         }
     }
 }

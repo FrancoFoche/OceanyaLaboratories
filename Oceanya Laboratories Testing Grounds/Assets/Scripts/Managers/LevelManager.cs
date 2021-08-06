@@ -40,17 +40,23 @@ public class LevelManager : ButtonList
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
-                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1) }
+                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1) },
+                        EXPgiven = 30,
+                        GoldGiven = 20
                     },
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
-                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(3) }
+                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(3) },
+                        EXPgiven = -1,
+                        GoldGiven = 0
                     },
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
-                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(2) }
+                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(2) },
+                        EXPgiven = 80,
+                        GoldGiven = 10
                     },
                 }
             },

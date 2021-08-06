@@ -20,6 +20,8 @@ public class Wave
     public bool winMusicPlay = true;
     public bool lossMusicPlay = true;
     public int transitionOutTime = 5;
+    public int EXPgiven = 0;
+    public int GoldGiven = 0;
 }
 
 public class BattleManager : MonoBehaviour
@@ -39,8 +41,6 @@ public class BattleManager : MonoBehaviour
     public          bool                inCombat            { get; private set; }
     public          bool                enemyTeamDeath      { get; private set; }
     public          bool                allyTeamDeath       { get; private set; }
-    public          bool                debugMode           { get; private set; } //Toggles debug/manual battle features
-    public          bool                confirmMode         { get; private set; } //Toggles confirmation popup
 
     public          BattleLog                   battleLog;
     public          BattleUIList                uiList;
@@ -48,7 +48,6 @@ public class BattleManager : MonoBehaviour
     public          PauseMenu                   pauseMenu;
     public          TooltipPopup                tooltipPopup;
     public          UIMenu_TeamOrder            teamOrderMenu;
-    public          UIActionConfirmationPopUp   confirmationPopup;
 
     public          GameObject                  easteregg;
 
@@ -68,29 +67,15 @@ public class BattleManager : MonoBehaviour
         inCombat = false;
 
         SaveFile loaded = SavesManager.loadedFile;
-        if (loaded == null)
+        if (loaded != null)
         {
-            debugMode = MainMenu.manualMode;
-            confirmMode = MainMenu.actionConfirmation;
-            pauseMenu.volumeSliderValue = MainMenu.volume;
-            pauseMenu.volume.value = MainMenu.volume;
-            teamOrderMenu.dropdownToggle.isOn = true;
-            teamOrderMenu.showDead.isOn = true;
-            teamOrderMenu.showPast.isOn = true;
-        }
-        else
-        {
-            debugMode = loaded.manualMode;
-            confirmMode = loaded.actionConfirmation;
-            pauseMenu.volumeSliderValue = loaded.volumeSliderValue;
-            pauseMenu.volume.value = loaded.volumeSliderValue;
             teamOrderMenu.dropdownToggle.isOn = loaded.showOrderOfPlay;
             teamOrderMenu.showDead.isOn = loaded.orderOfPlay_showDead;
             teamOrderMenu.showPast.isOn = loaded.orderOfPlay_showPast;
         }
 
-        pauseMenu.manualMode.isOn = debugMode;
-        pauseMenu.confirmActions.isOn = confirmMode;
+        pauseMenu.manualMode.isOn = SettingsManager.manualMode;
+        pauseMenu.confirmActions.isOn = SettingsManager.actionConfirmation;
         #endregion
 
         currentLevel = LevelManager.GetLevel(LevelManager.currentLevel);
@@ -106,9 +91,9 @@ public class BattleManager : MonoBehaviour
             {
                 if (TeamOrderManager.turnState == TurnState.WaitingForConfirmation || TeamOrderManager.turnState == TurnState.WaitingForTarget)
                 {
-                    if (confirmationPopup.waitingForConfirmation)
+                    if (UIActionConfirmationPopUp.i.waitingForConfirmation)
                     {
-                        confirmationPopup.Deny();
+                        UIActionConfirmationPopUp.i.Deny();
                     }
 
                     if (UICharacterActions.instance.waitingForConfirmation)
@@ -139,9 +124,9 @@ public class BattleManager : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (confirmationPopup.waitingForConfirmation)
+                if (UIActionConfirmationPopUp.i.waitingForConfirmation)
                 {
-                    confirmationPopup.Confirm();
+                    UIActionConfirmationPopUp.i.Confirm();
                 }
                 else
                 {
@@ -163,7 +148,7 @@ public class BattleManager : MonoBehaviour
 
                                 if (target.Count == 0)
                                 {
-                                    confirmationPopup.Show(temp, true, "You have selected no targets, are you sure you want to confirm your action?");
+                                    UIActionConfirmationPopUp.i.Show(temp, true, "You have selected no targets, are you sure you want to confirm your action?");
                                 }
                                 else
                                 {
@@ -186,18 +171,12 @@ public class BattleManager : MonoBehaviour
                 {
                     if (Input.GetKey(KeyCode.LeftShift))
                     {
-                        confirmationPopup.Show(delegate { SavesManager.DeleteSave(); SceneLoaderManager.instance.ReloadScene(); }, false, "Are you ABSOLUTELY sure that you want to delete your save file?");
+                        UIActionConfirmationPopUp.i.Show(delegate { SavesManager.DeleteSave(); SceneLoaderManager.instance.ReloadScene(); }, false, "Are you ABSOLUTELY sure that you want to delete your save file?");
                     }
                     else
                     {
-                        confirmationPopup.Show(() => SceneLoaderManager.instance.ReloadScene(), false, "Are you sure you want to restart the battle?");
+                        UIActionConfirmationPopUp.i.Show(() => SceneLoaderManager.instance.ReloadScene(), false, "Are you sure you want to restart the battle?");
                     }
-                }
-
-
-                if (Input.GetKeyDown(KeyCode.M))
-                {
-                    ToggleDebugMode();
                 }
 
                 if (TeamOrderManager.turnState != TurnState.End && TeamOrderManager.turnState != TurnState.Start && TeamOrderManager.turnState != TurnState.NonDefined)
@@ -213,7 +192,7 @@ public class BattleManager : MonoBehaviour
                             }
                             else
                             {
-                                if (caster.team == Team.Ally || debugMode)
+                                if (caster.team == Team.Ally || SettingsManager.manualMode)
                                 {
                                     SetTargets(uiList.CheckTargets());
                                 }
@@ -230,7 +209,7 @@ public class BattleManager : MonoBehaviour
                     }
                     else if (TeamOrderManager.turnState == TurnState.WaitingForAction)
                     {
-                        if (!confirmationPopup.waitingForConfirmation)
+                        if (!UIActionConfirmationPopUp.i.waitingForConfirmation)
                         {
                             if (Input.GetKeyDown(KeyCode.Q))
                             {
@@ -369,7 +348,7 @@ public class BattleManager : MonoBehaviour
                             }
                         }
 
-                        if (debugMode)
+                        if (SettingsManager.manualMode)
                         {
                             uiList.CheckCurrentSelection();
                             bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
@@ -398,48 +377,6 @@ public class BattleManager : MonoBehaviour
                     }
                 }
             }
-        }
-    }
-
-    void                            ToggleDebugMode     ()                          
-    {
-        if (debugMode)
-        {
-            SetDebugMode(false);
-        }
-        else
-        {
-            SetDebugMode(true);
-        }
-    }
-    public void                     SetDebugMode        (bool mode)                 
-    {
-        debugMode = mode;
-        battleLog.LogBattleEffect("Set Manual mode to " + mode);
-
-        if (mode)
-        {
-            if (TeamOrderManager.turnState == TurnState.WaitingForAction)
-            {
-                uiList.InteractableUIs(true);
-            }
-        }
-        else
-        {
-            uiList.SelectCharacter(TeamOrderManager.currentTurn);
-        }
-    }
-    public void                     SetConfirmMode      (bool mode)                 
-    {
-        confirmMode = mode;
-
-        if (mode)
-        {
-            battleLog.LogBattleEffect("Activated action confirmation.");
-        }
-        else
-        {
-            battleLog.LogBattleEffect("Action confirmation disabled.");
         }
     }
     public void                     SetBattleIndexToMax ()                          
@@ -487,6 +424,7 @@ public class BattleManager : MonoBehaviour
         else
         {
             SpriteRenderer[] array = easteregg.GetComponentsInChildren<SpriteRenderer>();
+            Wave currentWave = currentLevel.waves[currentBattleIndex];
 
             switch (state)
             {
@@ -575,21 +513,17 @@ public class BattleManager : MonoBehaviour
 
                         battleState = BattleState.End;
 
-                        int EXPgiven = 0;
-                        List<Character> enemies = uiList.GetTeam(Team.Enemy);
-                        for (int i = 0; i < enemies.Count; i++)
-                        {
-                            EXPgiven += Mathf.CeilToInt(enemies[i].stats.GetStat(Stats.MAXHP).value/2);
-                        }
+                        GiveAllyTeamEXP(currentWave.EXPgiven);
 
-                        GiveAllyTeamEXP(EXPgiven);
+                        SettingsManager.groupGold += currentWave.GoldGiven;
+                        battleLog.LogImportant("TEAM GAINS " + currentWave.GoldGiven + $"G! Current: {SettingsManager.groupGold}G");
 
                         DelayAction(3, delegate
                         {
                             currentBattleIndex++;
                             if (currentBattleIndex < currentLevel.waves.Length)
                             {
-                                battleLog.LogCountdown(currentLevel.waves[currentBattleIndex].transitionOutTime, "Next wave starts in _countdown_...", () => StartCombat(currentLevel.waves[currentBattleIndex]));
+                                battleLog.LogCountdown(currentWave.transitionOutTime, "Next wave starts in _countdown_...", () => StartCombat(currentLevel.waves[currentBattleIndex]));
                             }
                             else
                             {
@@ -602,7 +536,7 @@ public class BattleManager : MonoBehaviour
                             LevelManager.lastClearedLevel = LevelManager.currentLevel;
                         }
 
-                        SaveGame();
+                        SettingsManager.SaveSettings();
                     }
                     break;
             }
@@ -728,21 +662,6 @@ public class BattleManager : MonoBehaviour
     public void                     UpdateTeamOrder     ()                          
     {
         TeamOrderManager.BuildSPDSystem(TeamOrderManager.allySide, TeamOrderManager.enemySide);
-    }
-    public void                     SaveGame            ()                          
-    {
-        SaveFile save = new SaveFile()
-        {
-            players = DBPlayerCharacter.pCharacters,
-            actionConfirmation = confirmMode,
-            manualMode = debugMode,
-            volumeSliderValue = pauseMenu.volumeSliderValue,
-            showOrderOfPlay = teamOrderMenu.dropdownToggle.isOn,
-            orderOfPlay_showDead = teamOrderMenu.showDead.isOn,
-            orderOfPlay_showPast = teamOrderMenu.showPast.isOn,
-            lastLevelCleared = LevelManager.lastClearedLevel
-        };
-        SavesManager.Save(save);
     }
 
 
