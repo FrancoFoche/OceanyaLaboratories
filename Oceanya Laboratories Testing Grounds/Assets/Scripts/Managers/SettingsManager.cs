@@ -10,7 +10,8 @@ public static class SettingsManager
     public static bool  showOrderOfPlay = true;
     public static bool  orderOfPlay_showDead = true;
     public static bool  orderOfPlay_showPast = true;
-    public static float volume;
+    public static int   lastClearedLevel = -1;
+    public static float volume = 1;
 
     public static void UpdateSettingsFromSaveFile()
     {
@@ -85,7 +86,7 @@ public static class SettingsManager
             orderOfPlay_showPast  = orderOfPlay_showPast,
             groupGold = groupGold,
 
-            lastLevelCleared = LevelManager.lastClearedLevel,
+            lastLevelCleared = lastClearedLevel,
             players = DBPlayerCharacter.pCharacters
         };
 
@@ -102,8 +103,7 @@ public static class SettingsManager
             orderOfPlay_showDead = save.orderOfPlay_showDead;
             orderOfPlay_showPast = save.orderOfPlay_showPast;
             groupGold = save.groupGold;
-
-            LevelManager.lastClearedLevel = save.lastLevelCleared;
+            lastClearedLevel = save.lastLevelCleared;
         }
     }
 }

@@ -16,7 +16,6 @@ public class LevelManager : ButtonList
     }
 
     public static int currentLevel;
-    public static int lastClearedLevel;
     public static BattleLevel[] levels;
 
     public Color level_AlreadyPassed;
@@ -73,12 +72,16 @@ public class LevelManager : ButtonList
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
-                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2) }
+                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2) },
+                        EXPgiven = 100,
+                        GoldGiven = 50,
                     },
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
-                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(3, 1), GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2), GameAssetsManager.instance.GetEnemy(3, 2) }
+                        enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(3, 1), GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2), GameAssetsManager.instance.GetEnemy(3, 2) },
+                        EXPgiven = 200,
+                        GoldGiven = 50,
                     },
                 }
             },
@@ -98,7 +101,9 @@ public class LevelManager : ButtonList
                         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(666) },
                         winMusicPlay = false,
                         lossMusicPlay = false,
-                        waveMusic = Music.GarouTheme
+                        waveMusic = Music.GarouTheme,
+                        EXPgiven = 400,
+                        GoldGiven = 100,
                     },
                 }
             },
@@ -116,6 +121,8 @@ public class LevelManager : ButtonList
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1) },
+                        EXPgiven = 30,
+                        GoldGiven = 20,
                         winMusicPlay = false,
                         lossMusicPlay = false,
                         transitionOutTime = 0,
@@ -124,6 +131,8 @@ public class LevelManager : ButtonList
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(3) },
+                        EXPgiven = -1,
+                        GoldGiven = 0,
                         winMusicPlay = false,
                         lossMusicPlay = false,
                         transitionOutTime = 0,
@@ -132,14 +141,20 @@ public class LevelManager : ButtonList
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(2) },
+                        EXPgiven = 80,
+                        GoldGiven = 10,
                         winMusicPlay = false,
                         lossMusicPlay = false,
                         transitionOutTime = 0,
                     },
+
+
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2) },
+                        EXPgiven = 100,
+                        GoldGiven = 50,
                         winMusicPlay = false,
                         lossMusicPlay = false,
                         transitionOutTime = 0,
@@ -148,10 +163,14 @@ public class LevelManager : ButtonList
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
                         enemySide = new List<Character>() { GameAssetsManager.instance.GetEnemy(3, 1), GameAssetsManager.instance.GetEnemy(1, 1), GameAssetsManager.instance.GetEnemy(2), GameAssetsManager.instance.GetEnemy(1, 2), GameAssetsManager.instance.GetEnemy(3, 2) },
+                        EXPgiven = 200,
+                        GoldGiven = 50,
                         winMusicPlay = false,
                         lossMusicPlay = false,
                         transitionOutTime = 0,
                     },
+
+
                     new Wave()
                     {
                         allySide = new List<Character>() { GameAssetsManager.instance.GetPC(13), GameAssetsManager.instance.GetPC(5), GameAssetsManager.instance.GetPC(9), GameAssetsManager.instance.GetPC(101) },
@@ -172,19 +191,17 @@ public class LevelManager : ButtonList
         if (loaded == null)
         {
             Debug.Log("Save was null");
-            lastClearedLevel = -1;
         }
         else
         {
             Debug.Log("Save was NOT null");
-            lastClearedLevel = loaded.lastLevelCleared;
         }
         #endregion
 
         CreateLevels();
         ClearList();
 
-        Debug.Log("Last cleared level: " + lastClearedLevel);
+        Debug.Log("Last cleared level: " + SettingsManager.lastClearedLevel);
 
         for (int i = 0; i < levels.Length; i++)
         {
@@ -198,11 +215,11 @@ public class LevelManager : ButtonList
         UILevelButton script = newEntry.GetComponent<UILevelButton>();
         script.LoadLevel(level);
 
-        if(level.levelNumber <= lastClearedLevel)
+        if(level.levelNumber <= SettingsManager.lastClearedLevel)
         {
             script.ActivateColorOverlay(level_AlreadyPassed);
         }
-        else if (level.levelNumber > lastClearedLevel + 1)
+        else if (level.levelNumber > SettingsManager.lastClearedLevel + 1)
         {
             newEntry.GetComponent<Button>().interactable = false;
             script.ActivateColorOverlay(level_Locked);

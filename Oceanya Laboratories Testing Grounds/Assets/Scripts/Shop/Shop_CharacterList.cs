@@ -12,6 +12,7 @@ namespace Kam.Shop
         public TextMeshProUGUI headerText;
         public Shop_InventoryList inventory;
         public Shop_ShopList shop;
+        public bool error;
 
         public static PlayerCharacter currentlySelected;
 
@@ -31,11 +32,14 @@ namespace Kam.Shop
 
             if (different)
             {
+                UnselectAll();
+
                 GameObject newObj = curObjectsSelected[0].gameObject;
                 Shop_CharacterLoader newScript = newObj.GetComponent<Shop_CharacterLoader>();
                 currentlySelected = newScript.loadedChar;
                 Debug.Log("Selected: " + currentlySelected.name);
-
+                newScript.Select();
+                headerText.text = $"Currently Selected:\n{currentlySelected.name}";
                 inventory.headerText.text = currentlySelected.name + "'s Inventory";
                 inventory.LoadItems(currentlySelected);
             }
@@ -61,15 +65,28 @@ namespace Kam.Shop
             inventory.LoadItems(currentlySelected);
         }
 
-        public void ErrorAnimation()
+        public void ErrorAnimation(string errorText)
         {
-            string originalText = headerText.text;
-            Color originalColor = headerText.color;
+            if (!error)
+            {
+                error = true;
+                string originalText = headerText.text;
+                Color originalColor = headerText.color;
 
-            headerText.text = "Select a \n character first!";
-            headerText.color = Color.red;
+                headerText.text = errorText;
+                headerText.color = Color.red;
 
-            DelayAction(1, delegate { headerText.color = originalColor; headerText.text = originalText; });
+                DelayAction(1, delegate { headerText.color = originalColor; headerText.text = originalText; error = false; });
+            }
+        }
+
+        public void UnselectAll()
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                Shop_CharacterLoader script = list[i].GetComponent<Shop_CharacterLoader>();
+                script.Unselect();
+            }
         }
 
         public void DelayAction(float secondsToDelay, Action delayedAction)

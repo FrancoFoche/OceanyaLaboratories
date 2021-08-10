@@ -36,7 +36,28 @@ namespace Kam.Shop
 
         public void ErrorAnimation()
         {
+            Shop_CharacterList manager = Shop_CharacterList.i;
+            if (!manager.error) 
+            {
+                manager.error = true;
+                headerText.text = $"Shop (Current Gold: <color=red>{SettingsManager.groupGold}G</color>)";
 
+                string originalText = manager.headerText.text;
+                Color originalColor = manager.headerText.color;
+
+                manager.headerText.text = "Not enough Gold!";
+                manager.headerText.color = Color.red;
+
+                manager.DelayAction(1, 
+                    delegate
+                    {
+                        manager.headerText.color = originalColor;
+                        manager.headerText.text = originalText;
+                        UpdateGoldAmount();
+                        manager.error = false;
+                    });
+
+            }
         }
     }
 }

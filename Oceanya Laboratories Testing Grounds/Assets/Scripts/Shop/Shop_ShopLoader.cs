@@ -44,15 +44,20 @@ namespace Kam.Shop
                         Shop_CharacterList.currentlySelected.GiveItem(loadedItem, 1);
                         Shop_CharacterList.i.UpdateInventory();
                         Shop_CharacterList.i.shop.UpdateGoldAmount();
+                        SettingsManager.SaveSettings();
                     },
                     true,
                     "Are you sure you want to buy a " + loadedItem.name + " for " + Shop_CharacterList.currentlySelected.name + "?"
                     );
                 }
+                else
+                {
+                    Shop_CharacterList.i.shop.ErrorAnimation();
+                }
             }
             else
             {
-                Shop_CharacterList.i.ErrorAnimation();
+                Shop_CharacterList.i.ErrorAnimation("Select a \n character first!");
             }
         }
     }

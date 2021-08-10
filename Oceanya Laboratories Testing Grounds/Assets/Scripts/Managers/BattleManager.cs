@@ -531,9 +531,9 @@ public class BattleManager : MonoBehaviour
                             }
                         });
 
-                        if (LevelManager.lastClearedLevel < LevelManager.currentLevel)
+                        if (SettingsManager.lastClearedLevel < LevelManager.currentLevel)
                         {
-                            LevelManager.lastClearedLevel = LevelManager.currentLevel;
+                            SettingsManager.lastClearedLevel = LevelManager.currentLevel;
                         }
 
                         SettingsManager.SaveSettings();

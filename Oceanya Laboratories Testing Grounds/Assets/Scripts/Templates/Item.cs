@@ -152,13 +152,19 @@ public class Item : Activatables
 [System.Serializable]
 public class ItemInfo : ActivatableInfo
 {
+    //SerializeField = Saved variables
+    [SerializeField] private int _itemID;
+    [SerializeField] private int _amount;
+
     public Item item                    { get; private set; }
-    public int amount                   { get; private set; }
+    public int itemID                   { get { return _itemID; } private set { _itemID = value; } }
+    public int amount                   { get { return _amount; } private set { _amount = value; } }
 
     public ItemInfo(Character character, Item item, int amount)
     {
         this.character = character;
         this.item = item;
+        itemID = item.ID;
         this.amount = amount;
         activatable = true;
     }

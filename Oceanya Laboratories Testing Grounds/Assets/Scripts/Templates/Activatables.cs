@@ -415,14 +415,25 @@ public abstract class Activatables
 
 public abstract class ActivatableInfo
 {
-    public Character    character       { get; protected set; }
-    public bool         activatable     { get; protected set; }
-    public bool         equipped        { get; protected set; }
-    public bool         wasActivated    { get; protected set; }   //If the skill was activated at SOME point.
-    public bool         currentlyActive { get; protected set; }   //If the skill is currently active
-    public int          activatedAt     { get; protected set; }   //when the skill was activated
-    public int          timesActivated  { get; set; }           //how many times the skill was activated
-    public bool         showInfo        { get; protected set; }
+    private Character   _character;
+    private bool        _activatable;
+    private bool        _equipped;
+    private bool        _wasActivated;   //If the skill was activated at SOME point.
+    private bool        _currentlyActive;   //If the skill is currently active
+    private int         _activatedAt;  //when the skill was activated
+    private int         _timesActivated;          //how many times the skill was activated
+    private bool        _showInfo;
+
+    #region Getters/Setters
+    public Character    character           { get { return _character; } protected set { _character = value; } }
+    public bool         activatable         { get { return _activatable; } protected set { _activatable = value; } }
+    public bool         equipped            { get { return _equipped; } protected set { _equipped = value; } }
+    public bool         wasActivated        { get { return _wasActivated; } protected set { _wasActivated = value; } }
+    public bool         currentlyActive     { get { return _currentlyActive; } protected set { _currentlyActive = value; } }
+    public int          activatedAt         { get { return _activatedAt; } protected set { _activatedAt = value; } }
+    public int          timesActivated      { get { return _timesActivated; } set { _timesActivated = value; } }
+    public bool         showInfo            { get { return _showInfo; } protected set { _showInfo = value; } }
+    #endregion
 
     public void         Equip               ()                          
     {

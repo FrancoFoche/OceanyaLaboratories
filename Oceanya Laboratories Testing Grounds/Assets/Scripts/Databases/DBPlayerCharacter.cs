@@ -231,14 +231,14 @@ public class DBPlayerCharacter : MonoBehaviour
                 {
                     new Skill
                     (
-                        new BaseObjectInfo("Shield BASH", 10 , "You use your shield to hit the enemy, and put your whole body into it! You deal 20% of your MAX HP as physical damage!")
+                        new BaseObjectInfo("Shield BASH", 10 , "You use your shield to hit the enemy, and put your whole body into it! You deal 50% of your MAX HP as physical damage!")
                         ,"_caster_ uses SHIELD BASH on _target_!"
                         ,ActivatableType.Active
                         ,TargetType.Single
                     )
                     .BehaviorCostsTurn()
                     .BehaviorHasCooldown(CDType.Turns,2)
-                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<RPGFormula>(){new RPGFormula(Stats.MAXHP,operationActions.Multiply,0.2f)})
+                    .BehaviorDoesDamage(DamageType.Physical,ElementType.Normal,new List<RPGFormula>(){new RPGFormula(Stats.MAXHP,operationActions.Multiply,0.5f)})
                     ,
                     new Skill
                     (

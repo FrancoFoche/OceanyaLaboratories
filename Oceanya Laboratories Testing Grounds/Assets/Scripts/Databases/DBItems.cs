@@ -20,7 +20,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Single
             )
-            .SetCost(50)
+            .SetCost(20)
             .BehaviorDoesHeal(15)
             .BehaviorCostsTurn()
             ,
@@ -31,30 +31,30 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Single
             )
-            .SetCost(120)
+            .SetCost(40)
             .BehaviorDoesHeal(30)
             .BehaviorCostsTurn()
             ,
-            new Item(new BaseObjectInfo("Strength Potion", 3, "+10 STR to a single target, but they also receive 20 DIRECT DMG"),
+            new Item(new BaseObjectInfo("Strength Potion", 3, "+10 STR to a single target, but they also receive 10 DIRECT DMG"),
             "_caster_ throws an STR pot at _target_, they feel themselves getting more powerful, +10 STR!",
             Item.Type.Consumable,
             GameAssetsManager.instance.GetItemIcon(ItemIcon.Liquid_yellow),
             ActivatableType.Active,
             TargetType.Single
             )
-            .SetCost(50)
+            .SetCost(20)
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 10} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 10)
             .BehaviorCostsTurn()
             ,
-            new Item(new BaseObjectInfo("Intelligence Potion", 4, "+10 INT to a single target, but they also receive 20 DIRECT DMG"),
+            new Item(new BaseObjectInfo("Intelligence Potion", 4, "+10 INT to a single target, but they also receive 10 DIRECT DMG"),
             "_caster_ throws an INT pot at _target_, they feel themselves getting more powerful, +10 INT!",
             Item.Type.Consumable,
             GameAssetsManager.instance.GetItemIcon(ItemIcon.Liquid_blue),
             ActivatableType.Active,
             TargetType.Single
             )
-            .SetCost(50)
+            .SetCost(20)
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.INT, 10} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, 10)
             .BehaviorCostsTurn()
@@ -66,7 +66,7 @@ public class DBItems : MonoBehaviour
             ActivatableType.Active,
             TargetType.Self
             )
-            .SetCost(200)
+            .SetCost(80)
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 20},{ Stats.CHR, 20} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.4f)})
             .BehaviorCostsTurn()

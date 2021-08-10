@@ -164,7 +164,7 @@ public class GameAssetsManager : MonoBehaviour
             }
         }
 
-        Debug.LogError("Could not find the enemy with id " + id + ".");
+        Debug.LogError("Could not find the item with id " + id + ".");
         return null;
     }
     public Item             GetItem         (string name)                           

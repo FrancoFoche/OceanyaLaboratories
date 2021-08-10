@@ -15,12 +15,24 @@ public class PlayerCharacter : Character
         this.ID = ID;
         this.level = new LevellingSystem().SetStartingLevel(startingLevel);
         this.elementalKind = elementalKind;
+        this.inventory = ConvertItemsToItemInfo(inventory);
+
         if (SavesManager.loadedFile != null)
         {
             PlayerCharacter loaded = SavesManager.loadedFile.FindPlayer(ID);
             if (loaded != null)
             {
                 this.level = loaded.level;
+                Dictionary<Item, int> loadedInv = new Dictionary<Item, int>();
+
+                for (int i = 0; i < loaded.inventory.Count; i++)
+                {
+                    ItemInfo current = loaded.inventory[i];
+
+                    loadedInv.Add(GameAssetsManager.instance.GetItem(current.itemID), current.amount);
+                }
+
+                this.inventory = ConvertItemsToItemInfo(loadedInv);
             }
         }
         
@@ -75,9 +87,6 @@ public class PlayerCharacter : Character
 
         _baseStats = this.stats.Copy();
         #endregion
-
-        this.inventory = ConvertItemsToItemInfo(inventory);
-        this._originalInventory = MakeCopyOfItemInfo(this.inventory);
 
         this.skillList = ConvertSkillsToSkillInfo(skillList);
         this._originalSkillList = MakeCopyOfSkillInfo(this.skillList);

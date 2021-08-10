@@ -7429,8 +7429,9 @@ GameObject:
   - component: {fileID: 1792881996}
   - component: {fileID: 1792881995}
   - component: {fileID: 1792881997}
-  - component: {fileID: 1792881998}
   - component: {fileID: 1792881999}
+  - component: {fileID: 1792881998}
+  - component: {fileID: 1792882000}
   m_Layer: 5
   m_Name: SkipCredits
   m_TagString: Untagged
@@ -7484,8 +7485,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 671088639
+  m_fontColor: {r: 1, g: 1, b: 1, a: 0.15294118}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7593,7 +7594,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 0.1882353}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0.6156863}
@@ -7634,6 +7635,17 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1792881998}
         m_MethodName: BinaryToggleText
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1792882000}
+        m_MethodName: BinaryToggleColor
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7756,6 +7768,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1792882000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1792881993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b9435f151c88ef40a760aa2768c21d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetToggle: {fileID: 1792881997}
+  targetText: {fileID: 1792881995}
+  onColor: {r: 1, g: 1, b: 1, a: 1}
+  offColor: {r: 1, g: 1, b: 1, a: 0.15294118}
 --- !u!1 &1819746596
 GameObject:
   m_ObjectHideFlags: 0

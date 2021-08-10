@@ -26,7 +26,6 @@ public class Enemy : Character
         this.stats = newStats;
         
         this.inventory = ConvertItemsToItemInfo(inventory);
-        this._originalInventory = MakeCopyOfItemInfo(this.inventory);
 
         this.skillList = ConvertSkillsToSkillInfo(skillList);
         this._originalSkillList = MakeCopyOfSkillInfo(this.skillList);
@@ -49,7 +48,6 @@ public class Enemy : Character
         this._baseStats = enemy._baseStats.Copy();
         this.stats = enemy.stats.Copy();
 
-        this._originalInventory = MakeCopyOfItemInfo(enemy.inventory);
         this.inventory = MakeCopyOfItemInfo(enemy.inventory);
 
         this._originalSkillList = MakeCopyOfSkillInfo(enemy.skillList);

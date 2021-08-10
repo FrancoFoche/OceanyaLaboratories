@@ -45,6 +45,7 @@ public class Character
     [SerializeField] private int                                _ID;
     [SerializeField] private bool                               _permadead;
     [SerializeField] private LevellingSystem                    _level;
+    [SerializeField] private List<ItemInfo>                     _inventory;
 
     private string                              _name;
     private List<Stat>                          _stats;
@@ -58,9 +59,6 @@ public class Character
 
     private List<SkillInfo>                     _skillList;
     protected List<SkillInfo>                   _originalSkillList;
-
-    private List<ItemInfo>                      _inventory;
-    protected List<ItemInfo>                    _originalInventory;
 
     private bool                                _dead;
 
@@ -412,7 +410,6 @@ public class Character
     #region Reset Variables To Original
     public void             ResetFull()
     {
-        ResetToOriginalInventory();
         ResetToOriginalSkillList();
         ResetToOriginalStatBuffs();
         ResetHP();
@@ -420,10 +417,6 @@ public class Character
     public void             ResetToOriginalSkillList()
     {
         skillList = MakeCopyOfSkillInfo(_originalSkillList);
-    }
-    public void             ResetToOriginalInventory()
-    {
-        inventory = MakeCopyOfItemInfo(_originalInventory);
     }
     public void             ResetToOriginalStatBuffs()
     {

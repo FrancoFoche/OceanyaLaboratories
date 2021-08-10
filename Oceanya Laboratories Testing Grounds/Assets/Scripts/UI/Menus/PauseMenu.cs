@@ -33,9 +33,21 @@ public class PauseMenu : MonoBehaviour
         paused = true;
         SettingsManager.LoadSettings(SavesManager.loadedFile);
         LoadSettings();
-        settingsRoot.SetActive(false);
-        generalRoot.SetActive(true);
-        pauseRoot.SetActive(true);
+
+        if (settingsRoot != null)
+        {
+            settingsRoot.SetActive(false);
+        }
+
+        if (generalRoot != null)
+        {
+            generalRoot.SetActive(true);
+        }
+
+        if (pauseRoot != null)
+        {
+            pauseRoot.SetActive(true);
+        }
     }
 
     public void Hide()
@@ -54,14 +66,29 @@ public class PauseMenu : MonoBehaviour
 
     public void SettingsButton()
     {
-        settingsRoot.SetActive(true);
-        generalRoot.SetActive(false);
+        if (settingsRoot != null)
+        {
+            settingsRoot.SetActive(true);
+        }
+
+        if (generalRoot != null)
+        {
+            generalRoot.SetActive(false);
+        }
     }
 
     public void SettingsBackButton()
     {
-        settingsRoot.SetActive(false);
-        generalRoot.SetActive(true);
+        if (settingsRoot != null)
+        {
+            settingsRoot.SetActive(false);
+        }
+
+        if (generalRoot != null)
+        {
+            generalRoot.SetActive(true);
+        }
+
         SettingsManager.SaveSettings();
     }
 
