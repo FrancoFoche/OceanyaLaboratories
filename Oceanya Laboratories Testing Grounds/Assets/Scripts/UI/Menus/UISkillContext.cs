@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UISkillContext : ButtonList
+public class UISkillContext : ButtonList, IObservable
 {
     public Color selectedColor;
     static Character loadedCharacter;
     public static UISkillContext instance;
     private List<UISkillButton> uiList = new List<UISkillButton>();
+
+    List<IObserver> _obs = new List<IObserver>();
+
     private void Awake()
     {
         instance = this;
         Hide();
+        AddToObserver(BattleManager.i);
     }
 
     public void LoadSkills(Character character)
@@ -29,7 +33,7 @@ public class UISkillContext : ButtonList
     public void AddSkill(Skill skill)
     {
         GameObject newEntry = AddObject();
-
+        
         UISkillButton newButton = newEntry.GetComponent<UISkillButton>();
         uiList.Add(newButton);
         newButton.LoadSkill(skill);
@@ -41,6 +45,7 @@ public class UISkillContext : ButtonList
         LoadSkills(character);
         DeactivateVisualSelect();
         gameObject.SetActive(true);
+        NotifyObserver(ObservableActionTypes.SkillContextActivated);
     }
     public void Hide()
     {
@@ -123,4 +128,30 @@ public class UISkillContext : ButtonList
             }
         }
     }
+
+    #region Observer
+    public void AddToObserver(IObserver obs)
+    {
+        if (!_obs.Contains(obs))
+        {
+            _obs.Add(obs);
+        }
+    }
+
+    public void RemoveFromObserver(IObserver obs)
+    {
+        if (_obs.Contains(obs))
+        {
+            _obs.Remove(obs);
+        }
+    }
+
+    public void NotifyObserver(ObservableActionTypes action)
+    {
+        for (int i = 0; i < _obs.Count; i++)
+        {
+            _obs[i].Notify(action);
+        }
+    }
+    #endregion
 }

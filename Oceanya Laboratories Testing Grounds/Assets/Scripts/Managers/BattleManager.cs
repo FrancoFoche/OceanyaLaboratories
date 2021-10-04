@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Kam.TooltipUI;
+using Kam.CustomInput;
 
 public enum BattleState
 {
@@ -24,7 +25,7 @@ public class Wave
     public int GoldGiven = 0;
 }
 
-public class BattleManager : MonoBehaviour
+public class BattleManager : MonoBehaviour, IObserver
 {
     private static BattleManager _instance;
     public static BattleManager i { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
@@ -51,9 +52,7 @@ public class BattleManager : MonoBehaviour
 
     public          GameObject                  easteregg;
 
-    float exitTime = 1.5f;
-    float curHold;
-
+    Utilities_Input_HoldKey hold1 = new Utilities_Input_HoldKey(false);
     private void Awake()
     {
         DataBaseOrder.i.Initialize();
@@ -107,19 +106,9 @@ public class BattleManager : MonoBehaviour
                 }
             }
 
-            if (Input.GetKey(KeyCode.Escape))
+            if(hold1.HoldKey(KeyCode.Escape, 1.5f))
             {
-                curHold += Time.deltaTime;
-
-                if (curHold > exitTime)
-                {
-                    SceneLoaderManager.instance.Quit();
-                }
-            }
-
-            if (Input.GetKeyUp(KeyCode.Escape))
-            {
-                curHold = 0;
+                SceneLoaderManager.instance.Quit();
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
@@ -134,11 +123,6 @@ public class BattleManager : MonoBehaviour
                     {
                         switch (TeamOrderManager.turnState)
                         {
-                            case TurnState.WaitingForAction:
-                            case TurnState.WaitingForConfirmation:
-                                UICharacterActions.instance.ButtonAction(CharActions.EndTurn);
-                                break;
-
                             case TurnState.WaitingForTarget:
                                 Action temp = delegate
                                 {
@@ -211,141 +195,7 @@ public class BattleManager : MonoBehaviour
                     {
                         if (!UIActionConfirmationPopUp.i.waitingForConfirmation)
                         {
-                            if (Input.GetKeyDown(KeyCode.Q))
-                            {
-                                UICharacterActions.instance.ButtonAction(CharActions.Attack);
-                            }
-
-                            if (Input.GetKeyDown(KeyCode.W))
-                            {
-                                UICharacterActions.instance.ButtonAction(CharActions.Defend);
-                            }
-
-                            if (Input.GetKeyDown(KeyCode.E))
-                            {
-                                UICharacterActions.instance.ButtonAction(CharActions.Skill);
-                            }
-
-                            if (Input.GetKeyDown(KeyCode.R))
-                            {
-                                UICharacterActions.instance.ButtonAction(CharActions.Item);
-                            }
-
-                            if (Input.GetKeyDown(KeyCode.T))
-                            {
-                                UICharacterActions.instance.ButtonAction(CharActions.Rearrange);
-                            }
-
-                            if (Input.GetKeyDown(KeyCode.Y))
-                            {
-                                UICharacterActions.instance.ButtonAction(CharActions.Prepare);
-                            }
-
-                            if (UISkillContext.instance.gameObject.activeSelf)
-                            {
-                                if (Input.GetKeyDown(KeyCode.Alpha1))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(1);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha2))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(2);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha3))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(3);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha4))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(4);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha5))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(5);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha6))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(6);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha7))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(7);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha8))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(8);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha9))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(9);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha0))
-                                {
-                                    UISkillContext.instance.ActivateButtonInPosition(10);
-                                }
-                            }
-
-                            if (UIItemContext.instance.gameObject.activeSelf)
-                            {
-                                if (Input.GetKeyDown(KeyCode.Alpha1))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(1);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha2))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(2);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha3))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(3);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha4))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(4);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha5))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(5);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha6))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(6);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha7))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(7);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha8))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(8);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha9))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(9);
-                                }
-
-                                if (Input.GetKeyDown(KeyCode.Alpha0))
-                                {
-                                    UIItemContext.instance.ActivateButtonInPosition(10);
-                                }
-                            }
+                            EventManager.TriggerEvent(EventManager.Events.Controls_WaitingForAction);
                         }
 
                         if (SettingsManager.manualMode)
@@ -379,6 +229,151 @@ public class BattleManager : MonoBehaviour
             }
         }
     }
+
+    #region Controls
+    public void Controls_ActionHotkeys()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.Attack);
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.Defend);
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.Skill);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.Item);
+        }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.Rearrange);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.Prepare);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            UICharacterActions.instance.ButtonAction(CharActions.EndTurn);
+        }
+    }
+    public void Controls_SkillContext()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(2);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(3);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(4);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(5);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(6);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(7);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(8);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(9);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            UISkillContext.instance.ActivateButtonInPosition(10);
+        }
+    }
+    public void Controls_ItemContext()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(2);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(3);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(4);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(5);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(6);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(7);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(8);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(9);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            UIItemContext.instance.ActivateButtonInPosition(10);
+        }
+    }
+    #endregion
+
     public void                     SetBattleIndexToMax ()                          
     {
         currentBattleIndex = currentLevel.waves.Length;
@@ -676,6 +671,23 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(secondsToDelay);
 
         delayedAction.Invoke();
+    }
+    #endregion
+
+    #region Observable
+    public void Notify(ObservableActionTypes action)
+    {
+        switch (action)
+        {
+            case ObservableActionTypes.ItemContextActivated:
+                EventManager.AddToEvent(EventManager.Events.Controls_WaitingForAction, Controls_ItemContext);
+                EventManager.RemoveFromEvent(EventManager.Events.Controls_WaitingForAction, Controls_SkillContext);
+                break;
+            case ObservableActionTypes.SkillContextActivated:
+                EventManager.AddToEvent(EventManager.Events.Controls_WaitingForAction, Controls_SkillContext);
+                EventManager.RemoveFromEvent(EventManager.Events.Controls_WaitingForAction, Controls_ItemContext);
+                break;
+        }
     }
     #endregion
 }

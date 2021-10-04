@@ -42,6 +42,7 @@ public class UICharacterActions : ButtonList
     private void Start()
     {
         instance = this;
+        EventManager.AddToEvent(EventManager.Events.Controls_WaitingForAction, BattleManager.i.Controls_ActionHotkeys);
     }
 
     public void AddAction(CharActions action)

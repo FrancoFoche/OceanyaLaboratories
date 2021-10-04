@@ -8,11 +8,13 @@ public class UIItemContext : ButtonList
     public Color selectedColor;
     static Character loadedCharacter;
     public static UIItemContext instance;
+    List<IObserver> _obs = new List<IObserver>();
 
     private void Awake()
     {
         instance = this;
         Hide();
+        AddToObserver(BattleManager.i);
     }
 
     public void LoadItems(Character character)
@@ -25,23 +27,23 @@ public class UIItemContext : ButtonList
             AddItem(character.inventory[a]);
         }
     }
-
     public void AddItem(ItemInfo item)
     {
         GameObject newEntry = AddObject(); ;
         newEntry.GetComponent<UIItemButton>().LoadItem(item.item, item.amount);
     }
-
     public void Show()
     {
         Character character = BattleManager.caster;
         LoadItems(character);
         DeactivateVisualSelect();
         gameObject.SetActive(true);
+        NotifyObserver(ObservableActionTypes.ItemContextActivated);
     }
     public void Hide()
     {
         BattleManager.i.tooltipPopup.HideInfo();
+        
         gameObject.SetActive(false);
     }
 
@@ -112,4 +114,30 @@ public class UIItemContext : ButtonList
             }
         }
     }
+
+    #region Observer
+    public void AddToObserver(IObserver obs)
+    {
+        if (!_obs.Contains(obs))
+        {
+            _obs.Add(obs);
+        }
+    }
+
+    public void RemoveFromObserver(IObserver obs)
+    {
+        if (_obs.Contains(obs))
+        {
+            _obs.Remove(obs);
+        }
+    }
+
+    public void NotifyObserver(ObservableActionTypes action)
+    {
+        for (int i = 0; i < _obs.Count; i++)
+        {
+            _obs[i].Notify(action);
+        }
+    }
+    #endregion
 }
