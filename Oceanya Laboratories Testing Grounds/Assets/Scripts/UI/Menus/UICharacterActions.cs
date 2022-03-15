@@ -42,7 +42,6 @@ public class UICharacterActions : ButtonList
     private void Start()
     {
         instance = this;
-        EventManager.AddToEvent(EventManager.Events.Controls_WaitingForAction, BattleManager.i.Controls_ActionHotkeys);
     }
 
     public void AddAction(CharActions action)
@@ -139,7 +138,7 @@ public class UICharacterActions : ButtonList
                             BattleManager.i.battleLog.LogBattleEffect($"{caster.name} attacks the dead body of {target[i].name}... How rude.");
                         }
                     }
-
+                    caster.Analytics_TriggerActionUsed(action);
                     TeamOrderManager.EndTurn();
                 }
                 break;
@@ -147,19 +146,21 @@ public class UICharacterActions : ButtonList
             case CharActions.Defend:
                 {
                     caster.SetDefending(true);
+                    caster.Analytics_TriggerActionUsed(action);
                     TeamOrderManager.EndTurn();
                 }
                 break;
 
             case CharActions.Skill:
                 {
-                    Debug.Log("Entered Skill ACT; Skill to activate: " + skillToActivate.name);
+                    caster.Analytics_TriggerActionUsed(action);
                     skillToActivate.Action(caster, target, caster.GetSkillFromSkillList(skillToActivate));
                 }
                 break;
 
             case CharActions.Item:
                 {
+                    caster.Analytics_TriggerActionUsed(action);
                     itemToUse.Action(caster, target, caster.GetItemFromInventory(itemToUse));
                 }
                 break;
@@ -192,6 +193,7 @@ public class UICharacterActions : ButtonList
                             BattleManager.i.battleLog.LogBattleEffect($"Can't swap with {target[0].name} because they aren't from the same team as {caster.name}.");
                         }
 
+                        caster.Analytics_TriggerActionUsed(action);
                         TeamOrderManager.EndTurn();
                         BattleManager.i.teamOrderMenu.UpdateTeamOrder();
                     }
@@ -209,6 +211,7 @@ public class UICharacterActions : ButtonList
             case CharActions.EndTurn:
                 {
                     BattleManager.i.battleLog.LogBattleEffect($"{caster.name} skips their turn...");
+                    caster.Analytics_TriggerActionUsed(action);
                     TeamOrderManager.EndTurn();
                 }
                 break;
@@ -359,8 +362,8 @@ public class UICharacterActions : ButtonList
         DeactivateVisualSelect();
         TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
         BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
-        UIItemContext.instance.Hide();
-        UISkillContext.instance.Hide();
+        //UIItemContext.instance.Hide();
+        //UISkillContext.instance.Hide();
 
         Character character;
 

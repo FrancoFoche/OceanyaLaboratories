@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using UnityEngine.EventSystems;
-
 public class ItemToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Item item;
@@ -20,12 +19,14 @@ public class ItemToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        LoadItem(gameObject.GetComponent<UIItemButton>().loadedItem);
-        BattleManager.i.tooltipPopup.DisplayInfo(result);
+        Item item = gameObject.GetComponent<ILoader<Item>>().GetLoaded();
+
+        LoadItem(item);
+        TooltipPopup.instance.DisplayInfo(result);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        BattleManager.i.tooltipPopup.HideInfo();
+        TooltipPopup.instance.HideInfo();
     }
 }

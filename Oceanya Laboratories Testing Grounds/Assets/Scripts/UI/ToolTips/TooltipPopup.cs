@@ -9,6 +9,7 @@ namespace Kam.TooltipUI
 {
     public class TooltipPopup : MonoBehaviour
     {
+        public static TooltipPopup instance;
         public  RectTransform   popupObject;
         public  TextMeshProUGUI infoText;
         public  Vector3         offset;
@@ -18,6 +19,7 @@ namespace Kam.TooltipUI
 
         private void Awake()
         {
+            instance = this;
             popupCanvas = GetComponentInParent<Canvas>();
             HideInfo();
         }
@@ -34,25 +36,13 @@ namespace Kam.TooltipUI
             Vector3 newPos = Input.mousePosition + offset;
             newPos.z = 0;
 
-            float rightEdgeToScreen = Screen.width - (newPos.x + popupObject.rect.width * popupCanvas.scaleFactor) - padding;
-            float leftEdgeToScreen = 0 - newPos.x  + padding;
+            float maxXPos = Screen.width - ((popupObject.rect.width * 2.5f) * popupCanvas.scaleFactor) - padding;
+            float minXPos = 0;
+            float maxYPos = Screen.height - ((popupObject.rect.height * 2.5f) * popupCanvas.scaleFactor) - padding;
+            float minYPos = 0;
 
-            float upEdgeToScreen = Screen.height - (newPos.y + popupObject.rect.height * popupCanvas.scaleFactor) - padding;
-
-            if (rightEdgeToScreen < 0)
-            {
-                newPos.x += rightEdgeToScreen;
-            }
-
-            if(leftEdgeToScreen > 0)
-            {
-                newPos.x += leftEdgeToScreen;
-            }
-
-            if(upEdgeToScreen < 0)
-            {
-                newPos.y += upEdgeToScreen;
-            }
+            newPos.x = Mathf.Clamp(newPos.x, minXPos, maxXPos);
+            newPos.y = Mathf.Clamp(newPos.y, minYPos, maxYPos);
 
             popupObject.position = newPos;
         }

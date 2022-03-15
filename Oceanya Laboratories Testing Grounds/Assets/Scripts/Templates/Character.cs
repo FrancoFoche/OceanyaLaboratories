@@ -25,6 +25,18 @@ public class Character
     {
         [SerializeField] public Stats stat;
         [SerializeField] public int value;
+
+        public static Stat operator +(Stat a, int b)
+        {
+            a.value += b;
+            return a;
+        }
+
+        public static Stat operator -(Stat a, int b)
+        {
+            a.value -= b;
+            return a;
+        }
     }
 
     public class BasicAttack
@@ -72,15 +84,12 @@ public class Character
     private int                                 _timesPlayed;
     private bool                                _checkedPassives;
 
-    private BattleUI                           _curUI;
-    private Texture2D                          _sprite;
-    private SpriteAnimator                     _curSprite;
+    private CharacterView _view;
 
     #region Getters/Setters
     public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
     public int                                  ID                          { get { return _ID; }                       protected set { _ID = value; } }
     public string                               name                        { get { return _name; }                     protected set { _name = value; } }
-    public Texture2D                            sprite                      { get { return _sprite; }                   protected set { _sprite = value; } }
 
     public LevellingSystem                      level                       { get { return _level; }                    set { _level = value; } }
     public List<Stat>                           stats                       { get { return _stats; }                    protected set { _stats = value; } }
@@ -104,11 +113,12 @@ public class Character
 
     public bool                                 checkedPassives             { get { return _checkedPassives; }          protected set { _checkedPassives = value; } }
 
-    public BattleUI                             curUI                       { get { return _curUI; }                    set { _curUI = value; } }
-    public SpriteAnimator                       curSprite                   { get { return _curSprite; }                set { _curSprite = value; } }
+
 
     public Dictionary<CharActions, int>         importanceOfActions         { get { return _importanceOfActions; }      protected set { _importanceOfActions = value; } }
     public Dictionary<Skill, int>               importanceOfSkills          { get { return _importanceOfSkills; }       protected set { _importanceOfSkills = value; } }
+
+    public CharacterView                        view                        { get { return _view; }                     protected set { _view = value; } }
     #endregion
 
     protected void InitializeVariables()
@@ -140,6 +150,7 @@ public class Character
 
         importanceOfActions = new Dictionary<CharActions, int>();
         importanceOfSkills = new Dictionary<Skill, int>();
+        view = new CharacterView();
     }
 
     #region Character Reactions
@@ -153,7 +164,7 @@ public class Character
                 ActivatePassiveEffects(ActivationTime_General.WhenAttacked);
             }
 
-            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
+            view.Damage();
             float multiplier = ElementSystem.GetMultiplier(element, _elementalKind);
             int originalDMG = CalculateDefenses(Mathf.CeilToInt(rawDamage * multiplier), damageType);
             int dmg = originalDMG;
@@ -203,13 +214,13 @@ public class Character
             }
             order();
 
-            int result = stats.GetStat(Stats.CURHP).value - dmg;
+            int result = GetStat(Stats.CURHP).value - dmg;
             if (result <= 0)
             {
-                stats.GetStat(Stats.CURHP).value = 0;
+                GetStat(Stats.CURHP).value = 0;
                 Die();
 
-                int exp = stats.GetStat(Stats.MAXHP).value / 3;
+                int exp = GetStat(Stats.MAXHP).value / 3;
                 BattleManager.i.battleLog.LogBattleEffect($"{name} is now dead as fuck!");
                 caster.AddExp(exp);
                 SettingsManager.SaveSettings();
@@ -217,7 +228,7 @@ public class Character
 
             if (!dead)
             {
-                stats.GetStat(Stats.CURHP).value = result;
+                GetStat(Stats.CURHP).value = result;
             }
         }
         else
@@ -230,17 +241,17 @@ public class Character
     {
         if (!dead)
         {
-            curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Heal);
+            view.Heal();
 
-            int result = stats.GetStat(Stats.CURHP).value + HealAmount;
+            int result = GetStat(Stats.CURHP).value + HealAmount;
 
-            if (result > stats.GetStat(Stats.MAXHP).value)
+            if (result > GetStat(Stats.MAXHP).value)
             {
-                stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
+                GetStat(Stats.CURHP).value = GetStat(Stats.MAXHP).value;
             }
             else
             {
-                stats.GetStat(Stats.CURHP).value = result;
+                GetStat(Stats.CURHP).value = result;
             }
         }
     }
@@ -287,38 +298,38 @@ public class Character
             {
                 if(modificationType == StatModificationTypes.Buff)
                 {
-                    int result = stats.GetStat(currentStat).value + modifiedStats[currentStat];
+                    int result = GetStat(currentStat).value + modifiedStats[currentStat];
 
                     if(currentStat != Stats.PR && currentStat != Stats.MR)
                     {
-                        stats.GetStat(currentStat).value = result;
+                        GetStat(currentStat).value = result;
                     }
                     else
                     {
                         if(result > PRandMRMAX)
                         {
-                            stats.GetStat(currentStat).value = PRandMRMAX;
+                            GetStat(currentStat).value = PRandMRMAX;
                         }
                         else
                         {
-                            stats.GetStat(currentStat).value = result;
+                            GetStat(currentStat).value = result;
                         }
                     }
-
-                    curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Buff);
+                    view.Buff();
+                   
                 }
                 else if (modificationType == StatModificationTypes.Debuff)
                 {
-                    int result = stats.GetStat(currentStat).value - modifiedStats[currentStat];
+                    int result = GetStat(currentStat).value - modifiedStats[currentStat];
                     if(result < StatMinimum)
                     {
-                        stats.GetStat(currentStat).value = StatMinimum;
+                        GetStat(currentStat).value = StatMinimum;
                     }
                     else
                     {
-                        stats.GetStat(currentStat).value = result;
+                        GetStat(currentStat).value = result;
                     }
-                    curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Debuff);
+                    view.Debuff();
                 }
             }
         }
@@ -332,13 +343,13 @@ public class Character
     public void     Revive                  ()                                                                                      
     {
         dead = false;
-        stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
+        GetStat(Stats.CURHP).value = GetStat(Stats.MAXHP).value;
+        view.Revive();
     }
     public void     Die                     ()                                                                                      
     {
         dead = true;
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
+        view.Die();
     }
     public virtual void AddExp              (int exp)                                                                               
     {
@@ -349,8 +360,8 @@ public class Character
     #region Useful Methods
     public int              CalculateDefenses(int damageRaw, DamageType damageType)
     {
-        int targetMR = stats.GetStat(Stats.MR).value;
-        int targetPR = stats.GetStat(Stats.PR).value;
+        int targetMR = GetStat(Stats.MR).value;
+        int targetPR = GetStat(Stats.PR).value;
 
         float defensePercentRatio = 0.25f; // Ratio of defense % per point in MR or PR. (Example: with 10 PR you get 2.5% defense against physical types.)
         float resultDefensePercent = 0; //The defense you have against whatever damage type it is.
@@ -421,14 +432,14 @@ public class Character
     public void             ResetToOriginalStatBuffs()
     {
         List<Stat> copy = _baseStats.Copy();
-        copy.GetStat(Stats.CURHP).value = stats.GetStat(Stats.CURHP).value;
+        copy.GetStat(Stats.CURHP).value = GetStat(Stats.CURHP).value;
         stats = copy;
     }
     public void             ResetHP()
     {
         dead = false;
         permadead = false;
-        stats.GetStat(Stats.CURHP).value = stats.GetStat(Stats.MAXHP).value;
+        GetStat(Stats.CURHP).value = GetStat(Stats.MAXHP).value;
     }
     #endregion
 
@@ -597,7 +608,10 @@ public class Character
         Debug.LogError($"{name} did not have the item {item.name}");
         return null;
     }
-
+    public virtual Stat GetStat(Stats stat)
+    {
+        return stats.Find(returnStat => returnStat.stat == stat);
+    }
     public void GiveItem(Item item, int amount)
     {
         ItemInfo itemCheck = null;
@@ -890,6 +904,73 @@ public class Character
         importanceOfSkills = normalImportance;
     }
     #endregion
+
+    #region Analytics
+    private Dictionary<CharActions, int> _analytics_actionUsage = new Dictionary<CharActions, int>();
+    public Dictionary<CharActions, int> analytics_actionUsage { get { return _analytics_actionUsage; } set { _analytics_actionUsage = value; } }
+    public void Analytics_TriggerActionUsed(CharActions action)
+    {
+        if (analytics_actionUsage.ContainsKey(action))
+        {
+            analytics_actionUsage[action]++;
+        }
+        else
+        {
+            analytics_actionUsage.Add(action, 1);
+        }
+    }
+    #endregion
+}
+
+public class CharacterView
+{
+    private BattleUI _curUI;
+    private Texture2D _sprite;
+    private SpriteAnimator _curSprite;
+
+    public BattleUI curUI { get { return _curUI; } set { _curUI = value; } }
+    public Texture2D sprite { get { return _sprite; } set { _sprite = value; } }
+    public SpriteAnimator curSprite { get { return _curSprite; } set { _curSprite = value; } }
+
+    public void UpdateUI()
+    {
+        curUI.UpdateUI();
+    }
+
+    public void ExtraEffect(EffectAnimator.Effects extraEffect)
+    {
+        curUI.effectAnimator.PlayEffect(extraEffect);
+    }
+
+    public void Damage()
+    {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
+    }
+
+    public void Heal()
+    {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Heal);
+    }
+
+    public void Die()
+    {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
+    }
+
+    public void Revive()
+    {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
+    }
+
+    public void Buff()
+    {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Buff);
+    }
+
+    public void Debuff()
+    {
+        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Debuff);
+    }
 }
 
 public static class CharacterExtensionMethods

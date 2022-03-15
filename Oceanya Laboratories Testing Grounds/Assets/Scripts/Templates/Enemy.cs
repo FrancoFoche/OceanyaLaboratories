@@ -13,7 +13,7 @@ public class Enemy : Character
         this.name = name;
         this.elementalKind = elementalKind;
 
-        this.sprite = sprite;
+        this.view.sprite = sprite;
 
         List<Stat> newStats = new List<Stat>();
 
@@ -43,7 +43,7 @@ public class Enemy : Character
         #endregion
 
         #region References
-        this.sprite = enemy.sprite;
+        this.view.sprite = enemy.view.sprite;
 
         this._baseStats = enemy._baseStats.Copy();
         this.stats = enemy.stats.Copy();

@@ -45,6 +45,7 @@ public static class SavesManager
         {
             File.Delete(SAVE_FOLDER + SAVE_NAME);
             SettingsManager.lastClearedLevel = -1;
+            Debug.LogWarning("SAVE WAS DELETED");
         }
     }
 }

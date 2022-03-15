@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class BattleLog : MonoBehaviour
+public class BattleLog : MonoBehaviour, IObservable
 {
     public int maxMessages;
 
@@ -21,11 +21,29 @@ public class BattleLog : MonoBehaviour
 
     [SerializeField]
     List<Message> messageList = new List<Message>();
+    bool inputActive = false;
+    private void Start()
+    {
+        AddToObserver(BattleManager.i);
+        NotifyObserver(ObservableActionTypes.ChatDeactivated);
+    }
 
     private void Update()
     {
+        if (chatBox.isFocused && !inputActive)
+        {
+            inputActive = true;
+            NotifyObserver(ObservableActionTypes.ChatActivated);
+        }
+        else if(!chatBox.isFocused && inputActive)
+        {
+            inputActive = false;
+            NotifyObserver(ObservableActionTypes.ChatDeactivated);
+        }
+
         if(chatBox.text != "")
         {
+            
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 if(CommandCheck(chatBox.text) == false)
@@ -53,7 +71,7 @@ public class BattleLog : MonoBehaviour
     /// <returns></returns>
     public bool CommandCheck(string str)
     {
-        switch (str)
+        switch (str.ToLower())
         {
             case "/giveup":
                 LogImportant("Player tries to give up.");
@@ -72,6 +90,10 @@ public class BattleLog : MonoBehaviour
 
             case "/togglemanual":
                 SettingsManager.ToggleDebugMode();
+                return true;
+
+            case "/deletesave":
+                UIActionConfirmationPopUp.i.Show(delegate { SavesManager.DeleteSave(); SceneLoaderManager.instance.ReloadScene(); }, false, "Are you ABSOLUTELY sure that you want to delete your save file?");
                 return true;
         }
 
@@ -239,6 +261,33 @@ public class BattleLog : MonoBehaviour
 
         eventAfterCountdown.Invoke();
     }
+
+    #region Observer
+    List<IObserver> _obs = new List<IObserver>();
+    public void AddToObserver(IObserver obs)
+    {
+        if (!_obs.Contains(obs))
+        {
+            _obs.Add(obs);
+        }
+    }
+
+    public void RemoveFromObserver(IObserver obs)
+    {
+        if (_obs.Contains(obs))
+        {
+            _obs.Remove(obs);
+        }
+    }
+
+    public void NotifyObserver(ObservableActionTypes action)
+    {
+        for (int i = 0; i < _obs.Count; i++)
+        {
+            _obs[i].Notify(action);
+        }
+    }
+    #endregion
 }
 
 [System.Serializable]

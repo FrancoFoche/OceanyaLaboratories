@@ -15,11 +15,11 @@ public class ActionButtonToolTip : MonoBehaviour, IPointerEnterHandler, IPointer
 
         info.Append("<color=green>").Append("<size=15>").Append(gameObject.name).Append("</size>").Append("</color>").AppendLine();
         info.Append(this.info);
-        BattleManager.i.tooltipPopup.DisplayInfo(info);
+        TooltipPopup.instance.DisplayInfo(info);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        BattleManager.i.tooltipPopup.HideInfo();
+        TooltipPopup.instance.HideInfo();
     }
 }

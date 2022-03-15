@@ -1,7 +1,13 @@
 ﻿public enum ObservableActionTypes
 {
     ItemContextActivated,
-    SkillContextActivated
+    ItemContextDeActivated,
+    SkillContextActivated,
+    SkillContextDeActivated,
+    ChatActivated,
+    ChatDeactivated,
+    Paused,
+    UnPaused
 }
 
 /// <summary>

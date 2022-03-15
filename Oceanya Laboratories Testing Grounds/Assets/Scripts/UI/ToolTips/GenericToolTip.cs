@@ -10,17 +10,16 @@ public class GenericToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     [TextArea(10,40)]
     public string text;
     StringBuilder stringBuilder;
-    public TooltipPopup tooltip;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         stringBuilder = new StringBuilder();
         stringBuilder.Append(text);
-        tooltip.DisplayInfo(stringBuilder);
+        TooltipPopup.instance.DisplayInfo(stringBuilder);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        tooltip.HideInfo();
+        TooltipPopup.instance.HideInfo();
     }
 }

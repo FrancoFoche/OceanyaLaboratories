@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 [System.Serializable]
 public struct StatLine
 {
-    public Text statName;
-    public Text baseStat;
-    public Text resultStat;
+    public TextMeshProUGUI statName;
+    public TextMeshProUGUI baseStat;
+    public TextMeshProUGUI resultStat;
 }
 
 public class AllyBattleUI : BattleUI
 {
     [Header("ALLY INFO")]
-    public Text                                     levelText;
+    public TextMeshProUGUI                  levelText;
 
-    public Text                                     classText;
+    public TextMeshProUGUI                  classText;
 
     public UILevelProgressBar              levelProgress;
     private int savedLevel;
@@ -55,7 +56,6 @@ public class AllyBattleUI : BattleUI
         }
         else
         {
-            Debug.Log("trigger");
             levelProgress.progress.SetValue(character.level.EXP);
         }
 

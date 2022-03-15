@@ -39,13 +39,13 @@ public static class TeamOrderManager
             allySide[i].SetTeam(Team.Ally);
             allySide[i].SetAIControlled(false);
 
-            if(BattleManager.i.battleState == BattleState.Lost)
+            if(BattleManager.i.battleState == BattleState.Won)
             {
-                allySide[i].ResetFull();
+                allySide[i].ResetToOriginalStatBuffs();
             }
             else
             {
-                allySide[i].ResetToOriginalStatBuffs();
+                allySide[i].ResetFull();
             }
         }
         for (int i = 0; i < enemySide.Count; i++)
@@ -320,7 +320,7 @@ public class SPDSystem
             for (int j = 0; j < curTeam.Count; j++)
             {
                 Character curCharacter = curTeam[j];
-                int curAGI = curCharacter.stats.GetStat(Stats.AGI).value;
+                int curAGI = curCharacter.GetStat(Stats.AGI).value;
 
                 if (curAGI > maxAGIteam)
                 {
@@ -400,7 +400,7 @@ public class SPDSystemInfo
     public SPDSystemInfo                (Character character)   
     {
         this.character = character;
-        AGI = character.stats.GetStat(Stats.AGI).value;
+        AGI = character.GetStat(Stats.AGI).value;
         int maxDelay = TeamOrderManager.spdSystem.MaxDelay;
         CounterIncrease = (float)(AGI + (maxDelay * 0.2)) / maxDelay;
         UpdateCurrentCounter();

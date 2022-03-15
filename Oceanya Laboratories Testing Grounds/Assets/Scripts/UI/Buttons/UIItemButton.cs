@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UIItemButton : MonoBehaviour
+public class UIItemButton : MonoBehaviour, ILoader<Item>
 {
     public Item loadedItem;
     public Button button;
@@ -51,5 +51,10 @@ public class UIItemButton : MonoBehaviour
     public void DeactivateColorOverlay()
     {
         colorOverlay.gameObject.SetActive(false);
+    }
+
+    public Item GetLoaded()
+    {
+        return loadedItem;
     }
 }

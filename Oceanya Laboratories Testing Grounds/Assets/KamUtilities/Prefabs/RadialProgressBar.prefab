@@ -102,10 +102,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a669422375fa9e64db3c1196bfa889cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radialImage: {fileID: 38710241613987937}
+  radialImage: {fileID: 1126719100420532273}
   maxValue: 100
   minValue: 0
-  targetValue: 100
+  currentValue: 1
   animSpeed: 4
   onFull:
     m_PersistentCalls:
@@ -126,7 +126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 38710241613987938}
   - component: {fileID: 38710241613987936}
-  - component: {fileID: 38710241613987937}
+  - component: {fileID: 1126719100420532273}
   m_Layer: 5
   m_Name: Progress
   m_TagString: Untagged
@@ -161,7 +161,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 38710241613987939}
   m_CullTransparentMesh: 0
---- !u!114 &38710241613987937
+--- !u!114 &1126719100420532273
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 38710241613987939}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da3a18c6aceb41e478aff7fef3924d9e, type: 3}
+  m_Script: {fileID: 11500000, guid: b3222ed30135e3d408b2ddc78fce98ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -184,9 +184,9 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 0.424
-  m_FillClockwise: 0
-  m_FillOrigin: 2
+  m_FillAmount: 0.33
+  m_FillClockwise: 1
+  m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
 --- !u!1 &1269809580603025974
@@ -199,7 +199,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5906638414929069759}
   - component: {fileID: 1250385615565988240}
-  - component: {fileID: 2683773628885496835}
+  - component: {fileID: 8022256239980871408}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -234,7 +234,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1269809580603025974}
   m_CullTransparentMesh: 0
---- !u!114 &2683773628885496835
+--- !u!114 &8022256239980871408
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -243,22 +243,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1269809580603025974}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da3a18c6aceb41e478aff7fef3924d9e, type: 3}
+  m_Script: {fileID: 11500000, guid: b3222ed30135e3d408b2ddc78fce98ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.23921569}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.19607843}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 72bd626a363ee6346aaa74404768e5a2, type: 3}
-  m_Type: 3
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
-  m_FillClockwise: 0
-  m_FillOrigin: 2
+  m_FillClockwise: 1
+  m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1

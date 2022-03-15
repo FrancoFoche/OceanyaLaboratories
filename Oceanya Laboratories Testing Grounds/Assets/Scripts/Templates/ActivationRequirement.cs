@@ -94,7 +94,7 @@ public class ActivationRequirement
     public bool CheckRequirement()
     {
         Character caster = BattleManager.caster;
-        int statValue = caster.stats.GetStat(stat).value;
+        int statValue = caster.GetStat(stat).value;
         switch (type)
         {
             case RequirementType.Stat:

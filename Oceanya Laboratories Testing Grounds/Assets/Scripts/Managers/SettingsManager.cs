@@ -13,6 +13,22 @@ public static class SettingsManager
     public static int   lastClearedLevel = -1;
     public static float volume = 1;
 
+
+    #region Analytics
+    public static int adsViewed = 0;
+    public static int gachaPulls = 0;
+
+    public static void Analytics_Reset()
+    {
+        adsViewed = 0;
+        gachaPulls = 0;
+    }
+    public static void Analytics_Send()
+    {
+        AnalyticsManager.SendEvent_AdsViewed(adsViewed);
+        AnalyticsManager.SendEvent_GachaPulls(gachaPulls);
+    }
+    #endregion
     public static void UpdateSettingsFromSaveFile()
     {
         SaveFile save = SavesManager.loadedFile;

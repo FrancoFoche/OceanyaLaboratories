@@ -31,26 +31,45 @@ public class BattleManager : MonoBehaviour, IObserver
     public static BattleManager i { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
 
 
-    public static   Character           caster              { get; private set; }
-    public static   List<Character>     target              { get; private set; }
+    public static Character caster { get; private set; }
+    public static List<Character> target { get; private set; }
 
-    public static   LevelManager.BattleLevel currentLevel   { get; private set; }
-    public static   int                 currentBattleIndex  { get; private set; }
+    public static LevelManager.BattleLevel currentLevel { get; private set; }
+    public static int currentBattleIndex { get; private set; }
 
-    public          BattleState         battleState         { get; private set; }
+    public BattleState battleState { get; private set; }
 
-    public          bool                inCombat            { get; private set; }
-    public          bool                enemyTeamDeath      { get; private set; }
-    public          bool                allyTeamDeath       { get; private set; }
+    public bool inCombat { get; private set; }
+    public bool enemyTeamDeath { get; private set; }
+    public bool allyTeamDeath { get; private set; }
 
-    public          BattleLog                   battleLog;
-    public          BattleUIList                uiList;
-    public          UICharacterActions          charActions;
-    public          PauseMenu                   pauseMenu;
-    public          TooltipPopup                tooltipPopup;
-    public          UIMenu_TeamOrder            teamOrderMenu;
+    [Header("Controls")]
+    public ContextMenuControl[] contextMenuControls;
+    public ActionMenuControl[] actionMenuControls;
 
-    public          GameObject                  easteregg;
+    [System.Serializable]
+    public struct ContextMenuControl
+    {
+        public string name;
+        public KeyCode[] keys;
+    }
+
+    [System.Serializable]
+    public struct ActionMenuControl
+    {
+        public string name;
+        public KeyCode[] keys;
+        public CharActions action;
+    }
+
+    [Header("References")]
+    public BattleLog battleLog;
+    public BattleUIList uiList;
+    public UICharacterActions charActions;
+    public PauseMenu pauseMenu;
+    public UIMenu_TeamOrder teamOrderMenu;
+
+    public GameObject easteregg;
 
     Utilities_Input_HoldKey hold1 = new Utilities_Input_HoldKey(false);
     private void Awake()
@@ -82,310 +101,218 @@ public class BattleManager : MonoBehaviour, IObserver
         StartCombat(currentLevel.waves[0]);
     }
 
+    Action onUpdate = null;
     private void Update()
     {
-        if (!battleLog.chatBox.isFocused)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                if (TeamOrderManager.turnState == TurnState.WaitingForConfirmation || TeamOrderManager.turnState == TurnState.WaitingForTarget)
-                {
-                    if (UIActionConfirmationPopUp.i.waitingForConfirmation)
-                    {
-                        UIActionConfirmationPopUp.i.Deny();
-                    }
-
-                    if (UICharacterActions.instance.waitingForConfirmation)
-                    {
-                        UICharacterActions.instance.DenyAction();
-                    }
-                }
-                else
-                {
-                    pauseMenu.TogglePause();
-                }
-            }
-
-            if(hold1.HoldKey(KeyCode.Escape, 1.5f))
-            {
-                SceneLoaderManager.instance.Quit();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                if (UIActionConfirmationPopUp.i.waitingForConfirmation)
-                {
-                    UIActionConfirmationPopUp.i.Confirm();
-                }
-                else
-                {
-                    if (!TeamOrderManager.AIturn)
-                    {
-                        switch (TeamOrderManager.turnState)
-                        {
-                            case TurnState.WaitingForTarget:
-                                Action temp = delegate
-                                {
-                                    Debug.Log("Targetting done.");
-                                    TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
-                                };
-
-                                if (target.Count == 0)
-                                {
-                                    UIActionConfirmationPopUp.i.Show(temp, true, "You have selected no targets, are you sure you want to confirm your action?");
-                                }
-                                else
-                                {
-                                    temp();
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
-
-            if (!pauseMenu.paused)
-            {
-                if (Input.GetKeyDown(KeyCode.Tab))
-                {
-                    teamOrderMenu.ToggleVisibility();
-                }
-
-                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
-                {
-                    if (Input.GetKey(KeyCode.LeftShift))
-                    {
-                        UIActionConfirmationPopUp.i.Show(delegate { SavesManager.DeleteSave(); SceneLoaderManager.instance.ReloadScene(); }, false, "Are you ABSOLUTELY sure that you want to delete your save file?");
-                    }
-                    else
-                    {
-                        UIActionConfirmationPopUp.i.Show(() => SceneLoaderManager.instance.ReloadScene(), false, "Are you sure you want to restart the battle?");
-                    }
-                }
-
-                if (TeamOrderManager.turnState != TurnState.End && TeamOrderManager.turnState != TurnState.Start && TeamOrderManager.turnState != TurnState.NonDefined)
-                {
-                    if (TeamOrderManager.turnState == TurnState.WaitingForTarget || TeamOrderManager.turnState == TurnState.WaitingForConfirmation)
-                    {
-                        if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
-                        {
-                            if (target.Count == UICharacterActions.instance.maxTargets)
-                            {
-                                Debug.Log("Targetting done.");
-                                TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
-                            }
-                            else
-                            {
-                                if (caster.team == Team.Ally || SettingsManager.manualMode)
-                                {
-                                    SetTargets(uiList.CheckTargets());
-                                }
-                            }
-                        }
-
-                        if (!TeamOrderManager.AIturn)
-                        {
-                            if (Input.GetMouseButtonDown(1))
-                            {
-                                UICharacterActions.instance.DenyAction();
-                            }
-                        }
-                    }
-                    else if (TeamOrderManager.turnState == TurnState.WaitingForAction)
-                    {
-                        if (!UIActionConfirmationPopUp.i.waitingForConfirmation)
-                        {
-                            EventManager.TriggerEvent(EventManager.Events.Controls_WaitingForAction);
-                        }
-
-                        if (SettingsManager.manualMode)
-                        {
-                            uiList.CheckCurrentSelection();
-                            bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
-                            if (togglesOn && uiList.different)
-                            {
-                                uiList.UpdateSelected();
-                                GetCaster();
-                            }
-
-                            #region Debug Features
-                            if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn)
-                            {
-                                battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
-                                ReselectOriginalTurn();
-                            }
-                            #endregion
-                        }
-                        else
-                        {
-                            if (BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
-                            {
-                                Debug.LogWarning("The half-assed bugfix patch was triggered.");
-                                uiList.SelectCharacter(TeamOrderManager.currentTurn);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        onUpdate?.Invoke();
     }
 
     #region Controls
-    public void Controls_ActionHotkeys()
+    Action onPlaying = null;
+    //This boolean is here to prevent other hotkeys from activating this frame after the confirmation.
+    bool wasWaitingForConfirmation = false;
+    public void Controls_General()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        wasWaitingForConfirmation = false;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            UICharacterActions.instance.ButtonAction(CharActions.Attack);
+            if (TeamOrderManager.turnState == TurnState.WaitingForConfirmation || TeamOrderManager.turnState == TurnState.WaitingForTarget)
+            {
+                if (UIActionConfirmationPopUp.i.waitingForConfirmation)
+                {
+                    UIActionConfirmationPopUp.i.Deny();
+                }
+
+                if (UICharacterActions.instance.waitingForConfirmation)
+                {
+                    UICharacterActions.instance.DenyAction();
+                }
+            }
+            else
+            {
+                pauseMenu.TogglePause();
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.W))
+        if (hold1.HoldKey(KeyCode.Escape, 1.5f))
         {
-            UICharacterActions.instance.ButtonAction(CharActions.Defend);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            UICharacterActions.instance.ButtonAction(CharActions.Skill);
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            UICharacterActions.instance.ButtonAction(CharActions.Item);
-        }
-
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            UICharacterActions.instance.ButtonAction(CharActions.Rearrange);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            UICharacterActions.instance.ButtonAction(CharActions.Prepare);
+            SceneLoaderManager.instance.Quit();
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            UICharacterActions.instance.ButtonAction(CharActions.EndTurn);
+            if (UIActionConfirmationPopUp.i.waitingForConfirmation)
+            {
+                wasWaitingForConfirmation = true;
+                UIActionConfirmationPopUp.i.Confirm();
+            }
+            else
+            {
+                if (!TeamOrderManager.AIturn)
+                {
+                    switch (TeamOrderManager.turnState)
+                    {
+                        case TurnState.WaitingForTarget:
+                            Action temp = delegate
+                            {
+                                Debug.Log("Targetting done.");
+                                TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+                            };
+
+                            if (target.Count == 0)
+                            {
+                                UIActionConfirmationPopUp.i.Show(temp, true, "You have selected no targets, are you sure you want to confirm your action?");
+                            }
+                            else
+                            {
+                                temp();
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        onPlaying?.Invoke();
+    }
+
+    public void Controls_Playing()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            teamOrderMenu.ToggleVisibility();
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        {
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                UIActionConfirmationPopUp.i.Show(delegate { SavesManager.DeleteSave(); SceneLoaderManager.instance.ReloadScene(); }, false, "Are you ABSOLUTELY sure that you want to delete your save file?");
+            }
+            else
+            {
+                UIActionConfirmationPopUp.i.Show(() => SceneLoaderManager.instance.ReloadScene(), false, "Are you sure you want to restart the battle?");
+            }
+        }
+
+        if (TeamOrderManager.turnState != TurnState.End && TeamOrderManager.turnState != TurnState.Start && TeamOrderManager.turnState != TurnState.NonDefined)
+        {
+            if (TeamOrderManager.turnState == TurnState.WaitingForTarget || TeamOrderManager.turnState == TurnState.WaitingForConfirmation)
+            {
+                if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
+                {
+                    if (target.Count == UICharacterActions.instance.maxTargets)
+                    {
+                        Debug.Log("Targetting done.");
+                        TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+                    }
+                    else
+                    {
+                        if (caster.team == Team.Ally || SettingsManager.manualMode)
+                        {
+                            SetTargets(uiList.CheckTargets());
+                        }
+                    }
+                }
+
+                if (!TeamOrderManager.AIturn)
+                {
+                    if (Input.GetMouseButtonDown(1))
+                    {
+                        if (UIActionConfirmationPopUp.i.waitingForConfirmation)
+                        {
+                            UIActionConfirmationPopUp.i.Deny();
+                        }
+
+                        UICharacterActions.instance.DenyAction();
+                    }
+                }
+            }
+            else if (TeamOrderManager.turnState == TurnState.WaitingForAction)
+            {
+                if (!UIActionConfirmationPopUp.i.waitingForConfirmation)
+                {
+                    Controls_ActionHotkeys();
+                }
+
+                if (UISkillContext.instance.gameObject.activeInHierarchy || UIItemContext.instance.gameObject.activeInHierarchy)
+                {
+                    Controls_ContextMenu();
+                }
+
+                if (SettingsManager.manualMode)
+                {
+                    uiList.CheckCurrentSelection();
+                    bool togglesOn = uiList.toggleGroup.AnyTogglesOn();
+                    if (togglesOn && uiList.different)
+                    {
+                        uiList.UpdateSelected();
+                        GetCaster();
+                    }
+
+                    #region Debug Features
+                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn)
+                    {
+                        battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
+                        ReselectOriginalTurn();
+                    }
+                    #endregion
+                }
+                else
+                {
+                    if (BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
+                    {
+                        Debug.LogWarning("The half-assed bugfix patch was triggered.");
+                        uiList.SelectCharacter(TeamOrderManager.currentTurn);
+                    }
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) && !wasWaitingForConfirmation)
+            {
+                UICharacterActions.instance.ButtonAction(CharActions.EndTurn);
+            }
         }
     }
-    public void Controls_SkillContext()
+    public void Controls_ActionHotkeys()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        for (int i = 0; i < actionMenuControls.Length; i++)
         {
-            UISkillContext.instance.ActivateButtonInPosition(1);
-        }
+            ActionMenuControl current = actionMenuControls[i];
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(2);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(3);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(4);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(5);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(6);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(7);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(8);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(9);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            UISkillContext.instance.ActivateButtonInPosition(10);
+            if (current.keys.KeyPressed_Down())
+            {
+                UICharacterActions.instance.ButtonAction(current.action);
+            }
         }
     }
-    public void Controls_ItemContext()
+    public void Controls_ContextMenu()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        for (int i = 0; i < contextMenuControls.Length; i++)
         {
-            UIItemContext.instance.ActivateButtonInPosition(1);
-        }
+            ContextMenuControl current = contextMenuControls[i];
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(2);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(3);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(4);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(5);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(6);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(7);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(8);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(9);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            UIItemContext.instance.ActivateButtonInPosition(10);
+            if (current.keys.KeyPressed_Down())
+            {
+                EventManager.TriggerEvent(EventManager.Events.Controls_ContextMenu, i+1);
+            }
         }
     }
     #endregion
 
-    public void                     SetBattleIndexToMax ()                          
+    public void SetBattleIndexToMax()
     {
-        currentBattleIndex = currentLevel.waves.Length;
+        currentBattleIndex = currentLevel.waves.Length - 1;
     }
-    public void                     StartCombat         (Wave combat)               
+    public void StartCombat(Wave combat)
     {
         easteregg.gameObject.SetActive(false);
 
         enemyTeamDeath = false;
         allyTeamDeath = false;
-        
-        if(combat.waveMusic == Music.None)
+
+        if (combat.waveMusic == Music.None)
         {
             MusicManager.PlayMusic(currentLevel.levelMusic);
         }
@@ -393,11 +320,11 @@ public class BattleManager : MonoBehaviour, IObserver
         {
             MusicManager.PlayMusic(combat.waveMusic);
         }
-        
+
         TeamOrderManager.BuildTeamOrder(combat);
         SetBattleState(BattleState.Start);
     }
-    public void                     SetupBattle         ()                          
+    public void SetupBattle()
     {
         int index = 0;
         while (TeamOrderManager.spdSystem.teamOrder[index].dead)
@@ -408,9 +335,9 @@ public class BattleManager : MonoBehaviour, IObserver
         TeamOrderManager.SetCurrentTurn(caster);
         TeamOrderManager.SetTurnState(TurnState.Start);
         SetBattleState(BattleState.InCombat);
-    }           
-    
-    public void                     SetBattleState      (BattleState state)         
+    }
+
+    public void SetBattleState(BattleState state)
     {
         if (battleState == state && battleState != BattleState.Start)
         {
@@ -432,7 +359,7 @@ public class BattleManager : MonoBehaviour, IObserver
 
                         charActions.AddAllActions();
                         uiList.SetSides(TeamOrderManager.allySide, TeamOrderManager.enemySide);
-                        
+
 
                         for (int i = 0; i < TeamOrderManager.totalCharList.Count; i++)
                         {
@@ -461,7 +388,7 @@ public class BattleManager : MonoBehaviour, IObserver
                         {
                             MusicManager.PlayMusic(Music.Win);
                         }
-                        
+
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("Ally team wins!");
@@ -481,7 +408,7 @@ public class BattleManager : MonoBehaviour, IObserver
                         {
                             MusicManager.PlayMusic(Music.Lose);
                         }
-                        
+
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("Enemy team wins!");
@@ -499,7 +426,8 @@ public class BattleManager : MonoBehaviour, IObserver
                         UISkillContext.instance.Hide();
                         UIItemContext.instance.Hide();
 
-                        if (battleState == BattleState.Lost)
+                        bool lost = battleState == BattleState.Lost;
+                        if (lost)
                         {
                             currentBattleIndex = 0;
                             battleLog.LogCountdown(5, "Restarting battle in _countdown_...", () => StartCombat(currentLevel.waves[0]));
@@ -522,7 +450,8 @@ public class BattleManager : MonoBehaviour, IObserver
                             }
                             else
                             {
-                                battleLog.LogCountdown(currentLevel.waves[currentLevel.waves.Length-1].transitionOutTime, $"Going to {currentLevel.winningScene.ToString()} in _countdown_...", () => SceneLoaderManager.instance.LoadScene(currentLevel.winningScene));
+                                AnalyticsManager.SendEvent_LevelEnd(currentLevel.levelNumber, !lost, TeamOrderManager.allySide);
+                                battleLog.LogCountdown(currentLevel.waves[currentLevel.waves.Length - 1].transitionOutTime, $"Going to {currentLevel.winningScene.ToString()} in _countdown_...", () => SceneLoaderManager.instance.LoadScene(currentLevel.winningScene));
                             }
                         });
 
@@ -537,7 +466,7 @@ public class BattleManager : MonoBehaviour, IObserver
             }
         }
     }
-    public void                     TotalTeamKill_Check ()                          
+    public void TotalTeamKill_Check()
     {
         if (battleState != BattleState.End)
         {
@@ -579,7 +508,7 @@ public class BattleManager : MonoBehaviour, IObserver
             }
         }
     }
-    public void                     TotalTeamKill_Act   ()                          
+    public void TotalTeamKill_Act()
     {
         if (battleState != BattleState.End)
         {
@@ -596,7 +525,7 @@ public class BattleManager : MonoBehaviour, IObserver
             }
         }
     }
-    public void                     GetCaster           ()                          
+    public void GetCaster()
     {
         if (TeamOrderManager.currentTurn != BattleUIList.curCharacterSelected && !TeamOrderManager.AIturn)
         {
@@ -609,22 +538,22 @@ public class BattleManager : MonoBehaviour, IObserver
             caster = TeamOrderManager.currentTurn;
         }
     }
-    public void                     SetTargets          (List<Character> targets)   
+    public void SetTargets(List<Character> targets)
     {
-        if(target.Count != targets.Count)
+        if (target.Count != targets.Count)
         {
             Debug.Log("Set targets, current count: " + targets.Count);
         }
-        
+
         target = targets;
-        
+
     }
-    public void                     ClearTargets        ()                          
+    public void ClearTargets()
     {
         target = new List<Character>();
         Debug.Log("Cleared targets");
     }
-    public void                     ResetCheckedPassives()                          
+    public void ResetCheckedPassives()
     {
         caster.SetCheckedPassives(false);
 
@@ -633,12 +562,12 @@ public class BattleManager : MonoBehaviour, IObserver
             target[i].SetCheckedPassives(false);
         }
     }
-    public void                     ReselectOriginalTurn()                          
+    public void ReselectOriginalTurn()
     {
         uiList.SelectCharacter(TeamOrderManager.currentTurn);
         battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
     }
-    public void                     GiveAllyTeamEXP     (int exp)                   
+    public void GiveAllyTeamEXP(int exp)
     {
         List<Character> characters = uiList.GetTeam(Team.Ally);
 
@@ -654,19 +583,19 @@ public class BattleManager : MonoBehaviour, IObserver
             }
         }
     }
-    public void                     UpdateTeamOrder     ()                          
+    public void UpdateTeamOrder()
     {
         TeamOrderManager.BuildSPDSystem(TeamOrderManager.allySide, TeamOrderManager.enemySide);
     }
 
 
     #region Utilities
-    public void                     DelayAction         (float secondsToDelay, Action delayedAction)      
+    public void DelayAction(float secondsToDelay, Action delayedAction)
     {
         StartCoroutine(Delay(secondsToDelay, delayedAction));
     }
 
-    IEnumerator                     Delay               (float secondsToDelay, Action delayedAction)
+    IEnumerator Delay(float secondsToDelay, Action delayedAction)
     {
         yield return new WaitForSeconds(secondsToDelay);
 
@@ -675,17 +604,47 @@ public class BattleManager : MonoBehaviour, IObserver
     #endregion
 
     #region Observable
+    void ActivateButtonInPosition_Skill(params object[] parameters)
+    {
+        int position = (int)parameters[0];
+        UISkillContext.instance.ActivateButtonInPosition(position);
+    }
+    void ActivateButtonInPosition_Item(params object[] parameters)
+    {
+        int position = (int)parameters[0];
+        UIItemContext.instance.ActivateButtonInPosition(position);
+    }
     public void Notify(ObservableActionTypes action)
     {
         switch (action)
         {
             case ObservableActionTypes.ItemContextActivated:
-                EventManager.AddToEvent(EventManager.Events.Controls_WaitingForAction, Controls_ItemContext);
-                EventManager.RemoveFromEvent(EventManager.Events.Controls_WaitingForAction, Controls_SkillContext);
+                Debug.Log("Battle Observer: Added Item Controls");
+                EventManager.AddToEvent(EventManager.Events.Controls_ContextMenu, ActivateButtonInPosition_Item);
                 break;
             case ObservableActionTypes.SkillContextActivated:
-                EventManager.AddToEvent(EventManager.Events.Controls_WaitingForAction, Controls_SkillContext);
-                EventManager.RemoveFromEvent(EventManager.Events.Controls_WaitingForAction, Controls_ItemContext);
+                Debug.Log("Battle Observer: Added Skill Controls");
+                EventManager.AddToEvent(EventManager.Events.Controls_ContextMenu, ActivateButtonInPosition_Skill);
+                break;
+            case ObservableActionTypes.ItemContextDeActivated:
+                Debug.Log("Battle Observer: Removed Item Controls");
+                EventManager.RemoveFromEvent(EventManager.Events.Controls_ContextMenu, ActivateButtonInPosition_Item);
+                break;
+            case ObservableActionTypes.SkillContextDeActivated:
+                Debug.Log("Battle Observer: Removed Skill Controls");
+                EventManager.RemoveFromEvent(EventManager.Events.Controls_ContextMenu, ActivateButtonInPosition_Skill);
+                break;
+            case ObservableActionTypes.ChatActivated:
+                onUpdate = null;
+                break;
+            case ObservableActionTypes.ChatDeactivated:
+                onUpdate = Controls_General;
+                break;
+            case ObservableActionTypes.Paused:
+                onPlaying = null;
+                break;
+            case ObservableActionTypes.UnPaused:
+                onPlaying = Controls_Playing;
                 break;
         }
     }

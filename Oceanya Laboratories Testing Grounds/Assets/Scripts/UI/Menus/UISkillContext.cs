@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using Kam.TooltipUI;
 public class UISkillContext : ButtonList, IObservable
 {
     public Color selectedColor;
@@ -49,8 +49,9 @@ public class UISkillContext : ButtonList, IObservable
     }
     public void Hide()
     {
-        BattleManager.i.tooltipPopup.HideInfo();
+        TooltipPopup.instance.HideInfo();
         gameObject.SetActive(false);
+        NotifyObserver(ObservableActionTypes.SkillContextDeActivated);
     }
 
     public override void InteractableButtons(bool state)

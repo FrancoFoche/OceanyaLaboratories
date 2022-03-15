@@ -34,7 +34,7 @@ public class BattleUIList : ToggleList
         GameObject newCharObject = AddObject();
 
         AllyBattleUI newCharUI = newCharObject.GetComponent<AllyBattleUI>();
-        character.curUI = newCharUI;
+        character.view.curUI = newCharUI;
 
         generalList.Add(newCharUI);
         allies.Add(newCharUI);
@@ -43,7 +43,7 @@ public class BattleUIList : ToggleList
 
         if (character.dead)
         {
-            character.curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
+            character.view.Die();
         }
 
         return newCharUI;
@@ -65,7 +65,7 @@ public class BattleUIList : ToggleList
         GameObject newCharObject = AddObject(enemyUI, newPos, new Quaternion(0,0,0,0), enemyParent);
 
         EnemyBattleUI newCharUI = newCharObject.GetComponent<EnemyBattleUI>();
-        character.curUI = newCharUI;
+        character.view.curUI = newCharUI;
 
         generalList.Add(newCharUI);
         enemies.Add(newCharUI);

@@ -23,6 +23,9 @@ public enum Music
     Credits,
     GarouTheme,
     GenosTheme,
+    GoblinSlayer,
+    SasukeTheme,
+    ParanormalLiberationFront,
     None
 }
 
@@ -33,7 +36,9 @@ public enum Sprites
     Vergil,
     Obama,
     Kirbo,
-    Saber
+    Saber,
+    HellTakerDemon,
+    Akira
 }
 
 public enum ItemIcon
@@ -265,7 +270,7 @@ public class GameAssetsManager : MonoBehaviour
     }
     public AudioClip        GetMusic        (Music music)                           
     {
-        for (int i = 0; i < sounds.Length; i++)
+        for (int i = 0; i < this.music.Length; i++)
         {
             if (this.music[i].music == music)
             {

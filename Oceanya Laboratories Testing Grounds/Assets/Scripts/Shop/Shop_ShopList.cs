@@ -9,11 +9,13 @@ namespace Kam.Shop
     public class Shop_ShopList : ButtonList
     {
         public TextMeshProUGUI headerText;
+        public GameObject gachaPullItem;
 
         private void Start()
         {
             DataBaseOrder.i.Initialize();
             LoadList(DBItems.items);
+            AddObject(gachaPullItem);
         }
 
         public void LoadList(List<Item> items)

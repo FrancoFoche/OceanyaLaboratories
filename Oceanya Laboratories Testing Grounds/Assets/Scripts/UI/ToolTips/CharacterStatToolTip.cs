@@ -22,7 +22,7 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
         {
             Stats curStat = RuleManager.StatHelper[i];
 
-            characterStats.Append("<size=15><color=green>").Append(curStat.ToString()).Append("</color></size>").Append("  |  ").Append(loadedChar.stats.GetStat(curStat).value).AppendLine();
+            characterStats.Append("<size=15><color=green>").Append(curStat.ToString()).Append("</color></size>").Append("  |  ").Append(loadedChar.GetStat(curStat).value).AppendLine();
         }
 
         characterStats.AppendLine().Append("<size=15><color=green>").Append("Basic Attack: ").Append("</color></size>")
@@ -33,11 +33,11 @@ public class CharacterStatToolTip : MonoBehaviour, IPointerEnterHandler, IPointe
     public void OnPointerEnter(PointerEventData eventData)
     {
         LoadCharStats(loadedChar);
-        BattleManager.i.tooltipPopup.DisplayInfo(characterStats);
+        TooltipPopup.instance.DisplayInfo(characterStats);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        BattleManager.i.tooltipPopup.HideInfo();
+        TooltipPopup.instance.HideInfo();
     }
 }

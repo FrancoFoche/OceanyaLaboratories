@@ -24,16 +24,21 @@ public class DataBaseOrder : MonoBehaviour
     }
     #endregion
 
+    static bool initialized = false;
     public void Initialize()
     {
-        Debug.Log("Building Databases");
-        SavesManager.Initialize();
-        RuleManager.BuildHelpers();
-        DBClasses.BuildDatabase();
-        DBSkills.BuildDatabase();
-        DBItems.BuildDatabase();
-        LevellingSystem.BuildBaseLevelSystem();
-        DBPlayerCharacter.BuildDatabase();
-        DBEnemies.BuildDatabase();
+        if (!initialized)
+        {
+            Debug.Log("Building Databases");
+            SavesManager.Initialize();
+            RuleManager.BuildHelpers();
+            DBClasses.BuildDatabase();
+            DBSkills.BuildDatabase();
+            DBItems.BuildDatabase();
+            LevellingSystem.BuildBaseLevelSystem();
+            DBPlayerCharacter.BuildDatabase();
+            DBEnemies.BuildDatabase();
+            initialized = true;
+        }
     }
 }

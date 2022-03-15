@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UISkillButton : MonoBehaviour
+public class UISkillButton : MonoBehaviour, ILoader<Skill>
 {
     public Skill loadedSkill;
     public TextMeshProUGUI buttonText;
@@ -123,5 +123,10 @@ public class UISkillButton : MonoBehaviour
     public void DeactivateColorOverlay()
     {
         colorOverlay.gameObject.SetActive(false);
+    }
+
+    public Skill GetLoaded()
+    {
+        return loadedSkill;
     }
 }

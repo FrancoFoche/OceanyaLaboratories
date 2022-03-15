@@ -5,9 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class PlayerCharacter : Character
 {
-    private BaseSkillClass _rpgClass;
-    public BaseSkillClass rpgClass { get { return _rpgClass; } set { _rpgClass = value; } }
-
+    private BaseSkillClass                  _rpgClass;
+    public BaseSkillClass               rpgClass                { get { return _rpgClass; }                 set { _rpgClass = value; } }
+    
     public PlayerCharacter(int ID, string name, int startingLevel, ElementType elementalKind ,BaseSkillClass rpgClass, Dictionary<Stats, int> stats, List<Skill> skillList, Dictionary<Item, int> inventory)
     {
         InitializeVariables();
@@ -104,9 +104,9 @@ public class PlayerCharacter : Character
             List<Stat> boosted = rpgClass.BoostStats(_creationStats, level.Level);
 
             #region Correct Current HP (heal by the amount the max hp changed)
-            int originalMaxHP = stats.GetStat(Stats.MAXHP).value;
+            int originalMaxHP = GetStat(Stats.MAXHP).value;
             int difference = boosted.GetStat(Stats.MAXHP).value - originalMaxHP;
-            boosted.GetStat(Stats.CURHP).value = stats.GetStat(Stats.CURHP).value + difference;
+            boosted.GetStat(Stats.CURHP).value = GetStat(Stats.CURHP).value + difference;
             #endregion
 
             stats = boosted;
@@ -114,10 +114,9 @@ public class PlayerCharacter : Character
 
             
             BattleManager.i.battleLog.LogImportant(name + " levels up to Level " + level.Level + "!");
-            curUI.UpdateUI();
+            view.UpdateUI();
         }
     }
-
 
     /// <summary>
     /// A method that corrects stats based on the rules given. (Example: MaxHP = CON * 3 + 20)

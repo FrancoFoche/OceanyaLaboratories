@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PauseMenu : MonoBehaviour
+public class PauseMenu : MonoBehaviour, IObservable
 {
     public bool paused;
     public Utilities_Button_BinarySprite buttonSprite;
@@ -13,7 +13,15 @@ public class PauseMenu : MonoBehaviour
     public Toggle confirmActions;
     public Slider volume;
     public GameObject generalRoot;
+    private void Start()
+    {
+        if(BattleManager.i != null)
+        {
+            AddToObserver(BattleManager.i);
+        }
 
+        NotifyObserver(ObservableActionTypes.UnPaused);
+    }
     public void TogglePause()
     {
         if (paused)
@@ -31,6 +39,7 @@ public class PauseMenu : MonoBehaviour
     public void Show()
     {
         paused = true;
+        NotifyObserver(ObservableActionTypes.Paused);
         SettingsManager.LoadSettings(SavesManager.loadedFile);
         LoadSettings();
 
@@ -53,6 +62,7 @@ public class PauseMenu : MonoBehaviour
     public void Hide()
     {
         paused = false;
+        NotifyObserver(ObservableActionTypes.UnPaused);
         pauseRoot.SetActive(false);
         UIActionConfirmationPopUp.i?.Hide();
         SettingsManager.SaveSettings();
@@ -127,4 +137,31 @@ public class PauseMenu : MonoBehaviour
     {
         UIActionConfirmationPopUp.i.Show(SceneLoaderManager.instance.ReloadScene, false, "Are you sure you want to restart?");
     }
+
+    #region Observer
+    List<IObserver> _obs = new List<IObserver>();
+    public void AddToObserver(IObserver obs)
+    {
+        if (!_obs.Contains(obs))
+        {
+            _obs.Add(obs);
+        }
+    }
+
+    public void RemoveFromObserver(IObserver obs)
+    {
+        if (_obs.Contains(obs))
+        {
+            _obs.Remove(obs);
+        }
+    }
+
+    public void NotifyObserver(ObservableActionTypes action)
+    {
+        for (int i = 0; i < _obs.Count; i++)
+        {
+            _obs[i].Notify(action);
+        }
+    }
+    #endregion
 }

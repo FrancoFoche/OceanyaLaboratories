@@ -61,6 +61,22 @@ public class ObjectList : MonoBehaviour
         return newObject;
     }
 
+    public virtual GameObject AddObject(GameObject objToInstance)
+    {
+        if (list.Count >= maxListCount)
+        {
+            Destroy(list[0].gameObject);
+            list.Remove(list[0]);
+        }
+
+        GameObject newObject = Instantiate(objToInstance, parent.transform);
+
+        list.Add(newObject);
+        curListCount = list.Count;
+
+        return newObject;
+    }
+
     public virtual GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
     {
         if (list.Count >= maxListCount)
@@ -255,28 +271,36 @@ public class ButtonList : ObjectList
     public override GameObject AddObject()
     {
         GameObject obj = base.AddObject();
-        ToggleAddToList(obj);
+        AddButtonToList(obj);
         return obj;
     }
+
+    public override GameObject AddObject(GameObject objToInstance)
+    {
+        GameObject obj = base.AddObject(objToInstance);
+        AddButtonToList(obj);
+        return obj;
+    }
+
     public override GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
     {
         GameObject obj = base.AddObject(objToInstance, pos, rot, parent);
-        ToggleAddToList(obj);
+        AddButtonToList(obj);
         return obj;
     }
     public override GameObject AddObject(Vector3 pos, Quaternion rot)
     {
         GameObject obj = base.AddObject(pos, rot);
-        ToggleAddToList(obj);
+        AddButtonToList(obj);
         return obj;
     }
     public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
     {
         GameObject obj = base.AddObject(pos, rot, parent);
-        ToggleAddToList(obj);
+        AddButtonToList(obj);
         return obj;
     }
-    void ToggleAddToList(GameObject obj)
+    void AddButtonToList(GameObject obj)
     {
         Button button = obj.GetComponent<Button>();
         buttons.Add(button);

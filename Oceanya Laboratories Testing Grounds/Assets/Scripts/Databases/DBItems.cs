@@ -70,8 +70,31 @@ public class DBItems : MonoBehaviour
             .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.STR, 20},{ Stats.CHR, 20} })
             .BehaviorDoesDamage(DamageType.Direct, ElementType.Normal, new List<RPGFormula>(){ new RPGFormula(Stats.MAXHP, operationActions.Multiply, 0.4f)})
             .BehaviorCostsTurn()
+            ,
+            new Item(new BaseObjectInfo("Resistance Potion", 6, "+100 MR and PR to a single target. (25% Damage reduction)"),
+            "_caster_ throws a Resistance Potion pot at _target_, they feel themselves getting more tough! +100 PR AND MR! (25% Damage reduction)",
+            Item.Type.Consumable,
+            GameAssetsManager.instance.GetItemIcon(ItemIcon.Liquid_yellow),
+            ActivatableType.Active,
+            TargetType.Single
+            )
+            .SetCost(100)
+            .BehaviorModifiesStat(StatModificationTypes.Buff, new Dictionary<Stats, int>(){ { Stats.PR, 100},{ Stats.MR, 100} })
+            .BehaviorCostsTurn()
+            ,
+
+            new Item(new BaseObjectInfo("Res Charm", 7, "Single target revival."),
+            "_caster_ throws a Res Charm at _target_. Wait- you can do that? _target_ revives to full HP!",
+            Item.Type.Consumable,
+            GameAssetsManager.instance.GetItemIcon(ItemIcon.Liquid_yellow),
+            ActivatableType.Active,
+            TargetType.Single
+            )
+            .SetCost(300)
+            .BehaviorRevives()
+            .BehaviorCostsTurn()
+            ,
         };
 
     }
-
 }

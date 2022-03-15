@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4182586270772946011}
   - component: {fileID: 6352060513523772542}
   - component: {fileID: 3093301201383582066}
-  - component: {fileID: 6665826352426050032}
+  - component: {fileID: 2191884079818728674}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -101,7 +101,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &6665826352426050032
+--- !u!114 &2191884079818728674
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1578608500685066100}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18dd93ecb54557244a3d2a336a8535f3, type: 3}
+  m_Script: {fileID: 11500000, guid: f2ee69ff4a111ad47aaed73853210f6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   targetGraphic: {fileID: 7874944521132747835}
@@ -3622,13 +3622,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   paused: 0
-  buttonSprite: {fileID: 6665826352426050032}
+  buttonSprite: {fileID: 0}
   pauseRoot: {fileID: 4100741133616733657}
   settingsRoot: {fileID: 4100741134413040751}
   manualMode: {fileID: 4100741135108264593}
   confirmActions: {fileID: 4100741133604484509}
   volume: {fileID: 4100741134149749119}
-  volumeSliderValue: 0
   generalRoot: {fileID: 4100741134287794692}
 --- !u!1 &5270515216720807980
 GameObject:

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Kam.Shop
 {
-    public class Shop_ShopLoader : MonoBehaviour
+    public class Shop_ShopLoader : MonoBehaviour, ILoader<Item>
     {
         public Item loadedItem;
 
@@ -35,30 +35,42 @@ namespace Kam.Shop
         {
             if(Shop_CharacterList.currentlySelected != null)
             {
-                if (SettingsManager.groupGold >= loadedItem.cost)
-                {
-                    popup.Show(
-                    delegate
-                    {
-                        SettingsManager.groupGold -= loadedItem.cost;
-                        Shop_CharacterList.currentlySelected.GiveItem(loadedItem, 1);
-                        Shop_CharacterList.i.UpdateInventory();
-                        Shop_CharacterList.i.shop.UpdateGoldAmount();
-                        SettingsManager.SaveSettings();
-                    },
-                    true,
-                    "Are you sure you want to buy a " + loadedItem.name + " for " + Shop_CharacterList.currentlySelected.name + "?"
-                    );
-                }
-                else
-                {
-                    Shop_CharacterList.i.shop.ErrorAnimation();
-                }
+                Shop_AmountConfirmation.instance.Show(Buy);
+                
             }
             else
             {
                 Shop_CharacterList.i.ErrorAnimation("Select a \n character first!");
             }
+        }
+
+        void Buy(int amount)
+        {
+            int cost = loadedItem.cost * amount;
+            if (SettingsManager.groupGold >= cost)
+            {
+                popup.Show(
+                delegate
+                {
+                    SettingsManager.groupGold -= cost;
+                    Shop_CharacterList.currentlySelected.GiveItem(loadedItem, amount);
+                    Shop_CharacterList.i.UpdateInventory();
+                    Shop_CharacterList.i.shop.UpdateGoldAmount();
+                    SettingsManager.SaveSettings();
+                },
+                true,
+                "Are you sure you want to buy " + loadedItem.name + " x" +amount+ " for " + Shop_CharacterList.currentlySelected.name + "?"
+                );
+            }
+            else
+            {
+                Shop_CharacterList.i.shop.ErrorAnimation();
+            }
+        }
+
+        public Item GetLoaded()
+        {
+            return loadedItem;
         }
     }
 }

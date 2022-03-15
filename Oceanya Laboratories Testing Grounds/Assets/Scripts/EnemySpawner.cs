@@ -35,7 +35,7 @@ public class EnemySpawner : ObjectList
             EffectAnimator curEffectAnimator = curEnemy.GetComponentInChildren<EffectAnimator>();
             SpriteAnimator curSpriteAnimator = curEnemy.GetComponentInChildren<SpriteAnimator>();
             EnemySprite curSprite = curEnemy.GetComponentInChildren<EnemySprite>();
-            curSprite.SwitchSprites(enemyList[i].sprite);
+            curSprite.SwitchSprites(enemyList[i].view.sprite);
 
             Transform[] children = curEnemy.GetComponentsInChildren<Transform>();
             for (int j = 0; j < children.Length; j++)
@@ -45,7 +45,7 @@ public class EnemySpawner : ObjectList
                     EnemyBattleUI newBattleUI = uiList.AddEnemy(enemyList[i], children[j]);
                     newBattleUI.effectAnimator = curEffectAnimator;
                     newBattleUI.effectAnimator.ui = newBattleUI;
-                    enemyList[i].curSprite = curSpriteAnimator;
+                    enemyList[i].view.curSprite = curSpriteAnimator;
                     break;
                 }
             }

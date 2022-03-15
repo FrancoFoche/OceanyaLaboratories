@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class BattleUI : MonoBehaviour
+using TMPro;
+public class BattleUI : MonoBehaviour, ILoader<Character>
 {
     [Header("Character Loaded")]
     [SerializeField] protected int charHashCode;
@@ -17,12 +17,12 @@ public class BattleUI : MonoBehaviour
     public Character loadedChar { get { return _loadedChar; } private set { _loadedChar = value; } }
 
     [Header("BASE INFO")]
-    public Text nameText;
+    public TextMeshProUGUI nameText;
 
     public Slider hpSlider;
-    public Text hpText;
+    public TextMeshProUGUI hpText;
 
-    public Text statusEffectText;
+    public TextMeshProUGUI statusEffectText;
 
     public CharacterStatToolTip toolTip;
     public EffectAnimator effectAnimator;
@@ -31,17 +31,18 @@ public class BattleUI : MonoBehaviour
 
     private void Update()
     {
+        /*
         if(loadedChar != null)
         {
             #region Inspector Update, just for testing.
             charName = loadedChar.name;
             charID = loadedChar.ID;
             curUI = loadedChar.curUI;
-            charHP = loadedChar.stats.GetStat(Stats.CURHP).value;
-            charSTR = loadedChar.stats.GetStat(Stats.STR).value;
+            charHP = loadedChar.GetStat(Stats.CURHP).value;
+            charSTR = loadedChar.GetStat(Stats.STR).value;
             charHashCode = loadedChar.GetHashCode();
             #endregion
-        }
+        }*/
     }
 
     public virtual void LoadChar(Character character)
@@ -50,10 +51,10 @@ public class BattleUI : MonoBehaviour
         charID = character.ID;
         nameText.text = character.name;
         hpSlider.minValue = 0;
-        hpSlider.maxValue = character.stats.GetStat(Stats.MAXHP).value;
-        hpSlider.value = character.stats.GetStat(Stats.CURHP).value;
+        hpSlider.maxValue = character.GetStat(Stats.MAXHP).value;
+        hpSlider.value = character.GetStat(Stats.CURHP).value;
 
-        hpText.text = character.stats.GetStat(Stats.CURHP).value + " / " + character.stats.GetStat(Stats.MAXHP).value;
+        hpText.text = character.GetStat(Stats.CURHP).value + " / " + character.GetStat(Stats.MAXHP).value;
 
         statusEffectText.text = "None";
 
@@ -73,5 +74,10 @@ public class BattleUI : MonoBehaviour
     public void InteractableUI(bool state)
     {
         raycastBlock.gameObject.SetActive(!state);
+    }
+
+    public Character GetLoaded()
+    {
+        return _loadedChar;
     }
 }

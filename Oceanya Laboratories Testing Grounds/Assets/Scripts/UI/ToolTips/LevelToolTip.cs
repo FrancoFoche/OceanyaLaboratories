@@ -9,12 +9,6 @@ public class LevelToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 {
     StringBuilder levelDesc = new StringBuilder();
     public UILevelButton script;
-    public TooltipPopup tooltip;
-
-    private void Start()
-    {
-        tooltip = FindObjectOfType<TooltipPopup>();
-    }
 
     public void ShowLevel(LevelManager.BattleLevel level)
     {
@@ -28,11 +22,11 @@ public class LevelToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerEnter(PointerEventData eventData)
     {
         ShowLevel(script.level);
-        tooltip.DisplayInfo(levelDesc);
+        TooltipPopup.instance.DisplayInfo(levelDesc);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        tooltip.HideInfo();
+        TooltipPopup.instance.HideInfo();
     }
 }

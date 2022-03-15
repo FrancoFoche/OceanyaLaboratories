@@ -138,7 +138,7 @@ public abstract class Activatables
             {
                 if (behaviors.Contains(Behaviors.HasExtraAnimationEffect) && extraEffectTiming == ActivationTime_Action.OnlyFirstTime)
                 {
-                    caster.curUI.effectAnimator.PlayEffect(extraEffect);
+                    caster.view.ExtraEffect(extraEffect);
                 }
 
                 BattleManager.i.battleLog.LogBattleEffect($"The passive of {name} was activated for {caster.name}.");
@@ -231,7 +231,7 @@ public abstract class Activatables
             {
                 if (behaviors.Contains(Behaviors.HasExtraAnimationEffect) && extraEffectTiming == ActivationTime_Action.StartOfAction)
                 {
-                    turnActions += delegate (int i) { target[i].curUI.effectAnimator.PlayEffect(extraEffect); };
+                    turnActions += delegate (int i) { target[i].view.ExtraEffect(extraEffect); };
                 }
 
                 if (behaviors.Contains(Behaviors.DoesDamage_Flat))
@@ -268,6 +268,24 @@ public abstract class Activatables
                 }
                 if (behaviors.Contains(Behaviors.ModifiesStat_Flat))
                 {
+                    /*
+                    //This doesn't work because it doesn't update the character reference of other variables, only changes them temporarily within the list in this method.
+                    foreach (var kvp in flatStatModifiers)
+                    {
+                        Stats stat = kvp.Key;
+                        int modValue = kvp.Value;
+
+                        if(modificationType == StatModificationTypes.Buff)
+                        {
+                            turnActions += delegate (int i) { target[i] = new Buff(target[i], modValue, stat); };
+                        }
+                        else
+                        {
+                            turnActions += delegate (int i) { target[i] = new Debuff(target[i], modValue, stat); };
+                        }
+                    }
+                    */
+
                     turnActions += delegate (int i) { target[i].ModifyStat(modificationType, flatStatModifiers); };
                 }
                 if (behaviors.Contains(Behaviors.ModifiesStat_Formula))
@@ -282,7 +300,24 @@ public abstract class Activatables
                             resultModifiers.Add(currentStat, RPGFormula.ReadAndSumList(formulaStatModifiers[currentStat], caster.stats));
                         }
                     }
+                    /*
+                    //This doesn't work because it doesn't update the character reference of other variables, only changes them temporarily within the list in this method.
 
+                    foreach (var kvp in resultModifiers)
+                    {
+                        Stats stat = kvp.Key;
+                        int modValue = kvp.Value;
+
+                        if (modificationType == StatModificationTypes.Buff)
+                        {
+                            turnActions += delegate (int i) { target[i] = new Buff(target[i], modValue, stat); };
+                        }
+                        else
+                        {
+                            turnActions += delegate (int i) { target[i] = new Debuff(target[i], modValue, stat); };
+                        }
+                    }
+                    */
                     turnActions += delegate (int i) { target[i].ModifyStat(modificationType, resultModifiers); };
                 }
                 if (behaviors.Contains(Behaviors.UnlocksResource))
@@ -332,7 +367,7 @@ public abstract class Activatables
 
                 if (behaviors.Contains(Behaviors.HasExtraAnimationEffect) && extraEffectTiming == ActivationTime_Action.EndOfAction)
                 {
-                    turnActions += delegate (int i) { target[i].curUI.effectAnimator.PlayEffect(extraEffect); };
+                    turnActions += delegate (int i) { target[i].view.ExtraEffect(extraEffect); };
                 }
             }
             else
@@ -418,21 +453,24 @@ public abstract class ActivatableInfo
     private Character   _character;
     private bool        _activatable;
     private bool        _equipped;
-    private bool        _wasActivated;   //If the skill was activated at SOME point.
+    private bool        _wasActivated;      //If the skill was activated at SOME point.
     private bool        _currentlyActive;   //If the skill is currently active
-    private int         _activatedAt;  //when the skill was activated
-    private int         _timesActivated;          //how many times the skill was activated
+    private int         _activatedAt;       //when the skill was activated
+    private int         _timesActivated;    //how many times the skill was activated
     private bool        _showInfo;
 
+    private int         _analytics_TimesUsed; //The times the skill button was triggered
+
     #region Getters/Setters
-    public Character    character           { get { return _character; } protected set { _character = value; } }
-    public bool         activatable         { get { return _activatable; } protected set { _activatable = value; } }
-    public bool         equipped            { get { return _equipped; } protected set { _equipped = value; } }
-    public bool         wasActivated        { get { return _wasActivated; } protected set { _wasActivated = value; } }
-    public bool         currentlyActive     { get { return _currentlyActive; } protected set { _currentlyActive = value; } }
-    public int          activatedAt         { get { return _activatedAt; } protected set { _activatedAt = value; } }
-    public int          timesActivated      { get { return _timesActivated; } set { _timesActivated = value; } }
-    public bool         showInfo            { get { return _showInfo; } protected set { _showInfo = value; } }
+    public Character    character           { get { return _character; }            protected set   { _character = value; } }
+    public bool         activatable         { get { return _activatable; }          protected set   { _activatable = value; } }
+    public bool         equipped            { get { return _equipped; }             protected set   { _equipped = value; } }
+    public bool         wasActivated        { get { return _wasActivated; }         protected set   { _wasActivated = value; } }
+    public bool         currentlyActive     { get { return _currentlyActive; }      protected set   { _currentlyActive = value; } }
+    public int          activatedAt         { get { return _activatedAt; }          protected set   { _activatedAt = value; } }
+    public int          timesActivated      { get { return _timesActivated; }       set             { _timesActivated = value; } }
+    public bool         showInfo            { get { return _showInfo; }             protected set   { _showInfo = value; } }
+    public int          analytics_TimesUsed { get { return _analytics_TimesUsed; }  protected set   { _analytics_TimesUsed = value; } }
     #endregion
 
     public void         Equip               ()                          
@@ -445,6 +483,11 @@ public abstract class ActivatableInfo
     }
     public virtual void SetActive           ()                          
     {
+        if (!wasActivated)
+        {
+            _analytics_TimesUsed++;
+        }
+
         currentlyActive = true;
         wasActivated = true;
         activatedAt = character.timesPlayed;

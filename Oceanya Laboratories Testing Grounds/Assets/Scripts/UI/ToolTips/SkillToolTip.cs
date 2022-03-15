@@ -73,12 +73,13 @@ public class SkillToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        LoadSkill(gameObject.GetComponent<UISkillButton>().loadedSkill);
-        BattleManager.i.tooltipPopup.DisplayInfo(result);
+        Skill skill = gameObject.GetComponent<ILoader<Skill>>().GetLoaded();
+        LoadSkill(skill);
+        TooltipPopup.instance.DisplayInfo(result);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        BattleManager.i.tooltipPopup.HideInfo();
+        TooltipPopup.instance.HideInfo();
     }
 }

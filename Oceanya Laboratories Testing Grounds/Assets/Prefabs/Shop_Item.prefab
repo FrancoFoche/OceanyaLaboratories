@@ -314,6 +314,7 @@ GameObject:
   - component: {fileID: 3015810087602021373}
   - component: {fileID: 3015810087602021361}
   - component: {fileID: 8716345574654065364}
+  - component: {fileID: 1559363008354801977}
   m_Layer: 5
   m_Name: Shop_Item
   m_TagString: Untagged
@@ -365,6 +366,46 @@ MonoBehaviour:
   icon: {fileID: 3015810086894217299}
   nameText: {fileID: 3015810086964869145}
   amountText: {fileID: 3015810087726427783}
+--- !u!114 &1559363008354801977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3015810087602021370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b66b346f887f4df4ea666eb7cf3f8597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  item:
+    _name: 
+    _ID: 0
+    _description: 
+    _activatableType: 0
+    _behaviors: 
+    _activationText: 
+    _activationRequirements: []
+    _passiveActivationType: 0
+    _lastsFor: 0
+    _targetType: 0
+    _maxTargets: 0
+    _cdType: 0
+    _cooldown: 0
+    _damageType: 0
+    _damageElement: 0
+    _damageFormula: []
+    _damageFlat: 0
+    _healFormula: []
+    _healFlat: 0
+    _modificationType: 0
+    _unlocksResource: 0
+    _unlockedResources: 
+    _extraEffect: 0
+    _extraEffectTiming: 0
+    cost: 0
+    type: 0
+    icon: {fileID: 0}
 --- !u!1 &3015810087726427781
 GameObject:
   m_ObjectHideFlags: 0
