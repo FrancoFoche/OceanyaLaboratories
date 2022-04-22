@@ -40,7 +40,7 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     {
         this.confirmAction = confirmAction;
         waitingForConfirmation = true;
-        TeamOrderManager.turnState = TurnState.WaitingForConfirmation;
+        TeamOrderManager.i.turnState = TurnState.WaitingForConfirmation;
         confirmationText.text = detailText;
         this.yesText.text = yesText;
         this.noText.text = noText;
@@ -81,7 +81,7 @@ public class UIActionConfirmationPopUp : MonoBehaviour
             if (!BattleManager.i.pauseMenu.paused)
             {
                 BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
-                TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+                TeamOrderManager.i.SetTurnState(TurnState.WaitingForAction);
 
                 Character character;
 
@@ -91,7 +91,7 @@ public class UIActionConfirmationPopUp : MonoBehaviour
                 }
                 else
                 {
-                    character = TeamOrderManager.currentTurn;
+                    character = TeamOrderManager.i.currentTurn;
                 }
 
                 BattleManager.i.uiList.SelectCharacter(character);

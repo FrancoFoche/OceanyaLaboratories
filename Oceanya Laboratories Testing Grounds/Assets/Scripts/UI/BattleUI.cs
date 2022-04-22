@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-public class BattleUI : MonoBehaviour, ILoader<Character>
+using Photon.Pun;
+
+public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
 {
     [Header("Character Loaded")]
     [SerializeField] protected int charHashCode;
@@ -18,11 +20,10 @@ public class BattleUI : MonoBehaviour, ILoader<Character>
 
     [Header("BASE INFO")]
     public TextMeshProUGUI nameText;
+    public TextMeshProUGUI hpText;
+    public TextMeshProUGUI statusEffectText;
 
     public Slider hpSlider;
-    public TextMeshProUGUI hpText;
-
-    public TextMeshProUGUI statusEffectText;
 
     public CharacterStatToolTip toolTip;
     public EffectAnimator effectAnimator;
@@ -61,6 +62,10 @@ public class BattleUI : MonoBehaviour, ILoader<Character>
         toolTip.LoadCharStats(character);
     }
 
+    public virtual void OverrideCharacterWithPlayer(UIMultiplayerLobbyList.Settings player)
+    {
+        nameText.text = player.nickname;
+    }
     public virtual void UpdateUI()
     {
         
@@ -79,5 +84,29 @@ public class BattleUI : MonoBehaviour, ILoader<Character>
     public Character GetLoaded()
     {
         return _loadedChar;
+    }
+
+    public virtual void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        /*
+        if (stream.IsWriting)
+        {
+            //Write to network
+
+            stream.SendNext(nameText.text);
+            stream.SendNext(hpText.text);
+            stream.SendNext(statusEffectText.text);
+            stream.SendNext(hpSlider.value);
+        }
+        else
+        {
+            //Get from network
+
+            nameText.text = (string)stream.ReceiveNext();
+            hpText.text = (string)stream.ReceiveNext();
+            statusEffectText.text = (string)stream.ReceiveNext();
+            hpSlider.value = (float)stream.ReceiveNext();
+
+        }*/
     }
 }

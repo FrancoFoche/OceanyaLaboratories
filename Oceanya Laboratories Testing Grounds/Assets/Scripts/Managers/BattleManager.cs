@@ -117,7 +117,7 @@ public class BattleManager : MonoBehaviour, IObserver
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (TeamOrderManager.turnState == TurnState.WaitingForConfirmation || TeamOrderManager.turnState == TurnState.WaitingForTarget)
+            if (TeamOrderManager.i.turnState == TurnState.WaitingForConfirmation || TeamOrderManager.i.turnState == TurnState.WaitingForTarget)
             {
                 if (UIActionConfirmationPopUp.i.waitingForConfirmation)
                 {
@@ -149,15 +149,15 @@ public class BattleManager : MonoBehaviour, IObserver
             }
             else
             {
-                if (!TeamOrderManager.AIturn)
+                if (!TeamOrderManager.i.AIturn)
                 {
-                    switch (TeamOrderManager.turnState)
+                    switch (TeamOrderManager.i.turnState)
                     {
                         case TurnState.WaitingForTarget:
                             Action temp = delegate
                             {
                                 Debug.Log("Targetting done.");
-                                TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+                                TeamOrderManager.i.SetTurnState(TurnState.WaitingForConfirmation);
                             };
 
                             if (target.Count == 0)
@@ -196,16 +196,16 @@ public class BattleManager : MonoBehaviour, IObserver
             }
         }
 
-        if (TeamOrderManager.turnState != TurnState.End && TeamOrderManager.turnState != TurnState.Start && TeamOrderManager.turnState != TurnState.NonDefined)
+        if (TeamOrderManager.i.turnState != TurnState.End && TeamOrderManager.i.turnState != TurnState.Start && TeamOrderManager.i.turnState != TurnState.NonDefined)
         {
-            if (TeamOrderManager.turnState == TurnState.WaitingForTarget || TeamOrderManager.turnState == TurnState.WaitingForConfirmation)
+            if (TeamOrderManager.i.turnState == TurnState.WaitingForTarget || TeamOrderManager.i.turnState == TurnState.WaitingForConfirmation)
             {
-                if (TeamOrderManager.turnState == TurnState.WaitingForTarget)
+                if (TeamOrderManager.i.turnState == TurnState.WaitingForTarget)
                 {
                     if (target.Count == UICharacterActions.instance.maxTargets)
                     {
                         Debug.Log("Targetting done.");
-                        TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+                        TeamOrderManager.i.SetTurnState(TurnState.WaitingForConfirmation);
                     }
                     else
                     {
@@ -216,7 +216,7 @@ public class BattleManager : MonoBehaviour, IObserver
                     }
                 }
 
-                if (!TeamOrderManager.AIturn)
+                if (!TeamOrderManager.i.AIturn)
                 {
                     if (Input.GetMouseButtonDown(1))
                     {
@@ -229,7 +229,7 @@ public class BattleManager : MonoBehaviour, IObserver
                     }
                 }
             }
-            else if (TeamOrderManager.turnState == TurnState.WaitingForAction)
+            else if (TeamOrderManager.i.turnState == TurnState.WaitingForAction)
             {
                 if (!UIActionConfirmationPopUp.i.waitingForConfirmation)
                 {
@@ -252,7 +252,7 @@ public class BattleManager : MonoBehaviour, IObserver
                     }
 
                     #region Debug Features
-                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.currentTurn)
+                    if (Input.GetKeyDown(KeyCode.LeftControl) && caster != TeamOrderManager.i.currentTurn)
                     {
                         battleLog.LogBattleEffect("The GM decided to revert back to the turn that was supposed to take place. Smh.");
                         ReselectOriginalTurn();
@@ -261,10 +261,10 @@ public class BattleManager : MonoBehaviour, IObserver
                 }
                 else
                 {
-                    if (BattleUIList.curCharacterSelected != TeamOrderManager.currentTurn && battleState == BattleState.InCombat)
+                    if (BattleUIList.curCharacterSelected != TeamOrderManager.i.currentTurn && battleState == BattleState.InCombat)
                     {
                         Debug.LogWarning("The half-assed bugfix patch was triggered.");
-                        uiList.SelectCharacter(TeamOrderManager.currentTurn);
+                        uiList.SelectCharacter(TeamOrderManager.i.currentTurn);
                     }
                 }
             }
@@ -321,19 +321,19 @@ public class BattleManager : MonoBehaviour, IObserver
             MusicManager.PlayMusic(combat.waveMusic);
         }
 
-        TeamOrderManager.BuildTeamOrder(combat);
+        TeamOrderManager.i.BuildTeamOrder(combat);
         SetBattleState(BattleState.Start);
     }
     public void SetupBattle()
     {
         int index = 0;
-        while (TeamOrderManager.spdSystem.teamOrder[index].dead)
+        while (TeamOrderManager.i.spdSystem.teamOrder[index].dead)
         {
             index++;
         }
-        caster = TeamOrderManager.spdSystem.teamOrder[index];
-        TeamOrderManager.SetCurrentTurn(caster);
-        TeamOrderManager.SetTurnState(TurnState.Start);
+        caster = TeamOrderManager.i.spdSystem.teamOrder[index];
+        TeamOrderManager.i.SetCurrentTurn(caster);
+        TeamOrderManager.i.SetTurnState(TurnState.Start);
         SetBattleState(BattleState.InCombat);
     }
 
@@ -358,13 +358,13 @@ public class BattleManager : MonoBehaviour, IObserver
                         target = new List<Character>();
 
                         charActions.AddAllActions();
-                        uiList.SetSides(TeamOrderManager.allySide, TeamOrderManager.enemySide);
+                        uiList.SetSides(TeamOrderManager.i.allySide, TeamOrderManager.i.enemySide);
 
 
-                        for (int i = 0; i < TeamOrderManager.totalCharList.Count; i++)
+                        for (int i = 0; i < TeamOrderManager.i.totalCharList.Count; i++)
                         {
-                            TeamOrderManager.totalCharList[i].CheckPassives();
-                            TeamOrderManager.totalCharList[i].ActivatePassiveEffects(ActivationTime_General.StartOfBattle);
+                            TeamOrderManager.i.totalCharList[i].CheckPassives();
+                            TeamOrderManager.i.totalCharList[i].ActivatePassiveEffects(ActivationTime_General.StartOfBattle);
                         }
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
@@ -450,8 +450,10 @@ public class BattleManager : MonoBehaviour, IObserver
                             }
                             else
                             {
-                                AnalyticsManager.SendEvent_LevelEnd(currentLevel.levelNumber, !lost, TeamOrderManager.allySide);
-                                battleLog.LogCountdown(currentLevel.waves[currentLevel.waves.Length - 1].transitionOutTime, $"Going to {currentLevel.winningScene.ToString()} in _countdown_...", () => SceneLoaderManager.instance.LoadScene(currentLevel.winningScene));
+                                AnalyticsManager.SendEvent_LevelEnd(currentLevel.levelNumber, !lost, TeamOrderManager.i.allySide);
+                                battleLog.LogCountdown(currentLevel.waves[currentLevel.waves.Length - 1].transitionOutTime, 
+                                    $"Going to {currentLevel.winningScene.ToString()} in _countdown_...", 
+                                    () => SceneLoaderManager.instance.LoadScene(currentLevel.winningScene, MultiplayerBattleManager.multiplayerActive));
                             }
                         });
 
@@ -470,12 +472,12 @@ public class BattleManager : MonoBehaviour, IObserver
     {
         if (battleState != BattleState.End)
         {
-            int AllyCount = TeamOrderManager.allySide.Count;
+            int AllyCount = TeamOrderManager.i.allySide.Count;
             int AllyDeathCount = 0;
 
             for (int i = 0; i < AllyCount; i++)
             {
-                if (TeamOrderManager.allySide[i].dead)
+                if (TeamOrderManager.i.allySide[i].dead)
                 {
                     AllyDeathCount++;
                 }
@@ -489,12 +491,12 @@ public class BattleManager : MonoBehaviour, IObserver
             }
 
 
-            int EnemyCount = TeamOrderManager.enemySide.Count;
+            int EnemyCount = TeamOrderManager.i.enemySide.Count;
             int EnemyDeathCount = 0;
 
             for (int i = 0; i < EnemyCount; i++)
             {
-                if (TeamOrderManager.enemySide[i].dead)
+                if (TeamOrderManager.i.enemySide[i].dead)
                 {
                     EnemyDeathCount++;
                 }
@@ -527,15 +529,15 @@ public class BattleManager : MonoBehaviour, IObserver
     }
     public void GetCaster()
     {
-        if (TeamOrderManager.currentTurn != BattleUIList.curCharacterSelected && !TeamOrderManager.AIturn)
+        if (TeamOrderManager.i.currentTurn != BattleUIList.curCharacterSelected && !TeamOrderManager.i.AIturn)
         {
             caster = BattleUIList.curCharacterSelected;
             battleLog.LogTurn(caster, 3);
-            TeamOrderManager.SetTurnState(TurnState.Start);
+            TeamOrderManager.i.SetTurnState(TurnState.Start);
         }
         else
         {
-            caster = TeamOrderManager.currentTurn;
+            caster = TeamOrderManager.i.currentTurn;
         }
     }
     public void SetTargets(List<Character> targets)
@@ -564,8 +566,8 @@ public class BattleManager : MonoBehaviour, IObserver
     }
     public void ReselectOriginalTurn()
     {
-        uiList.SelectCharacter(TeamOrderManager.currentTurn);
-        battleLog.LogTurn(TeamOrderManager.currentTurn, 2);
+        uiList.SelectCharacter(TeamOrderManager.i.currentTurn);
+        battleLog.LogTurn(TeamOrderManager.i.currentTurn, 2);
     }
     public void GiveAllyTeamEXP(int exp)
     {
@@ -585,7 +587,7 @@ public class BattleManager : MonoBehaviour, IObserver
     }
     public void UpdateTeamOrder()
     {
-        TeamOrderManager.BuildSPDSystem(TeamOrderManager.allySide, TeamOrderManager.enemySide);
+        TeamOrderManager.i.UpdateTeamOrder();
     }
 
 

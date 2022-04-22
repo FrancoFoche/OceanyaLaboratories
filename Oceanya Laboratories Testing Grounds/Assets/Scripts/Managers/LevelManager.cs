@@ -21,7 +21,7 @@ public class LevelManager : ButtonList
     public Color level_AlreadyPassed;
     public Color level_Locked;
 
-    private static void CreateLevels()
+    public static void CreateLevels()
     {
         levels =
         new BattleLevel[]

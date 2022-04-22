@@ -2,15 +2,21 @@
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
+using Photon.Pun;
 
 public class ObjectList : MonoBehaviour
 {
     public int maxListCount;
     public int curListCount;
 
-    public GameObject parent, obj;
+    public GameObject parent;
+    public GameObject obj;
 
     public List<GameObject> list = new List<GameObject>();
+    
+    [Header("Photon")]
+    public bool usePhotonInstantiate;
+    public string objPhotonString;
 
     public virtual GameObject AddObject()
     {
@@ -20,8 +26,11 @@ public class ObjectList : MonoBehaviour
             list.Remove(list[0]);
         }
 
-        GameObject newObject = Instantiate(obj, parent.transform);
+        GameObject newObject = usePhotonInstantiate ? 
+            PhotonNetwork.Instantiate(objPhotonString,parent.transform.position,parent.transform.rotation)
+            : Instantiate(obj, parent.transform);
 
+        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.tag).transform : parent.transform;
         list.Add(newObject);
         curListCount = list.Count;
 
@@ -36,8 +45,10 @@ public class ObjectList : MonoBehaviour
             list.Remove(list[0]);
         }
 
-        GameObject newObject = Instantiate(obj, pos, rot);
-        newObject.transform.parent = parent.transform;
+        GameObject newObject = usePhotonInstantiate ? 
+            PhotonNetwork.Instantiate(objPhotonString,pos,rot)
+            : Instantiate(obj, pos, rot);
+        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.tag).transform : parent.transform;
 
         list.Add(newObject);
         curListCount = list.Count;
@@ -53,7 +64,10 @@ public class ObjectList : MonoBehaviour
             list.Remove(list[0]);
         }
 
-        GameObject newObject = Instantiate(obj, pos, rot, parent);
+        GameObject newObject = usePhotonInstantiate ? 
+            PhotonNetwork.Instantiate(objPhotonString,pos,rot)
+            : Instantiate(obj, pos, rot);
+        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.gameObject.tag).transform : parent;
 
         list.Add(newObject);
         curListCount = list.Count;
@@ -70,6 +84,25 @@ public class ObjectList : MonoBehaviour
         }
 
         GameObject newObject = Instantiate(objToInstance, parent.transform);
+
+        list.Add(newObject);
+        curListCount = list.Count;
+
+        return newObject;
+    }
+    
+    public virtual GameObject AddObject(string photonObjToInstance)
+    {
+        if (list.Count >= maxListCount)
+        {
+            Destroy(list[0].gameObject);
+            list.Remove(list[0]);
+        }
+
+        GameObject newObject =
+            PhotonNetwork.Instantiate(photonObjToInstance, parent.transform.position, parent.transform.rotation);
+
+        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.tag).transform : parent.transform;
 
         list.Add(newObject);
         curListCount = list.Count;
@@ -101,7 +134,7 @@ public class ObjectList : MonoBehaviour
             Destroy(obj);
         }
     }
-
+    
     public virtual void ClearList()
     {
         for (int i = 0; i < list.Count; i++)

@@ -37,7 +37,7 @@ public class PlayerCharacter : Character
         }
         
         this.name = name;
-
+        this.realName = name;
         this.rpgClass = rpgClass;
 
         #region Stats

@@ -139,7 +139,7 @@ public class UICharacterActions : ButtonList
                         }
                     }
                     caster.Analytics_TriggerActionUsed(action);
-                    TeamOrderManager.EndTurn();
+                    TeamOrderManager.i.EndTurn();
                 }
                 break;
 
@@ -147,7 +147,7 @@ public class UICharacterActions : ButtonList
                 {
                     caster.SetDefending(true);
                     caster.Analytics_TriggerActionUsed(action);
-                    TeamOrderManager.EndTurn();
+                    TeamOrderManager.i.EndTurn();
                 }
                 break;
 
@@ -176,7 +176,7 @@ public class UICharacterActions : ButtonList
                     {
                         if(caster.team == target[0].team)
                         {
-                            bool success = TeamOrderManager.spdSystem.Swap(caster, target[0]);
+                            bool success = TeamOrderManager.i.spdSystem.Swap(caster, target[0]);
 
                             if (success)
                             {
@@ -194,7 +194,7 @@ public class UICharacterActions : ButtonList
                         }
 
                         caster.Analytics_TriggerActionUsed(action);
-                        TeamOrderManager.EndTurn();
+                        TeamOrderManager.i.EndTurn();
                         BattleManager.i.teamOrderMenu.UpdateTeamOrder();
                     }
                 }
@@ -204,7 +204,7 @@ public class UICharacterActions : ButtonList
                 {
                     BattleManager.i.battleLog.LogBattleEffect($"{caster.name} prepares for an attack!");
                     BattleManager.i.battleLog.LogBattleEffect($"Yet for time reasons, the programmer couldn't make it work yet...");
-                    TeamOrderManager.EndTurn();
+                    TeamOrderManager.i.EndTurn();
                 }
                 break;
 
@@ -212,7 +212,7 @@ public class UICharacterActions : ButtonList
                 {
                     BattleManager.i.battleLog.LogBattleEffect($"{caster.name} skips their turn...");
                     caster.Analytics_TriggerActionUsed(action);
-                    TeamOrderManager.EndTurn();
+                    TeamOrderManager.i.EndTurn();
                 }
                 break;
             default:
@@ -257,7 +257,7 @@ public class UICharacterActions : ButtonList
                     }
                     else
                     {
-                        if (!TeamOrderManager.AIturn || SettingsManager.manualMode)
+                        if (!TeamOrderManager.i.AIturn || SettingsManager.manualMode)
                         {
                             UISkillContext.instance.Show();
                             UIItemContext.instance.Hide();
@@ -313,18 +313,18 @@ public class UICharacterActions : ButtonList
     {
         this.action = action;
 
-        TeamOrderManager.SetTurnState(TurnState.WaitingForTarget);
+        TeamOrderManager.i.SetTurnState(TurnState.WaitingForTarget);
     }
     public void ActionDoesNotRequireTarget(CharActions action)
     {
         this.action = action;
-        TeamOrderManager.SetTurnState(TurnState.WaitingForConfirmation);
+        TeamOrderManager.i.SetTurnState(TurnState.WaitingForConfirmation);
     }
 
     public void StartButtonActionConfirmation(Action confirmAction)
     {
         this.confirmAction = confirmAction;
-        TeamOrderManager.turnState = TurnState.WaitingForConfirmation;
+        TeamOrderManager.i.turnState = TurnState.WaitingForConfirmation;
         waitingForConfirmation = true;
         if (SettingsManager.actionConfirmation)
         {
@@ -360,7 +360,7 @@ public class UICharacterActions : ButtonList
         waitingForConfirmation = false;
         confirmationButton.DeactivateColorOverlay();
         DeactivateVisualSelect();
-        TeamOrderManager.SetTurnState(TurnState.WaitingForAction);
+        TeamOrderManager.i.SetTurnState(TurnState.WaitingForAction);
         BattleManager.i.battleLog.LogBattleEffect("Cancelled Action.");
         //UIItemContext.instance.Hide();
         //UISkillContext.instance.Hide();
@@ -373,7 +373,7 @@ public class UICharacterActions : ButtonList
         }
         else
         {
-            character = TeamOrderManager.currentTurn;
+            character = TeamOrderManager.i.currentTurn;
         }
 
         BattleManager.i.uiList.SelectCharacter(character);

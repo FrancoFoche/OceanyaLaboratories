@@ -18,6 +18,7 @@ public class Utilities_RadialProgressBar : MonoBehaviour
     [SerializeField] private UnityEvent onValueChanged = null;
     [SerializeField] private UnityEvent onEmpty = null;
 
+    public float CurrentValue { get { return currentValue; } }
     public float MaxValue { get { return maxValue; } }
     public float MinValue { get { return minValue; } }
 

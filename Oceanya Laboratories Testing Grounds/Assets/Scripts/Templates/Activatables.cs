@@ -146,7 +146,7 @@ public abstract class Activatables
 
                 if (behaviors.Contains(Behaviors.CostsTurn))
                 {
-                    TeamOrderManager.EndTurn();
+                    TeamOrderManager.i.EndTurn();
                 }
             }
             else
@@ -168,21 +168,21 @@ public abstract class Activatables
                         case TargetType.AllAllies:
                             if (caster.team == Team.Ally)
                             {
-                                targets = TeamOrderManager.allySide;
+                                targets = TeamOrderManager.i.allySide;
                             }
                             else
                             {
-                                targets = TeamOrderManager.enemySide;
+                                targets = TeamOrderManager.i.enemySide;
                             }
                             break;
                         case TargetType.AllEnemies:
                             if (caster.team == Team.Ally)
                             {
-                                targets = TeamOrderManager.enemySide;
+                                targets = TeamOrderManager.i.enemySide;
                             }
                             else
                             {
-                                targets = TeamOrderManager.allySide;
+                                targets = TeamOrderManager.i.allySide;
                             }
                             break;
                         case TargetType.Bounce:
@@ -421,7 +421,7 @@ public abstract class Activatables
         {
             if (!(activatableType == ActivatableType.Active && behaviors.Contains(Behaviors.Passive) && info.currentlyActive))
             {
-                TeamOrderManager.EndTurn();
+                TeamOrderManager.i.EndTurn();
             }
         }
     }

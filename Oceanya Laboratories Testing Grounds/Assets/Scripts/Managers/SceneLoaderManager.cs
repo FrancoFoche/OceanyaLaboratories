@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,7 +15,8 @@ public class SceneLoaderManager : MonoBehaviour
         Combat = 1,
         Credits = 2,
         Instructions = 3,
-        Shop = 4
+        Shop = 4,
+        MultiplayerLobby = 5
     }
 
     #region Setup
@@ -61,7 +63,7 @@ public class SceneLoaderManager : MonoBehaviour
     {
         _instance = this;
     }
-    public void LoadScene(Scenes scene)
+    public void LoadScene(Scenes scene, bool usePhotonLoad = false)
     {
         int newBuildIndex = (int)scene;
         currentScene = scene;
@@ -70,11 +72,15 @@ public class SceneLoaderManager : MonoBehaviour
             Destroy(MusicManager.musicObj);
             MusicManager.musicObj = null;
         }
-
-        //SceneManager.LoadScene(newBuildIndex);
-        //LoadSceneAdditive(scene);
-
-        StartCoroutine(LoadSceneAsync(scene, LoadSceneMode.Single));
+        
+        if (usePhotonLoad)
+        {
+            PhotonNetwork.LoadLevel(newBuildIndex);
+        }
+        else
+        {
+            StartCoroutine(LoadSceneAsync(scene, LoadSceneMode.Single));
+        }
     }
 
     public void LoadMainMenu()
@@ -87,7 +93,7 @@ public class SceneLoaderManager : MonoBehaviour
     }
     public void LoadPlay()
     {
-        LoadScene(Scenes.Combat);
+        LoadScene(Scenes.Combat, MultiplayerBattleManager.multiplayerActive);
     }
     public void LoadShop()
     {
@@ -99,9 +105,21 @@ public class SceneLoaderManager : MonoBehaviour
         LoadScene(Scenes.Instructions);
     }
 
+    public void LoadMultiplayerLobby()
+    {
+        LoadScene(Scenes.MultiplayerLobby, true);
+    }
     public void ReloadScene()
     {
-        LoadScene(currentScene);
+        switch (currentScene)
+        {
+            case Scenes.MultiplayerLobby:
+                LoadScene(currentScene, true);
+                break;
+            default:
+                LoadScene(currentScene);
+                break;
+        }
     }
 
     public void Quit()
@@ -112,6 +130,7 @@ public class SceneLoaderManager : MonoBehaviour
 
     IEnumerator LoadSceneAsync(Scenes index, LoadSceneMode mode)
     {
+        
         AsyncOperation async = SceneManager.LoadSceneAsync((int)index, mode);
         LoadingLogo.i.StartLoad(async);
         int framesCount = 0;

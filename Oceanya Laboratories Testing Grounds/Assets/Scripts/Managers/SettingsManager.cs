@@ -50,14 +50,14 @@ public static class SettingsManager
 
             if (mode)
             {
-                if (TeamOrderManager.turnState == TurnState.WaitingForAction)
+                if (TeamOrderManager.i.turnState == TurnState.WaitingForAction)
                 {
                     manager.uiList.InteractableUIs(true);
                 }
             }
             else
             {
-                manager.uiList.SelectCharacter(TeamOrderManager.currentTurn);
+                manager.uiList.SelectCharacter(TeamOrderManager.i.currentTurn);
             }
         }
     }

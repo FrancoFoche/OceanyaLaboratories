@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public enum TurnState
 {
@@ -16,20 +17,32 @@ public enum TurnState
 /// <summary>
 /// Where everything about turn order, and turn state is located
 /// </summary>
-public static class TeamOrderManager
+public class TeamOrderManager : MonoBehaviourPun
 {
-    public  static  List<Character>     allySide                        { get; private set; }
-    public  static  List<Character>     enemySide                       { get; private set; }
-    public  static  List<Character>     totalCharList                   { get; private set; }
-    public  static  TurnState           turnState                       { get; set; }
-    public  static  bool                AIturn                          { get; private set; }
-    public  static  int                 currentTeamOrderIndex           { get; private set; }
-    public  static  Character           currentTurn;
-    public  static  SPDSystem           spdSystem;
-
-    public static void                  BuildTeamOrder  (Wave battle)                                           
+    public static TeamOrderManager i;
+    public   List<Character>     allySide                        { get; private set; }
+    public   List<Character>     enemySide                       { get; private set; }
+    public   List<Character>     totalCharList                   { get; private set; }
+    public   TurnState           turnState                       { get; set; }
+    public   bool                AIturn                          { get; private set; }
+    public   int                 currentTeamOrderIndex           { get; private set; }
+    public   Character           currentTurn;
+    public   SPDSystem           spdSystem;
+    private void Awake()
     {
-        allySide = battle.allySide;
+        i = this;
+    }
+    public void                  BuildTeamOrder  (Wave battle)                                           
+    {
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            allySide = MultiplayerBattleManager.GetAllyCharacters();
+        }
+        else
+        {
+            allySide = battle.allySide;
+        }
+        
         enemySide = battle.enemySide;
         
         totalCharList = new List<Character>();
@@ -63,21 +76,21 @@ public static class TeamOrderManager
 
         BuildSPDSystem(allySide, enemySide);
     }
-    public static void                  BuildSPDSystem  (List<Character> allySide, List<Character> enemySide)   
+    private void                 BuildSPDSystem  (List<Character> allySide, List<Character> enemySide)   
     {
         spdSystem = new SPDSystem(allySide, enemySide);
         spdSystem.BuildSPDSystem();
 
         BattleManager.i.teamOrderMenu.LoadTeamOrder(spdSystem.teamOrder, currentTeamOrderIndex);
     }
-    public static void                  SetCurrentTurn  (Character character)                                   
+    public void                  SetCurrentTurn  (Character character)                                   
     {
         currentTurn = character;
 
         BattleManager.i.battleLog.LogTurn(currentTurn);
         BattleManager.i.uiList.SelectCharacter(currentTurn);
     }
-    public static void                  SetTurnState    (TurnState state)                                       
+    public void                  SetTurnState    (TurnState state)                                       
     {
         if (turnState == state && state != TurnState.NonDefined)
         {
@@ -115,19 +128,31 @@ public static class TeamOrderManager
                         if (!caster.AIcontrolled || SettingsManager.manualMode)
                         {
                             AIturn = false;
-                            SetTurnState(TurnState.WaitingForAction);
                         }
                         else
                         {
                             AIturn = true;
+                            BattleManager.i.DelayAction(3, caster.AITurn);
+                        }
+
+                        if (caster.isMine)
+                        {
+                            if (!AIturn)
+                            {
+                                SetTurnState(TurnState.WaitingForAction);
+                            }
+                        }
+                        else
+                        {
                             UICharacterActions.instance.InteractableButtons(false);
                             UISkillContext.instance.InteractableButtons(false);
                             UIItemContext.instance.InteractableButtons(false);
                             BattleManager.i.uiList.InteractableUIs(false);
                             BattleManager.i.uiList.SetTargettingMode(false);
 
-                            BattleManager.i.DelayAction(3, caster.AITurn);
+                            //wait for online action
                         }
+                        
                     }
                     break;
 
@@ -217,7 +242,7 @@ public static class TeamOrderManager
     /// <summary>
     /// Continues through the team order list, setting currentTurn to the next ordered turn.
     /// </summary>
-    public static void                  Continue        ()                      
+    public void                  Continue        ()                      
     {
         if (currentTeamOrderIndex + 1 == spdSystem.teamOrder.Count)
         {
@@ -243,8 +268,28 @@ public static class TeamOrderManager
     }
     
 
-    public static void                  EndTurn         ()                      
+    public void                  EndTurn         ()                      
     {
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            EndTurnOnline();
+        }
+        else
+        {
+            EndTurnLocal();
+        }
+    }
+
+    private void EndTurnOnline()
+    {
+        Debug.Log("End Turn Online");
+        photonView.RPC(nameof(EndTurnLocal), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void EndTurnLocal()
+    {
+        Debug.Log("End Turn Local");
         SetTurnState(TurnState.End);
 
         BattleManager.i.TotalTeamKill_Check();
@@ -268,6 +313,12 @@ public static class TeamOrderManager
             BattleManager.i.teamOrderMenu.UpdateTeamOrder(currentTeamOrderIndex);
             SetTurnState(TurnState.Start);
         }
+    }
+
+
+    public void                  UpdateTeamOrder()
+    {
+        BuildSPDSystem(allySide, enemySide);
     }
 }
 
@@ -373,8 +424,8 @@ public class SPDSystem
     /// <returns></returns>
     public bool         Swap                (Character character, Character swapWith)   
     {
-        int index1 = teamOrder.IndexOf(character, TeamOrderManager.currentTeamOrderIndex);
-        int swapIndex = teamOrder.IndexOf(swapWith, TeamOrderManager.currentTeamOrderIndex);
+        int index1 = teamOrder.IndexOf(character, TeamOrderManager.i.currentTeamOrderIndex);
+        int swapIndex = teamOrder.IndexOf(swapWith, TeamOrderManager.i.currentTeamOrderIndex);
 
         if (index1 != -1 && swapIndex != -1)
         {
@@ -401,7 +452,7 @@ public class SPDSystemInfo
     {
         this.character = character;
         AGI = character.GetStat(Stats.AGI).value;
-        int maxDelay = TeamOrderManager.spdSystem.MaxDelay;
+        int maxDelay = TeamOrderManager.i.spdSystem.MaxDelay;
         CounterIncrease = (float)(AGI + (maxDelay * 0.2)) / maxDelay;
         UpdateCurrentCounter();
         GenerateTurns();
@@ -409,13 +460,13 @@ public class SPDSystemInfo
 
     public void UpdateCurrentCounter    ()                      
     {
-        CurrentCounter = TeamOrderManager.spdSystem.CurrentGen * CounterIncrease;
+        CurrentCounter = TeamOrderManager.i.spdSystem.CurrentGen * CounterIncrease;
     }
     public void GenerateTurns           ()                      
     {
         turnList = new List<bool>();
         float pastTotalCounter = 0;
-        for (int i = 0; i < TeamOrderManager.spdSystem.GensPerPeriod; i++)
+        for (int i = 0; i < TeamOrderManager.i.spdSystem.GensPerPeriod; i++)
         {
             float curTotalCounter = CurrentCounter + (CounterIncrease * i);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
 [System.Serializable]
 public struct StatLine
@@ -75,8 +76,39 @@ public class AllyBattleUI : BattleUI
         firstTime = false;
     }
 
+    public override void OverrideCharacterWithPlayer(UIMultiplayerLobbyList.Settings player)
+    {
+        base.OverrideCharacterWithPlayer(player);
+
+        classText.text = player.username; 
+    }
     public override void UpdateUI()
     {
         LoadChar(loadedChar);
+    }
+
+
+    public override void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        /*
+        base.OnPhotonSerializeView(stream, info);
+
+        if (stream.IsWriting)
+        {
+            //Write to network
+
+            stream.SendNext(levelText.text);
+            stream.SendNext(classText.text);
+            stream.SendNext(levelProgress.progress.CurrentValue);
+        }
+        else
+        {
+            //Get from network
+
+            levelText.text = (string)stream.ReceiveNext();
+            classText.text = (string)stream.ReceiveNext();
+            levelProgress.progress.SetValue((float)stream.ReceiveNext());
+
+        }*/
     }
 }

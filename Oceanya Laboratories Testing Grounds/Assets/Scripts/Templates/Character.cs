@@ -59,6 +59,9 @@ public class Character
     [SerializeField] private LevellingSystem                    _level;
     [SerializeField] private List<ItemInfo>                     _inventory;
 
+    private bool                                _isMine;
+    private string                              _nickName;
+    private string                              _realName;
     private string                              _name;
     private List<Stat>                          _stats;
     protected List<Stat>                        _creationStats;
@@ -87,8 +90,11 @@ public class Character
     private CharacterView _view;
 
     #region Getters/Setters
+    public bool                                 isMine                      { get { return _isMine; }                   protected set { _isMine = value; } }
     public bool                                 AIcontrolled                { get { return _AIcontrolled; }             protected set { _AIcontrolled = value; } }
     public int                                  ID                          { get { return _ID; }                       protected set { _ID = value; } }
+    public string                               nickName                    { get { return _nickName; }                 protected set { _nickName = value; _name = _nickName; } }
+    public string                               realName                    { get { return _realName; }                 protected set { _realName = value; } }
     public string                               name                        { get { return _name; }                     protected set { _name = value; } }
 
     public LevellingSystem                      level                       { get { return _level; }                    set { _level = value; } }
@@ -684,6 +690,15 @@ public class Character
     {
         importanceOfSkills = importance;
     }
+    public void SetNickname             (string nickname)
+    {
+        nickName = nickname;
+    }
+
+    public void SetIsMine(bool isMine)
+    {
+        this.isMine = isMine;
+    }
     #endregion
 
 
@@ -812,7 +827,7 @@ public class Character
                 UICharacterActions.instance.ButtonAction(actionChosen);
             }
 
-            if (TeamOrderManager.turnState == TurnState.WaitingForTarget && BattleManager.caster == this)
+            if (TeamOrderManager.i.turnState == TurnState.WaitingForTarget && BattleManager.caster == this)
             {
                 #region Choose Targets
                 int maxTargets = UICharacterActions.instance.maxTargets;
@@ -824,11 +839,11 @@ public class Character
 
                     if (team == Team.Ally)
                     {
-                        targetChosen = PickRandomAliveTargetFromList(TeamOrderManager.enemySide);
+                        targetChosen = PickRandomAliveTargetFromList(TeamOrderManager.i.enemySide);
                     }
                     else
                     {
-                        targetChosen = PickRandomAliveTargetFromList(TeamOrderManager.allySide);
+                        targetChosen = PickRandomAliveTargetFromList(TeamOrderManager.i.allySide);
                     }
 
                     targets.Add(targetChosen);
@@ -844,10 +859,10 @@ public class Character
 
     public Character PickRandomAliveTargetFromList(List<Character> listToChooseFrom)
     {
-        int randomTargetIndex = UnityEngine.Random.Range(0, TeamOrderManager.allySide.Count);
+        int randomTargetIndex = UnityEngine.Random.Range(0, TeamOrderManager.i.allySide.Count);
         Debug.Log($"{name}'s random target index chosen: {randomTargetIndex}.");
 
-        Character targetChosen = TeamOrderManager.allySide[randomTargetIndex];
+        Character targetChosen = TeamOrderManager.i.allySide[randomTargetIndex];
         Debug.Log($"{name}'s random target chosen: {targetChosen.name}.");
 
         if (targetChosen.dead)

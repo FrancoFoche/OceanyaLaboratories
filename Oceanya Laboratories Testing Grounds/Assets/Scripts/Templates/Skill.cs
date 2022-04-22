@@ -186,7 +186,7 @@ public class SkillInfo : ActivatableInfo
         base.SetDeactivated();
         cdStartedAt = character.timesPlayed;
 
-        if(TeamOrderManager.turnState == TurnState.Start)
+        if(TeamOrderManager.i.turnState == TurnState.Start)
         {
             cdStartedAt -= 1;
         }

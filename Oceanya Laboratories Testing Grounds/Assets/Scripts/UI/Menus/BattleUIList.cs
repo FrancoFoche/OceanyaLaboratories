@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class BattleUIList : ToggleList
 {
@@ -21,7 +22,16 @@ public class BattleUIList : ToggleList
     public void SetSides(List<Character> allies, List<Character> enemies)
     {
         generalList.Clear();
-        AddAllAllies(allies);
+
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            AddAllPlayers(MultiplayerBattleManager.players.ToList());
+        }
+        else
+        {
+            AddAllAllies(allies);
+        }
+        
         AddAllEnemies(enemies);
     }
 
@@ -55,6 +65,17 @@ public class BattleUIList : ToggleList
         for (int i = 0; i < allies.Count; i++)
         {
             AddAlly(allies[i]);
+        }
+    }
+
+    public void AddAllPlayers(List<UIMultiplayerLobbyList.Settings> players)
+    {
+        ClearList();
+        allies.Clear();
+        for (int i = 0; i < players.Count; i++)
+        {
+            UIMultiplayerLobbyList.Settings player = players[i];
+            AddAlly(player.character).OverrideCharacterWithPlayer(player);
         }
     }
 
