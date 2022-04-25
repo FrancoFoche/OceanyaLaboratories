@@ -90,7 +90,6 @@ public class AllyBattleUI : BattleUI
 
     public override void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        /*
         base.OnPhotonSerializeView(stream, info);
 
         if (stream.IsWriting)
@@ -100,6 +99,7 @@ public class AllyBattleUI : BattleUI
             stream.SendNext(levelText.text);
             stream.SendNext(classText.text);
             stream.SendNext(levelProgress.progress.CurrentValue);
+            
         }
         else
         {
@@ -108,7 +108,6 @@ public class AllyBattleUI : BattleUI
             levelText.text = (string)stream.ReceiveNext();
             classText.text = (string)stream.ReceiveNext();
             levelProgress.progress.SetValue((float)stream.ReceiveNext());
-
-        }*/
+        }
     }
 }

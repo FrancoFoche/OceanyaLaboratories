@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3024394695317961490}
   - component: {fileID: 6619258625572448740}
   - component: {fileID: 697339615661579127}
-  - component: {fileID: 3844880578561383529}
+  - component: {fileID: 1938460149149062649}
   m_Layer: 0
   m_Name: EffectAnimator_3D
   m_TagString: Untagged
@@ -152,11 +152,11 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 3844880578561383529}
+  - {fileID: 1938460149149062649}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &3844880578561383529
+--- !u!114 &1938460149149062649
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,28 +172,28 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Attack
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Heal
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Buff
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Debuff
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Death
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Revive
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Explosion
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 2
     Name: Special
   m_SynchronizeLayers:
   - SynchronizeType: 0

@@ -54,7 +54,7 @@ public class MultiplayerLobbyManager : MonoBehaviourPun
 
         //Initialize it (for everyone)
         UIMultiplayerLobbyList script = obj.GetComponent<UIMultiplayerLobbyList>();
-        script.Initialize(username, playerList.parent);
+        script.Initialize(username, playerList.parent, false);
 
         LevelManager.CreateLevels();
         missionDropdown.SetLevels(LevelManager.levels.ToList());

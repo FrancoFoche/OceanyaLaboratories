@@ -44,6 +44,12 @@ MonoBehaviour:
   - EndTurnLocal
   - FightButtonOnline
   - SetParentOnlineWithTag
+  - AddToListOnline
+  - ActLocal
+  - SetBattleStateLocal
+  - UpdateCharacterOnline
+  - UpdateUIOnline
+  - InitializeLocal
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

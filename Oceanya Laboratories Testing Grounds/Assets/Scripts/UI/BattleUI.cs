@@ -88,7 +88,6 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
 
     public virtual void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        /*
         if (stream.IsWriting)
         {
             //Write to network
@@ -97,6 +96,8 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             stream.SendNext(hpText.text);
             stream.SendNext(statusEffectText.text);
             stream.SendNext(hpSlider.value);
+            
+            stream.SendNext(_loadedChar.stats.GetStat(Stats.CURHP).value);
         }
         else
         {
@@ -106,7 +107,11 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             hpText.text = (string)stream.ReceiveNext();
             statusEffectText.text = (string)stream.ReceiveNext();
             hpSlider.value = (float)stream.ReceiveNext();
-
-        }*/
+            
+            
+            _loadedChar.stats.GetStat(Stats.CURHP).value = (int)stream.ReceiveNext();
+            
+            UpdateUI();
+        }
     }
 }

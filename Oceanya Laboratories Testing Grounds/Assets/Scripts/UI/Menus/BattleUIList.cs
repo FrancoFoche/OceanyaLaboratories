@@ -75,6 +75,7 @@ public class BattleUIList : ToggleList
         for (int i = 0; i < players.Count; i++)
         {
             UIMultiplayerLobbyList.Settings player = players[i];
+            
             AddAlly(player.character).OverrideCharacterWithPlayer(player);
         }
     }
@@ -83,7 +84,7 @@ public class BattleUIList : ToggleList
     {
         Vector3 newPos = Camera.main.WorldToScreenPoint(uiPosition.position);
 
-        GameObject newCharObject = AddObject(enemyUI, newPos, new Quaternion(0,0,0,0), enemyParent);
+        GameObject newCharObject = AddObject(newPos, new Quaternion(0,0,0,0), enemyParent, enemyUI);
 
         EnemyBattleUI newCharUI = newCharObject.GetComponent<EnemyBattleUI>();
         character.view.curUI = newCharUI;
@@ -91,6 +92,11 @@ public class BattleUIList : ToggleList
         generalList.Add(newCharUI);
         enemies.Add(newCharUI);
 
+        if (newCharUI == null)
+        {
+            Debug.LogError($"New char ui was null. List Count: {curListCount}");
+            
+        }
         newCharUI.LoadChar(character);
        
         return newCharUI;
@@ -187,5 +193,15 @@ public class BattleUIList : ToggleList
         }
 
         return list;
+    }
+
+    public BattleUI GetUIByAllyID(int id)
+    {
+        return allies.First(x => x.loadedChar.ID == id);
+    }
+    
+    public List<BattleUI> GetEnemyUIs()
+    {
+        return enemies;
     }
 }

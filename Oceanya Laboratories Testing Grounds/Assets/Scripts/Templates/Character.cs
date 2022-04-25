@@ -59,7 +59,7 @@ public class Character
     [SerializeField] private LevellingSystem                    _level;
     [SerializeField] private List<ItemInfo>                     _inventory;
 
-    private bool                                _isMine;
+    private bool                                _isMine = true;
     private string                              _nickName;
     private string                              _realName;
     private string                              _name;
@@ -156,7 +156,7 @@ public class Character
 
         importanceOfActions = new Dictionary<CharActions, int>();
         importanceOfSkills = new Dictionary<Skill, int>();
-        view = new CharacterView();
+        view = new CharacterView(this);
     }
 
     #region Character Reactions
@@ -939,6 +939,7 @@ public class Character
 
 public class CharacterView
 {
+    private Character _character;
     private BattleUI _curUI;
     private Texture2D _sprite;
     private SpriteAnimator _curSprite;
@@ -947,6 +948,10 @@ public class CharacterView
     public Texture2D sprite { get { return _sprite; } set { _sprite = value; } }
     public SpriteAnimator curSprite { get { return _curSprite; } set { _curSprite = value; } }
 
+    public CharacterView(Character character)
+    {
+        _character = character;
+    }
     public void UpdateUI()
     {
         curUI.UpdateUI();
@@ -954,37 +959,53 @@ public class CharacterView
 
     public void ExtraEffect(EffectAnimator.Effects extraEffect)
     {
-        curUI.effectAnimator.PlayEffect(extraEffect);
+        PlayEffect(extraEffect);
     }
 
     public void Damage()
     {
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Attack);
+        PlayEffect(EffectAnimator.Effects.Attack);
     }
 
     public void Heal()
     {
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Heal);
+        PlayEffect(EffectAnimator.Effects.Heal);
     }
 
     public void Die()
     {
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Death);
+        PlayEffect(EffectAnimator.Effects.Death);
     }
 
     public void Revive()
     {
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Revive);
+        PlayEffect(EffectAnimator.Effects.Revive);
     }
 
     public void Buff()
     {
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Buff);
+        PlayEffect(EffectAnimator.Effects.Buff);
     }
 
     public void Debuff()
     {
-        curUI.effectAnimator.PlayEffect(EffectAnimator.Effects.Debuff);
+        PlayEffect(EffectAnimator.Effects.Debuff);
+    }
+
+    void PlayEffect(EffectAnimator.Effects effect)
+    {
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            if (_character.isMine)
+            {
+                //Play only if you are the original character, since photon view will sync the rest.
+                curUI.effectAnimator.PlayEffect(effect);
+            }
+        }
+        else
+        {
+            curUI.effectAnimator.PlayEffect(effect);
+        }
     }
 }
 

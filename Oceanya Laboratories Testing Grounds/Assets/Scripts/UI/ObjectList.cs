@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
@@ -13,84 +14,82 @@ public class ObjectList : MonoBehaviour
     public GameObject obj;
 
     public List<GameObject> list = new List<GameObject>();
+    public bool keepOriginalScale = false;
     
     [Header("Photon")]
     public bool usePhotonInstantiate;
     public string objPhotonString;
 
-    public virtual GameObject AddObject()
+    public virtual GameObject AddObject(GameObject objToInstantiate = null)
     {
         if (list.Count >= maxListCount)
         {
             Destroy(list[0].gameObject);
             list.Remove(list[0]);
         }
+        
+        
+        GameObject newObject = null;
 
-        GameObject newObject = usePhotonInstantiate ? 
-            PhotonNetwork.Instantiate(objPhotonString,parent.transform.position,parent.transform.rotation)
-            : Instantiate(obj, parent.transform);
-
-        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.tag).transform : parent.transform;
-        list.Add(newObject);
-        curListCount = list.Count;
-
-        return newObject;
-    }
-
-    public virtual GameObject AddObject(Vector3 pos, Quaternion rot)
-    {
-        if (list.Count >= maxListCount)
+        if (objToInstantiate == null)
         {
-            Destroy(list[0].gameObject);
-            list.Remove(list[0]);
+            //Use your normal object 
+            if (usePhotonInstantiate)
+            {
+                newObject = PhotonNetwork.Instantiate(objPhotonString, parent.transform.position,
+                    parent.transform.rotation);
+
+                /*
+                 //Random test about trying to make the parent set and the add to list thing generic.
+                PhotonView view = newObject.GetPhotonView();
+                view.RPC();
+                newObject.transform.parent = GameObject.FindGameObjectWithTag(parent.tag).transform;
+                */
+            }
+            else
+            {
+                newObject = Instantiate(obj, parent.transform);
+            }
+        }
+        else
+        {
+            //its a specific object
+            newObject = Instantiate(objToInstantiate, parent.transform);
         }
 
-        GameObject newObject = usePhotonInstantiate ? 
-            PhotonNetwork.Instantiate(objPhotonString,pos,rot)
-            : Instantiate(obj, pos, rot);
-        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.tag).transform : parent.transform;
-
-        list.Add(newObject);
-        curListCount = list.Count;
-
-        return newObject;
-    }
-
-    public virtual GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
-    {
-        if (list.Count >= maxListCount)
+        if (keepOriginalScale)
         {
-            Destroy(list[0].gameObject);
-            list.Remove(list[0]);
+            GameObject oldGameObject = objToInstantiate == null ? obj : objToInstantiate;
+            newObject.transform.parent = null;
+            newObject.transform.localScale = oldGameObject.transform.localScale;
+            newObject.transform.parent = parent.transform;
         }
+        
 
-        GameObject newObject = usePhotonInstantiate ? 
-            PhotonNetwork.Instantiate(objPhotonString,pos,rot)
-            : Instantiate(obj, pos, rot);
-        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.gameObject.tag).transform : parent;
-
+        
         list.Add(newObject);
         curListCount = list.Count;
 
         return newObject;
     }
 
-    public virtual GameObject AddObject(GameObject objToInstance)
+    public virtual GameObject AddObject(Vector3 pos, Quaternion rot, GameObject objToInstantiate = null)
     {
-        if (list.Count >= maxListCount)
-        {
-            Destroy(list[0].gameObject);
-            list.Remove(list[0]);
-        }
+        GameObject obj = AddObject(objToInstantiate);
+        obj.transform.position = pos;
+        obj.transform.rotation = rot;
 
-        GameObject newObject = Instantiate(objToInstance, parent.transform);
-
-        list.Add(newObject);
-        curListCount = list.Count;
-
-        return newObject;
+        return obj;
     }
-    
+
+    public virtual GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent, GameObject objToInstantiate = null)
+    {
+        GameObject obj = AddObject(pos, rot, objToInstantiate);
+        obj.transform.SetParent(parent);
+
+        return obj;
+    }
+
     public virtual GameObject AddObject(string photonObjToInstance)
     {
         if (list.Count >= maxListCount)
@@ -101,24 +100,7 @@ public class ObjectList : MonoBehaviour
 
         GameObject newObject =
             PhotonNetwork.Instantiate(photonObjToInstance, parent.transform.position, parent.transform.rotation);
-
-        newObject.transform.parent = usePhotonInstantiate ? GameObject.FindGameObjectWithTag(parent.tag).transform : parent.transform;
-
-        list.Add(newObject);
-        curListCount = list.Count;
-
-        return newObject;
-    }
-
-    public virtual GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
-    {
-        if (list.Count >= maxListCount)
-        {
-            Destroy(list[0].gameObject);
-            list.Remove(list[0]);
-        }
-
-        GameObject newObject = Instantiate(objToInstance, pos, rot, parent);
+        
 
         list.Add(newObject);
         curListCount = list.Count;
@@ -190,28 +172,20 @@ public class ToggleList : ObjectList
     }
 
     #region AddObject Overrides
-    public override GameObject AddObject()
+    public override GameObject AddObject(GameObject objToInstantiate = null)
     {
-        GameObject obj = base.AddObject();
+        GameObject obj = base.AddObject(objToInstantiate);
         ToggleAddToList(obj);
         return obj;
     }
-    public override GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
+    public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent,GameObject objToInstantiate = null)
     {
-        GameObject obj = base.AddObject(objToInstance, pos, rot, parent);
-        ToggleAddToList(obj);
+        GameObject obj = base.AddObject(pos, rot, parent, objToInstantiate);
         return obj;
     }
-    public override GameObject AddObject(Vector3 pos, Quaternion rot)
+    public override GameObject AddObject(Vector3 pos, Quaternion rot,GameObject objToInstantiate = null)
     {
-        GameObject obj = base.AddObject(pos, rot);
-        ToggleAddToList(obj);
-        return obj;
-    }
-    public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
-    {
-        GameObject obj = base.AddObject(pos, rot, parent);
-        ToggleAddToList(obj);
+        GameObject obj = base.AddObject(pos, rot, objToInstantiate);
         return obj;
     }
     void ToggleAddToList(GameObject obj)
@@ -301,38 +275,24 @@ public class ButtonList : ObjectList
     public List<Button> buttons;
 
     #region AddObject Overrides
-    public override GameObject AddObject()
+    public override GameObject AddObject(GameObject objToInstantiate = null)
     {
-        GameObject obj = base.AddObject();
+        GameObject obj = base.AddObject(objToInstantiate);
         AddButtonToList(obj);
         return obj;
     }
 
-    public override GameObject AddObject(GameObject objToInstance)
+    public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent, GameObject objToInstantiate = null)
     {
-        GameObject obj = base.AddObject(objToInstance);
-        AddButtonToList(obj);
+        GameObject obj = base.AddObject(pos, rot, parent, objToInstantiate);
         return obj;
     }
-
-    public override GameObject AddObject(GameObject objToInstance, Vector3 pos, Quaternion rot, Transform parent)
+    public override GameObject AddObject(Vector3 pos, Quaternion rot, GameObject objToInstantiate = null)
     {
-        GameObject obj = base.AddObject(objToInstance, pos, rot, parent);
-        AddButtonToList(obj);
+        GameObject obj = base.AddObject(pos, rot, objToInstantiate);
         return obj;
     }
-    public override GameObject AddObject(Vector3 pos, Quaternion rot)
-    {
-        GameObject obj = base.AddObject(pos, rot);
-        AddButtonToList(obj);
-        return obj;
-    }
-    public override GameObject AddObject(Vector3 pos, Quaternion rot, Transform parent)
-    {
-        GameObject obj = base.AddObject(pos, rot, parent);
-        AddButtonToList(obj);
-        return obj;
-    }
+    
     void AddButtonToList(GameObject obj)
     {
         Button button = obj.GetComponent<Button>();

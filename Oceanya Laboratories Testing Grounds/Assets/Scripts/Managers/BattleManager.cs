@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Kam.TooltipUI;
 using Kam.CustomInput;
+using Photon.Pun;
+
 
 public enum BattleState
 {
@@ -25,12 +27,12 @@ public class Wave
     public int GoldGiven = 0;
 }
 
-public class BattleManager : MonoBehaviour, IObserver
+public class BattleManager : MonoBehaviourPun, IObserver
 {
     private static BattleManager _instance;
     public static BattleManager i { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
 
-
+    public MultiplayerBattleManager multiplayer;
     public static Character caster { get; private set; }
     public static List<Character> target { get; private set; }
 
@@ -95,10 +97,11 @@ public class BattleManager : MonoBehaviour, IObserver
         pauseMenu.manualMode.isOn = SettingsManager.manualMode;
         pauseMenu.confirmActions.isOn = SettingsManager.actionConfirmation;
         #endregion
-
+        
         currentLevel = LevelManager.GetLevel(LevelManager.currentLevel);
 
         StartCombat(currentLevel.waves[0]);
+        multiplayer.OnStart();
     }
 
     Action onUpdate = null;
@@ -339,6 +342,35 @@ public class BattleManager : MonoBehaviour, IObserver
 
     public void SetBattleState(BattleState state)
     {
+        bool sync = false;
+        //only sync for win and lose
+        switch (state)
+        {
+            case BattleState.Won:
+            case BattleState.Lost:
+                sync = true;
+                break;
+        }
+        
+        if (MultiplayerBattleManager.multiplayerActive && sync)
+        {
+            SetBattleStateOnline(state);
+        }
+        else
+        {
+            SetBattleStateLocal(state);
+        }
+    }
+    
+    public void SetBattleStateOnline(BattleState state)
+    {
+        Debug.Log("Set battle state online");
+        photonView.RPC(nameof(SetBattleStateLocal), RpcTarget.All, state);
+    }
+    
+    [PunRPC]
+    public void SetBattleStateLocal(BattleState state)
+    {
         if (battleState == state && battleState != BattleState.Start)
         {
             Debug.Log("Battle state is ALREADY set to " + state.ToString() + ".");
@@ -369,6 +401,7 @@ public class BattleManager : MonoBehaviour, IObserver
                         charActions.InteractableButtons(false);
                         uiList.InteractableUIs(false);
                         battleLog.LogBattleStatus("COMBAT START!");
+                        multiplayer.AttachToPlayer();
 
                         DelayAction(3, SetupBattle);
                     }
@@ -590,7 +623,8 @@ public class BattleManager : MonoBehaviour, IObserver
         TeamOrderManager.i.UpdateTeamOrder();
     }
 
-
+    
+    
     #region Utilities
     public void DelayAction(float secondsToDelay, Action delayedAction)
     {

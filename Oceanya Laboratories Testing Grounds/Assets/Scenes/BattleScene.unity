@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.4964127, b: 0.57481724, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1045,7 +1045,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 260507129}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2351,7 +2351,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 831377960}
   m_HandleRect: {fileID: 831377959}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3184,6 +3184,7 @@ MonoBehaviour:
   parent: {fileID: 694128500}
   obj: {fileID: 2891512304540752423, guid: 9cd8529b29e1d564190729f3f79c2978, type: 3}
   list: []
+  keepOriginalScale: 1
   usePhotonInstantiate: 0
   objPhotonString: 
   uiList: {fileID: 1399045341}
@@ -3610,6 +3611,7 @@ MonoBehaviour:
   parent: {fileID: 1555551802}
   obj: {fileID: 525006015811260916, guid: 2edf5f7ea3e5002469c28be8f650b163, type: 3}
   list: []
+  keepOriginalScale: 0
   usePhotonInstantiate: 0
   objPhotonString: 
   turnsBeforeScroll: 4
@@ -4229,6 +4231,7 @@ MonoBehaviour:
   parent: {fileID: 252738346}
   obj: {fileID: 4338879539910743085, guid: 1fc4f5bc1dc1d4641b523a11a2859cee, type: 3}
   list: []
+  keepOriginalScale: 0
   usePhotonInstantiate: 0
   objPhotonString: 
   buttons: []
@@ -4430,6 +4433,7 @@ GameObject:
   - component: {fileID: 890478108}
   - component: {fileID: 890478106}
   - component: {fileID: 890478109}
+  - component: {fileID: 890478110}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -4475,6 +4479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 255676e4d800e284b93c4644d29bdf32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  multiplayer: {fileID: 890478110}
   contextMenuControls:
   - name: 1
     keys: 31000000
@@ -4543,6 +4548,21 @@ MonoBehaviour:
   sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &890478110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890478105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24b5ddf6e3c45524a8ff344ef1276077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathPrefix: PhotonPrefabs/
+  syncHelper: {fileID: 8958957041573055746, guid: 14718c5fda7fcc847a3594cff282a1c1,
+    type: 3}
 --- !u!1 &894017116
 GameObject:
   m_ObjectHideFlags: 0
@@ -6049,7 +6069,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1796353071}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7385,7 +7405,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 974053962}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.99999994
+  m_Size: 0.9999998
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7880,6 +7900,7 @@ MonoBehaviour:
   parent: {fileID: 422113687}
   obj: {fileID: 2805799297784374572, guid: d5281cc6837e9d94e93c9ea012810a8f, type: 3}
   list: []
+  keepOriginalScale: 0
   usePhotonInstantiate: 0
   objPhotonString: test
   toggleGroup: {fileID: 1399045340}
@@ -8870,6 +8891,7 @@ GameObject:
   - component: {fileID: 1504574659}
   - component: {fileID: 1504574658}
   - component: {fileID: 1504574657}
+  - component: {fileID: 1504574660}
   m_Layer: 5
   m_Name: ActionList
   m_TagString: Untagged
@@ -8916,9 +8938,11 @@ MonoBehaviour:
   parent: {fileID: 360957736}
   obj: {fileID: 3876042889408825996, guid: ad8ef706b004f934b96e2219b01d3870, type: 3}
   list: []
+  keepOriginalScale: 0
   usePhotonInstantiate: 0
   objPhotonString: 
   buttons: []
+  view: {fileID: 1504574660}
   confirmationColor: {r: 0, g: 1, b: 0.013520718, a: 1}
   selectedColor: {r: 1, g: 1, b: 1, a: 0.19607843}
   maxTargets: 0
@@ -8965,6 +8989,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1504574655}
   m_CullTransparentMesh: 0
+--- !u!114 &1504574660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1504574655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 2
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 1504574657}
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1555551802
 GameObject:
   m_ObjectHideFlags: 0
@@ -11655,6 +11702,7 @@ MonoBehaviour:
   parent: {fileID: 1777384728}
   obj: {fileID: 7835321839715556238, guid: 9a6e02dc52cac4146baa181ee40d7637, type: 3}
   list: []
+  keepOriginalScale: 0
   usePhotonInstantiate: 0
   objPhotonString: 
   buttons: []
@@ -11891,7 +11939,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 790648031}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

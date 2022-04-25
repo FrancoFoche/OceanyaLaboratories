@@ -1686,6 +1686,7 @@ MonoBehaviour:
   username: {fileID: 1410776060484336106}
   nickname: {fileID: 3119936111304974072}
   playerCharacter: {fileID: 7378511517229257551}
+  id: 0
 --- !u!1 &3511385875447865656
 GameObject:
   m_ObjectHideFlags: 0

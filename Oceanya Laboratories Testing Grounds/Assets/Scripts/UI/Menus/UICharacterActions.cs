@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using Photon.Pun;
 
-public class UICharacterActions : ButtonList
+public class UICharacterActions : ButtonList, IPunObservable
 {
+    [Header("Assignables")]
+    public PhotonView view;
+    
     [Header("Colors")]
     public Color confirmationColor;
     public Color selectedColor;
@@ -104,10 +108,32 @@ public class UICharacterActions : ButtonList
         return result;
     }
 
+    public void Act(ActionData data)
+    {
+        ActLocal(data);
+        
+        /*
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            ActOnline(data);
+        }
+        else
+        {
+            ActLocal(data);
+        }*/
+    }
+    
+    public void ActOnline(ActionData data)
+    {
+        Debug.Log("Act online");
+        view.RPC(nameof(ActLocal), RpcTarget.All, data);
+    }
+    
     /// <summary>
     /// Uses the action that was saved to actually run the code for the action.
     /// </summary>
-    public void Act(ActionData data)
+    [PunRPC]
+    public void ActLocal(ActionData data)
     {
         Character caster = data.caster;
         List<Character> target = data.targets;
@@ -298,7 +324,7 @@ public class UICharacterActions : ButtonList
                 {
                     if(confirmAction == null)
                     {
-                        UIActionConfirmationPopUp.i.Show(delegate { this.action = CharActions.EndTurn; Act(new ActionData(BattleManager.caster, BattleManager.target)); }, true, "This will skip your turn, are you sure?");
+                        UIActionConfirmationPopUp.i.Show(delegate { SetAction(CharActions.EndTurn); Act(new ActionData(BattleManager.caster, BattleManager.target)); }, true, "This will skip your turn, are you sure?");
                     }
                     else
                     {
@@ -311,14 +337,19 @@ public class UICharacterActions : ButtonList
 
     public void ActionRequiresTarget(CharActions action)
     {
-        this.action = action;
+        SetAction(action);
 
         TeamOrderManager.i.SetTurnState(TurnState.WaitingForTarget);
     }
     public void ActionDoesNotRequireTarget(CharActions action)
     {
-        this.action = action;
+        SetAction(action);
         TeamOrderManager.i.SetTurnState(TurnState.WaitingForConfirmation);
+    }
+
+    void SetAction(CharActions action)
+    {
+        this.action = action;
     }
 
     public void StartButtonActionConfirmation(Action confirmAction)
@@ -403,5 +434,26 @@ public class UICharacterActions : ButtonList
             
             current.DeactivateColorOverlay();
         }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        /*
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            if (stream.IsWriting)
+            {
+                //Write to network
+
+                stream.SendNext((int)action);
+            }
+            else
+            {
+                //Get from network
+
+                action = (CharActions)stream.ReceiveNext();
+            }
+        }
+        */
     }
 }

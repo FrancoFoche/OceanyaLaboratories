@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
+        PhotonNetwork.Disconnect();
         DataBaseOrder.i.Initialize();
         SavesManager.Load();
         SaveFile loaded = SavesManager.loadedFile;
