@@ -132,7 +132,12 @@ public class TeamOrderManager : MonoBehaviourPun
                         else
                         {
                             AIturn = true;
-                            BattleManager.i.DelayAction(3, caster.AITurn);
+                            if (MultiplayerLobbyManager.owner)
+                            {
+                                //Only the owner's AI will do their action!
+                                BattleManager.i.DelayAction(3, caster.AITurn);
+                            }
+                            
                         }
 
                         if (caster.isMine)

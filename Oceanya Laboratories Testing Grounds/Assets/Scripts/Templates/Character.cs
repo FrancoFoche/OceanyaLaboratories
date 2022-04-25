@@ -107,7 +107,7 @@ public class Character
     public Team                                 team                        { get { return _team; }                     protected set { _team = value; } }
     public bool                                 targettable                 { get { return _targettable; }              protected set { _targettable = value; } }
 
-    public bool                                 dead                        { get { return _dead; }                     protected set { _dead = value; } }
+    public bool                                 dead                        { get { return _dead; }                               set { _dead = value; } }
     public bool                                 permadead                   { get { return _permadead; }                protected set { _permadead = value; } }
     public bool                                 defending                   { get { return _defending; }                protected set { _defending = value; } }
         

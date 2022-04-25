@@ -96,8 +96,15 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             stream.SendNext(hpText.text);
             stream.SendNext(statusEffectText.text);
             stream.SendNext(hpSlider.value);
+
+            #region Sync Character
+            foreach (Stats stat in RuleManager.StatHelper)
+            {
+                stream.SendNext(_loadedChar.stats.GetStat(stat).value);
+            }
             
-            stream.SendNext(_loadedChar.stats.GetStat(Stats.CURHP).value);
+            stream.SendNext(_loadedChar.dead);
+            #endregion
         }
         else
         {
@@ -108,10 +115,14 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             statusEffectText.text = (string)stream.ReceiveNext();
             hpSlider.value = (float)stream.ReceiveNext();
             
+            foreach (Stats stat in RuleManager.StatHelper)
+            {
+                _loadedChar.stats.GetStat(stat).value = (int)stream.ReceiveNext();
+            }
             
-            _loadedChar.stats.GetStat(Stats.CURHP).value = (int)stream.ReceiveNext();
-            
+            _loadedChar.dead = (bool)stream.ReceiveNext();
             UpdateUI();
+            BattleManager.i.UpdateTeamOrder();
         }
     }
 }

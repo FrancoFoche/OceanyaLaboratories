@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
-public class EffectAnimator : MonoBehaviour
+public class EffectAnimator : MonoBehaviourPun
 {
     public enum Effects
     {
@@ -22,10 +23,37 @@ public class EffectAnimator : MonoBehaviour
     #region Animator Event Actions
     public void PlayEffect(Effects effect)
     {
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            PlayEffectLocal(effect);
+            //photonView.RPC(nameof(PlayEffectLocal), RpcTarget.All, effect);
+        }
+        else
+        {
+            PlayEffectLocal(effect);
+        }
+    }
+    [PunRPC]
+    public void PlayEffectLocal(Effects effect)
+    {
         Debug.Log("Played " + effect.ToString() + " effect.");
         animator.SetTrigger(effect.ToString());
     }
+    
     public void PlaySound(Sounds sound)
+    {
+        if (MultiplayerBattleManager.multiplayerActive)
+        {
+            PlaySoundLocal(sound);
+            //photonView.RPC(nameof(PlaySoundLocal), RpcTarget.All, sound);
+        }
+        else
+        {
+            PlaySoundLocal(sound);
+        }
+    }
+    
+    public void PlaySoundLocal(Sounds sound)
     {
         SFXManager.PlaySound(sound);
     }

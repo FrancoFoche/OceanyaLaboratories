@@ -14324,6 +14324,7 @@ MonoBehaviour:
   parent: {fileID: 117611905}
   obj: {fileID: 6731082177954117220, guid: 6372eafd70fb9a94e84dfe2a8ac8e814, type: 3}
   list: []
+  keepOriginalScale: 0
   usePhotonInstantiate: 0
   objPhotonString: 
   buttons: []

@@ -14,6 +14,7 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
         public string nickname;
         public int id;
         public bool isMine;
+        public bool isOwnerOfRoom;
         public PlayerCharacter character;
     }
 
@@ -21,7 +22,8 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
     public TMP_InputField nickname;
     [FormerlySerializedAs("character")] public UIPlayerCharacterDropdown playerCharacter;
     public int id;
-
+    public bool isOwnerOfRoom;
+    
     private bool wasGivenAnId = false;
     private void Start()
     {
@@ -43,13 +45,14 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
             nickname = nickname.text,
             character = playerCharacter.Selected,
             isMine = photonView.IsMine,
-            id = id
+            id = id,
+            isOwnerOfRoom = isOwnerOfRoom
         };
     }
     
     
 
-    public void Initialize(string username, GameObject parent, bool wasGivenAnId)
+    public void Initialize(string username, GameObject parent, bool wasGivenAnId, bool isOwnerOfRoom)
     {
         SetInteractable(true);
         if (!wasGivenAnId)
@@ -59,7 +62,7 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
         }
         
         photonView.RPC(nameof(SetInteractable), RpcTarget.Others, false);
-        photonView.RPC(nameof(InitializeOnline), RpcTarget.All, username, parent.tag);
+        photonView.RPC(nameof(InitializeOnline), RpcTarget.All, username, parent.tag, isOwnerOfRoom);
         photonView.RPC(nameof(AddToListOnline), RpcTarget.Others, parent.tag);
     }
 
@@ -71,9 +74,10 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
     }
     
     [PunRPC]
-    void InitializeOnline(string username, string parentTag)
+    void InitializeOnline(string username, string parentTag, bool isOwnerOfRoom)
     {
         SetUsername(username);
+        this.isOwnerOfRoom = isOwnerOfRoom;
         transform.SetParent(GameObject.FindGameObjectWithTag(parentTag).transform);
     }
     
@@ -95,6 +99,11 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(playerCharacter.dropdown.value);
             stream.SendNext(nickname.text);
             stream.SendNext(id);
+
+            if (isOwnerOfRoom)
+            {
+                stream.SendNext(MultiplayerLobbyManager.i.missionDropdown.dropdown.value);
+            }
         }
         else
         {
@@ -104,11 +113,16 @@ public class UIMultiplayerLobbyList : MonoBehaviourPunCallbacks, IPunObservable
             playerCharacter.dropdown.value = (int)stream.ReceiveNext();
             nickname.text = (string)stream.ReceiveNext();
             id = (int)stream.ReceiveNext();
+
+            if (isOwnerOfRoom)
+            {
+                MultiplayerLobbyManager.i.missionDropdown.dropdown.value = (int)stream.ReceiveNext();
+            }
         }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Initialize(username.text, transform.parent.gameObject, wasGivenAnId);
+        Initialize(username.text, transform.parent.gameObject, wasGivenAnId, isOwnerOfRoom);
     }
 }
