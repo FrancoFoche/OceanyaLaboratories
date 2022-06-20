@@ -32,7 +32,7 @@ public class BattleManager : MonoBehaviourPun, IObserver
     private static BattleManager _instance;
     public static BattleManager i { get { if (_instance == null) { _instance = FindObjectOfType<BattleManager>(); } return _instance; } private set { _instance = value; } }
 
-    public MultiplayerBattleManager multiplayer;
+    public Multiplayer_Server multiplayer;
     public static Character caster { get; private set; }
     public static List<Character> target { get; private set; }
 
@@ -352,7 +352,7 @@ public class BattleManager : MonoBehaviourPun, IObserver
                 break;
         }
         
-        if (MultiplayerBattleManager.multiplayerActive && sync)
+        if (Multiplayer_Server.multiplayerActive && sync)
         {
             SetBattleStateOnline(state);
         }
@@ -486,7 +486,7 @@ public class BattleManager : MonoBehaviourPun, IObserver
                                 AnalyticsManager.SendEvent_LevelEnd(currentLevel.levelNumber, !lost, TeamOrderManager.i.allySide);
                                 battleLog.LogCountdown(currentLevel.waves[currentLevel.waves.Length - 1].transitionOutTime, 
                                     $"Going to {currentLevel.winningScene.ToString()} in _countdown_...", 
-                                    () => SceneLoaderManager.instance.LoadScene(currentLevel.winningScene, MultiplayerBattleManager.multiplayerActive));
+                                    () => SceneLoaderManager.instance.LoadScene(currentLevel.winningScene, Multiplayer_Server.multiplayerActive));
                             }
                         });
 

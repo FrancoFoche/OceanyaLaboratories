@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -34,9 +35,9 @@ public class TeamOrderManager : MonoBehaviourPun
     }
     public void                  BuildTeamOrder  (Wave battle)                                           
     {
-        if (MultiplayerBattleManager.multiplayerActive)
+        if (Multiplayer_Server.multiplayerActive)
         {
-            allySide = MultiplayerBattleManager.GetAllyCharacters();
+            allySide = Multiplayer_Server.GetAllyCharacters();
         }
         else
         {
@@ -132,9 +133,10 @@ public class TeamOrderManager : MonoBehaviourPun
                         else
                         {
                             AIturn = true;
-                            if (MultiplayerLobbyManager.owner)
+                            if (MultiplayerLobbyManager.serverHost)
                             {
                                 //Only the owner's AI will do their action!
+                                BattleManager.i.battleLog.LogBattleEffect("DEBUG: AI TURN");
                                 BattleManager.i.DelayAction(3, caster.AITurn);
                             }
                             
@@ -217,7 +219,20 @@ public class TeamOrderManager : MonoBehaviourPun
 
                 case TurnState.WaitingForConfirmation:
                     {
-                        System.Action action = delegate { UICharacterActions.instance.Act(new ActionData(caster, target)); };
+                        System.Action action = delegate
+                        {
+                            UICharacterActions.instance.Act(
+                                new ActionData
+                                (
+                                    caster, 
+                                    target,
+                                    UICharacterActions.instance.action, 
+                                    UICharacterActions.instance.skillToActivate, 
+                                    UICharacterActions.instance.itemToUse
+                                )
+                            );
+                        };
+                        
                         if (AIturn)
                         {
                             //Activate it immediately
@@ -271,27 +286,13 @@ public class TeamOrderManager : MonoBehaviourPun
             return;
         }
     }
-    
 
-    public void                  EndTurn         ()                      
+
+    public void EndTurn()
     {
-        if (MultiplayerBattleManager.multiplayerActive)
-        {
-            EndTurnOnline();
-        }
-        else
-        {
-            EndTurnLocal();
-        }
+        EndTurnLocal();
     }
 
-    private void EndTurnOnline()
-    {
-        Debug.Log("End Turn Online");
-        photonView.RPC(nameof(EndTurnLocal), RpcTarget.All);
-    }
-
-    [PunRPC]
     private void EndTurnLocal()
     {
         Debug.Log("End Turn Local");
@@ -324,6 +325,48 @@ public class TeamOrderManager : MonoBehaviourPun
     public void                  UpdateTeamOrder()
     {
         BuildSPDSystem(allySide, enemySide);
+    }
+
+    public Character GetCharacterFromPosition(Team team, int position)
+    {
+        switch (team)
+        {
+            case Team.Ally:
+                return allySide[position];
+            
+            case Team.Enemy:
+                return enemySide[position];
+        }
+
+        throw new Exception("Couldn't find position in team.");
+    }
+
+    public int GetPositionFromCharacter(Team team, Character character)
+    {
+        List<Character> list;
+        switch (team)
+        {
+            case Team.Ally:
+                list = allySide;
+                break;
+            
+            case Team.Enemy:
+                list = enemySide;
+                break;
+            
+            default:
+                throw new Exception("Couldn't find team");
+        }
+
+        for (int j = 0; j < list.Count; j++)
+        {
+            if (list[j] == character)
+            {
+                return j;
+            }
+        }
+
+        throw new Exception("Couldn't find position");
     }
 }
 

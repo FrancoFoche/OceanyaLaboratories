@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using ExitGames.Client.Photon.StructWrapping;
 using TMPro;
 using UnityEngine.SceneManagement;
 
@@ -100,14 +101,118 @@ public class UIActionConfirmationPopUp : MonoBehaviour
     }
 }
 
+[System.Serializable]
 public struct ActionData
 {
-    public Character caster;
-    public List<Character> targets;
-
-    public ActionData(Character caster, List<Character> targets)
+    public CharacterPos caster;
+    public List<CharacterPos> targets;
+    public CharActions action;
+    public ActivatablePos skill;
+    public ActivatablePos item;
+    
+    public Character GetCaster()
     {
-        this.caster = caster;
-        this.targets = targets;
+        return caster.GetReferencedCharacter();
+    }
+    public List<Character> GetTargets()
+    {
+        List<Character> targetsResult = new List<Character>();
+        
+        foreach (var target in targets)
+        {
+            targetsResult.Add(target.GetReferencedCharacter());
+        }
+
+        return targetsResult;
+    }
+
+    public ActionData(Character caster, List<Character> targets, CharActions action, Skill skill, Item item)
+    {
+        this.caster = new CharacterPos(caster);
+        this.targets = new List<CharacterPos>();
+        this.action = action;
+
+        foreach (var target in targets)
+        {
+            this.targets.Add(new CharacterPos(target));
+        }
+
+        this.item = new ActivatablePos();
+        this.skill = new ActivatablePos();
+        
+        if(action == CharActions.Item)
+        {
+            this.item = new ActivatablePos(caster, ActivatablePos.ActivatableType.Item, item);
+        }
+        else if (action == CharActions.Skill)
+        {
+            this.skill = new ActivatablePos(caster, ActivatablePos.ActivatableType.Skill, skill);
+        }
+    }
+    
+    [System.Serializable]
+    public struct CharacterPos
+    {
+        public Team team;
+        public int position;
+
+        public CharacterPos(Character character)
+        {
+            team = character.team;
+            position = TeamOrderManager.i.GetPositionFromCharacter(character.team, character);
+        }
+        
+        public Character GetReferencedCharacter()
+        {
+            return TeamOrderManager.i.GetCharacterFromPosition(team, position);
+        }
+    }
+
+    [System.Serializable]
+    public struct ActivatablePos
+    {
+        public CharacterPos character;
+        public int position;
+        public ActivatableType type;
+        
+        public enum ActivatableType
+        {
+            Skill, Item
+        }
+
+        public ActivatablePos(Character character, ActivatableType type, Activatables activatable)
+        {
+            this.character = new CharacterPos(character);
+            this.type = type;
+
+            switch (type)
+            {
+                case ActivatableType.Item:
+                    position = character.GetItemPos((Item) activatable);
+                    break;
+                case ActivatableType.Skill:
+                    position = character.GetSkillPos((Skill) activatable);
+                    break;
+                
+                default:
+                    throw new Exception("Couldn't find activatable type");
+            }
+        }
+
+        public Activatables GetReferenced()
+        {
+            Character referencedCharacter = character.GetReferencedCharacter();
+
+            switch (type)
+            {
+                case ActivatableType.Item:
+                    return referencedCharacter.inventory[position].item;
+                    
+                case ActivatableType.Skill:
+                    return referencedCharacter.skillList[position].skill;
+            }
+
+            throw new Exception("Couldn't get referenced activatable");
+        }
     }
 }

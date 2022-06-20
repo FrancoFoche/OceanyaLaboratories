@@ -51,6 +51,12 @@ MonoBehaviour:
   - UpdateUIOnline
   - InitializeLocal
   - PlayEffectLocal
+  - Act
+  - ActRPC
+  - AddClient
+  - RPC_Act
+  - SetServer
+  - SetServerHost
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

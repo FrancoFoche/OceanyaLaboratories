@@ -23,9 +23,9 @@ public class BattleUIList : ToggleList
     {
         generalList.Clear();
 
-        if (MultiplayerBattleManager.multiplayerActive)
+        if (Multiplayer_Server.multiplayerActive)
         {
-            AddAllPlayers(MultiplayerBattleManager.players.ToList());
+            AddAllPlayers(Multiplayer_Server.players.ToList());
         }
         else
         {

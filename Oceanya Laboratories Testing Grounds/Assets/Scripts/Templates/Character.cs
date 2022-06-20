@@ -614,6 +614,32 @@ public class Character
         Debug.LogError($"{name} did not have the item {item.name}");
         return null;
     }
+
+    public int GetItemPos(Item item)
+    {
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            if (inventory[i].item == item)
+            {
+                return i;
+            }
+        }
+
+        throw new Exception("Couldn't find item position");
+    }
+    
+    public int GetSkillPos(Skill skill)
+    {
+        for (int i = 0; i < skillList.Count; i++)
+        {
+            if (skillList[i].skill == skill)
+            {
+                return i;
+            }
+        }
+
+        throw new Exception("Couldn't find skill position");
+    }
     public virtual Stat GetStat(Stats stat)
     {
         return stats.Find(returnStat => returnStat.stat == stat);
@@ -994,7 +1020,7 @@ public class CharacterView
 
     void PlayEffect(EffectAnimator.Effects effect)
     {
-        if (MultiplayerBattleManager.multiplayerActive)
+        if (Multiplayer_Server.multiplayerActive)
         {
             if (_character.isMine)
             {

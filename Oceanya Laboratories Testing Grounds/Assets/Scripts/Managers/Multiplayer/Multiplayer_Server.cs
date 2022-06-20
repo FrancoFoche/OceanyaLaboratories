@@ -6,14 +6,18 @@ using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class MultiplayerBattleManager : MonoBehaviourPunCallbacks
+public class Multiplayer_Server : MonoBehaviourPunCallbacks
 {
     public string pathPrefix;
     public GameObject syncHelper;
     public static bool multiplayerActive = false;
     public static UIMultiplayerLobbyList.Settings[] players;
-    public static MultiplayerBattleSynchronization playerSync;
-
+    
+    public static Multiplayer_Client localPlayer;
+    
+    public static Player serverHost;
+    public static Dictionary<Player, Multiplayer_Client> clients = new Dictionary<Player, Multiplayer_Client>();
+    
     public static List<Character> GetAllyCharacters()
     {
         //List<Character> unorderedList = players.Select(x => (Character)x.character).ToList();
@@ -31,17 +35,17 @@ public class MultiplayerBattleManager : MonoBehaviourPunCallbacks
     {
         if (multiplayerActive)
         {
-            //Instantiate the player sync helper
-            InstantiateItem();
+            //Instantiate the player client
+            InstantiateClientObject();
         }
     }
-
+    
     public void AttachToPlayer()
     {
-        playerSync?.Initialize(players.First(x => x.isMine).character.ID);
+        localPlayer?.Initialize(players.First(x => x.isMine).character.ID);
     }
 
-    void InstantiateItem()
+    void InstantiateClientObject()
     {
         //Instantiates an object online.
         GameObject obj = PhotonNetwork.Instantiate(pathPrefix+syncHelper.name, transform.position, transform.rotation);
@@ -51,17 +55,34 @@ public class MultiplayerBattleManager : MonoBehaviourPunCallbacks
         
         
         //Initialize it (for everyone)
-        MultiplayerBattleSynchronization script = obj.GetComponent<MultiplayerBattleSynchronization>();
-        script.Initialize(player.character.ID);
+        Multiplayer_Client client = obj.GetComponent<Multiplayer_Client>();
+        client.Initialize(player.character.ID);
 
-        playerSync = script;
+        localPlayer = client;
     }
 
-    #region CALLBACKS
+    #region Server Requests
+    public void RequestAct(Player player, ActionData data)
+    {
+        photonView.RPC(nameof(RPC_Act), serverHost, player, data);
+    }
+    #endregion
 
+    #region Local Execution
+    [PunRPC]
+    private void RPC_Act(Player playerRequested, ActionData data)
+    {
+        if (clients.ContainsKey(playerRequested))
+        {
+            UICharacterActions.instance.Act(data);
+        }
+    }
+    #endregion
+    
+    #region CALLBACKS
     public override void OnDisconnected(DisconnectCause cause)
     {
-        playerSync = null;
+        localPlayer = null;
         SceneLoaderManager.instance.LoadMainMenu();
     }
 

@@ -6,7 +6,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 
-public class MultiplayerBattleSynchronization : MonoBehaviourPunCallbacks, IPunObservable
+public class Multiplayer_Client : MonoBehaviourPunCallbacks, IPunObservable
 {
     private List<BattleUI> _enemyUIs;
     private BattleUI _ui;
@@ -34,6 +34,11 @@ public class MultiplayerBattleSynchronization : MonoBehaviourPunCallbacks, IPunO
         _animatorView = ui.gameObject.GetComponentInChildren<PhotonAnimatorView>();
         
         _enemyUIs = BattleManager.i.uiList.GetEnemyUIs();
+
+        if (!Multiplayer_Server.clients.ContainsKey(PhotonNetwork.LocalPlayer))
+        {
+            Multiplayer_Server.clients.Add(PhotonNetwork.LocalPlayer, this);
+        }
     }
 
     void InitializeOnline(int id)
@@ -52,6 +57,4 @@ public class MultiplayerBattleSynchronization : MonoBehaviourPunCallbacks, IPunO
         
         _animatorView.OnPhotonSerializeView(stream, info);
     }
-
-
 }

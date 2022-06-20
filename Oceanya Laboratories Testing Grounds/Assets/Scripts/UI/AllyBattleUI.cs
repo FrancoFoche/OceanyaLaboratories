@@ -110,4 +110,5 @@ public class AllyBattleUI : BattleUI
             levelProgress.progress.SetValue((float)stream.ReceiveNext());
         }
     }
+    
 }

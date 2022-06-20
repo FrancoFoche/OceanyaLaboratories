@@ -33,7 +33,6 @@ public class UICustomDropdown<T> : MonoBehaviour
             .Find(x=> x.Item1 == selectedText)
             .Item2;
     }
-
     public void SelectOption(T option)
     {
         string optionString = options.Find(x => x.Item2.Equals(option)).Item1;

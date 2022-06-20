@@ -110,33 +110,50 @@ public class UICharacterActions : ButtonList, IPunObservable
 
     public void Act(ActionData data)
     {
-        ActLocal(data);
-        
-        /*
-        if (MultiplayerBattleManager.multiplayerActive)
+        if (Multiplayer_Server.multiplayerActive)
         {
             ActOnline(data);
         }
         else
         {
             ActLocal(data);
-        }*/
+        }
     }
     
     public void ActOnline(ActionData data)
     {
         Debug.Log("Act online");
-        view.RPC(nameof(ActLocal), RpcTarget.All, data);
+        view.RPC(nameof(ActRPC), RpcTarget.All, JsonUtility.ToJson(data));
+    }
+
+    public void ActLocal(ActionData data)
+    {
+        ActRPC(JsonUtility.ToJson(data));
     }
     
     /// <summary>
     /// Uses the action that was saved to actually run the code for the action.
     /// </summary>
     [PunRPC]
-    public void ActLocal(ActionData data)
+    public void ActRPC(string serializedData)
     {
-        Character caster = data.caster;
-        List<Character> target = data.targets;
+        ActionData data = JsonUtility.FromJson<ActionData>(serializedData);
+        Character caster = data.GetCaster();
+        List<Character> target = data.GetTargets();
+        CharActions action = data.action;
+        Skill skillToActivate = null;
+        Item itemToUse = null;
+        
+        if (action == CharActions.Item)
+        {
+            itemToUse = (Item)data.item.GetReferenced();
+        }
+        
+        if (action == CharActions.Skill)
+        {
+            skillToActivate = (Skill)data.skill.GetReferenced();
+        }
+
         BattleManager.i.uiList.SetTargettingMode(false);
 
         switch (action)
@@ -324,7 +341,11 @@ public class UICharacterActions : ButtonList, IPunObservable
                 {
                     if(confirmAction == null)
                     {
-                        UIActionConfirmationPopUp.i.Show(delegate { SetAction(CharActions.EndTurn); Act(new ActionData(BattleManager.caster, BattleManager.target)); }, true, "This will skip your turn, are you sure?");
+                        UIActionConfirmationPopUp.i.Show(delegate
+                        {
+                            SetAction(CharActions.EndTurn); 
+                            Act(new ActionData(BattleManager.caster, BattleManager.target, action, skillToActivate, itemToUse));
+                        }, true, "This will skip your turn, are you sure?");
                     }
                     else
                     {

@@ -93,7 +93,7 @@ public class SceneLoaderManager : MonoBehaviour
     }
     public void LoadPlay()
     {
-        LoadScene(Scenes.Combat, MultiplayerBattleManager.multiplayerActive);
+        LoadScene(Scenes.Combat, Multiplayer_Server.multiplayerActive);
     }
     public void LoadShop()
     {

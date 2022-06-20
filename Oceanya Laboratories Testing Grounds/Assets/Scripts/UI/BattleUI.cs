@@ -125,4 +125,5 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             BattleManager.i.UpdateTeamOrder();
         }
     }
+    
 }
