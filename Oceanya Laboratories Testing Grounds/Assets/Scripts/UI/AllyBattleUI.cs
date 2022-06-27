@@ -91,9 +91,11 @@ public class AllyBattleUI : BattleUI
     public override void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         base.OnPhotonSerializeView(stream, info);
-
+        
         if (stream.IsWriting)
         {
+            //if (!MultiplayerLobbyManager.serverHost) return;
+            
             //Write to network
 
             stream.SendNext(levelText.text);

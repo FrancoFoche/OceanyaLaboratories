@@ -12,12 +12,18 @@ public class Multiplayer_Server : MonoBehaviourPunCallbacks
     public GameObject syncHelper;
     public static bool multiplayerActive = false;
     public static UIMultiplayerLobbyList.Settings[] players;
-    
+
+    public static Multiplayer_Server server;
     public static Multiplayer_Client localPlayer;
     
     public static Player serverHost;
     public static Dictionary<Player, Multiplayer_Client> clients = new Dictionary<Player, Multiplayer_Client>();
-    
+
+    private void Awake()
+    {
+        server = this;
+    }
+
     public static List<Character> GetAllyCharacters()
     {
         //List<Character> unorderedList = players.Select(x => (Character)x.character).ToList();
@@ -64,18 +70,15 @@ public class Multiplayer_Server : MonoBehaviourPunCallbacks
     #region Server Requests
     public void RequestAct(Player player, ActionData data)
     {
-        photonView.RPC(nameof(RPC_Act), serverHost, player, data);
+        photonView.RPC(nameof(RPC_Act), serverHost, player, JsonUtility.ToJson(data));
     }
     #endregion
 
     #region Local Execution
     [PunRPC]
-    private void RPC_Act(Player playerRequested, ActionData data)
+    private void RPC_Act(Player playerRequested, string data)
     {
-        if (clients.ContainsKey(playerRequested))
-        {
-            UICharacterActions.instance.Act(data);
-        }
+        UICharacterActions.instance.ActLocal(JsonUtility.FromJson<ActionData>(data));
     }
     #endregion
     

@@ -123,7 +123,8 @@ public class UICharacterActions : ButtonList, IPunObservable
     public void ActOnline(ActionData data)
     {
         Debug.Log("Act online");
-        view.RPC(nameof(ActRPC), RpcTarget.All, JsonUtility.ToJson(data));
+        Multiplayer_Server.server.RequestAct(PhotonNetwork.LocalPlayer, data);
+        //view.RPC(nameof(ActRPC), RpcTarget.All, JsonUtility.ToJson(data));
     }
 
     public void ActLocal(ActionData data)

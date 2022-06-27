@@ -290,9 +290,18 @@ public class TeamOrderManager : MonoBehaviourPun
 
     public void EndTurn()
     {
-        EndTurnLocal();
+        if (Multiplayer_Server.multiplayerActive)
+        {
+            photonView.RPC(nameof(EndTurnLocal), RpcTarget.All);
+        }
+        else
+        {
+            EndTurnLocal();
+        }
+        
     }
 
+    [PunRPC]
     private void EndTurnLocal()
     {
         Debug.Log("End Turn Local");

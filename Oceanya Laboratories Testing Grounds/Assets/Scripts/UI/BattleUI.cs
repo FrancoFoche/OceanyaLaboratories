@@ -90,6 +90,7 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
     {
         if (stream.IsWriting)
         {
+            //if (!MultiplayerLobbyManager.serverHost) return;
             //Write to network
 
             stream.SendNext(nameText.text);
@@ -102,7 +103,7 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             {
                 stream.SendNext(_loadedChar.stats.GetStat(stat).value);
             }
-            
+        
             stream.SendNext(_loadedChar.dead);
             #endregion
         }
@@ -114,16 +115,17 @@ public class BattleUI : MonoBehaviour, ILoader<Character>, IPunObservable
             hpText.text = (string)stream.ReceiveNext();
             statusEffectText.text = (string)stream.ReceiveNext();
             hpSlider.value = (float)stream.ReceiveNext();
-            
+        
             foreach (Stats stat in RuleManager.StatHelper)
             {
                 _loadedChar.stats.GetStat(stat).value = (int)stream.ReceiveNext();
             }
-            
+        
             _loadedChar.dead = (bool)stream.ReceiveNext();
             UpdateUI();
             BattleManager.i.UpdateTeamOrder();
         }
+        
     }
     
 }
